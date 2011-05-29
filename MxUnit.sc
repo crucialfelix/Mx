@@ -42,7 +42,7 @@ MxUnit  {
 			patch = Patch(p,inps );
 			connectors = patch.inputs.collect({ arg inp,i; 
 				if(inp.isKindOf(MxJack),{
-					MxConnector(inp)
+					MxAdapter(inp)
 				},{
 					// many things it could be
 					nil

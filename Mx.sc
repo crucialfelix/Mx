@@ -1,92 +1,104 @@
 
 
-Mx : AbstractPlayer {
+Mx : AbstractPlayerProxy {
 	
 	var <channels,<cables;
-
-	var allocator,unitGroups,busses;
+	var inlets,outlets;
 	
-	*new { arg channels, cables;
-		^super.new.init(channels,cables)
+	var allocator,unitGroups,busses;
+	var master;
+	var removing,adding;
+	
+	*new { arg channels, cables,inlets,outlets;
+		^super.new.init(channels,cables,inlets,outlets)
 	}
-	init { arg chans,cabs;
+	init { arg chans,cabs,ins,outs;
 		channels = chans ?? {Array.new(8)};
 		cables = cabs ? [];
-		allocator = NodeIDAllocator(0,1);
+		allocator = NodeIDAllocator(0,0);
+		inlets = ins ? [];
+		outlets = outs ?? {
+			this.addOutput;
+			outlets
+		}
 	}
 	nextID {
 		^allocator.alloc
 	}
 	
-	addChannel { arg ... sources;
+	addChannel { arg ... objects;
+		^this.insertChannel(channels.size,objects)
+	}
+	insertChannel { arg index, objects;
 		var chan;
-		chan = MxChannel(sources);
-		channels = channels.add(chan);
-		// am I playing ?
+		objects = (objects ? []).collect(MxUnit(_,this));
+		chan = MxChannel(this.nextID,master.id, objects);
+		chan.pending = true;
+		channels = channels.insert(index,chan);
+		adding = adding.add(chan);
 		^chan
 	}
-	// insertChannel
-	// removeChannel
+	removeChannel { arg index;
+		var chan;
+		chan = channels.removeAt(index);
+		chan.pending = true;
+		removing = removing.add( chan )
+	}
 	
-	/*
-	put { arg point,source;
-		var unit;
-		unit = MxUnit.make(source);
-		if(units.at(point).notNil,{
-			// inherit any cables you can
-			units.at(point).remove;
+	addOutput { arg rate='audio',numChannels=2;
+		// add audio output
+		var chan,out;
+		chan = MxChannel(this.nextID,nil,[]);
+		if(master.isNil,{
+			master = source = chan;
 		});
-		units[point] = unit;
+		out = MxOutlet(this.nextID,"out",outlets.size,'audio',MxPlaysOnBus.new);
+		outlets = outlets.add(out);
+		^chan
 	}
-	at { arg point;
-		^units[point].source
+	at { arg chan,index;
+		^channels.at(chan).at(index)
 	}
-	colsDo { arg func;
-		var col,ci;
-		col = nil;
-		units.do({ arg un;
-			if(ci != un.point.x,{
-				if(col.notNil,{
-					func.value(col,ci);
-				});
-				col = [];
-				ci = un.point.x;
-			});
-			col = col.add( un );
+	put { arg chan,index,object;
+		var channel,unit;
+		channel = channels[chan];
+		if(channel.at(index).notNil,{
+			removing = removing.add( channel.removeAt(index) );
 		});
-		if(col.notNil,{
-			func.value(col,ci);
-		});
+		unit = MxUnit(object,this);
+		adding = adding.add(unit);
+		channel.put(unit);
 	}
-	*/
 	
 	// outletID, inletID		
-	connect { arg outlet,inlet,mapping=nil,bundle=nil;
-		var oldcable,cable,key,doitnow=false;
-		bundle = this.makeBundle(bundle);
+	connect { arg outlet,inlet,mapping=nil;
+		var oldcable,cable,key;
 		key = outlet -> inlet;
 		// remove any that goes to this inlet
 		cables.keysValuesDo({ arg k,oldcable;
 			if(k.value === inlet,{
 				if(oldcable.active,{
-					this.disconnectCable(oldcable,bundle);
+					this.disconnectCable(oldcable);
 				});
 			})
 		});
 		cable = MxCable( outlet, inlet, mapping );
+		cable.pending = true;
 		// play to head of inlet.unit
 		// cable should not create a bus 
-		cable.prepareToBundle(inlet.unit.group,bundle,bus:this.busForUnit(inlet.unit));
-		cable.spawnToBundle(bundle);
+		adding = adding.add( cable );
+		// cable.prepareToBundle(inlet.unit.group,bundle,bus:this.busForUnit(inlet.unit));
+		// cable.spawnToBundle(bundle);
 		cables[key] = cable;
-		bundle.addFunction({ cable.pending = false });
+		// bundle.addFunction({ cable.pending = false });
 	}
-	disconnectCable { arg cable,bundle;
+	disconnectCable { arg cable;
 		var key;
 		key = cable.outlet -> cable.inlet;
-		cable.freeToBundle(this.makeBundle(bundle));
+		removing = removing.add( cable );
 		cable.pending = true;
-		bundle.addFuction({ if(cables[key] === cable,{ cables.removeAt(key) }) })
+		cables.removeAt(key);
+		// bundle.addFuction({ if(cables[key] === cable,{ cables.removeAt(key) }) })
 	}
 	autoCables {
 		// patch all audio units to the mixer at bottom of channel
@@ -98,7 +110,13 @@ Mx : AbstractPlayer {
 			^nil
 		})
 	}
+	update {
+		var b;
+		b = 	MixedBundle.new;
+		// sort removing
+		// removing.do({ arg r;
 		
+	}
 	/*
 	loadDefFileToBundle { arg bundle,server;
 		this.units.keysValuesDo({ |p,unit|
@@ -125,17 +143,9 @@ Mx : AbstractPlayer {
 			 });
 			 unit.prepareToBundle
 	*/
-	makeBundle { arg bundle;
+	/*makeBundle { arg bundle;
 		^bundle ?? {if(this.isPlaying,{MixedBundle.new},{EagerBundle.new})}
-	}
-}
-
-
-MxChannel {
-	
-	var <units,<>level=0,<>mute=false,<>solo=false,<>mixToMaster=true;
-	
-	
+	}*/
 }
 
 
