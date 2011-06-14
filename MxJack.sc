@@ -55,8 +55,8 @@ MxArJack : MxKrJack {
 	var <value, <>numChannels=2;
 	var patchOut;
 	
-	*new { arg numChannels=2;
-		^super.new.numChannels_(numChannels)
+	*new { arg numChannels=2,bus=126;
+		^super.new.numChannels_(numChannels).value_(bus)
 	}
 	bus_ { arg v;
 		if(v.isSimpleNumber,{

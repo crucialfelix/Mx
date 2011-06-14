@@ -28,9 +28,7 @@ MxCable {
 					// what if a connection is in the same bundle ?
 					cable.inlet.adapter.value = 127
 				})
-			}));
-		
-		
+			}));		
 	}
 	strategy {
 		^strategies[outlet.adapter.class.name -> inlet.adapter.class.name] ?? {
@@ -79,7 +77,7 @@ MxArCableEndpoint : AbstractPlayerProxy {
 
 	// mixes one or more busses onto a target bus
 
-	var <>cables;
+	//var <>cables;
 
 //	*new { arg numChannels=2;
 //		^super.new(\audio,numChannels).makeSource

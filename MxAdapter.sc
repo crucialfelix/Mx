@@ -19,8 +19,8 @@ AbsMxFuncAdapter : AbsMxAdapter {
 	
 	var <>func;
 
-	*new { arg getBusFunc;
-		^super.new.func_(getBusFunc)
+	*new { arg thingGetter;
+		^super.new.func_(thingGetter)
 	}	
 	value { ^func.value }	
 }

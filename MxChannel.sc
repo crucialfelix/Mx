@@ -7,10 +7,11 @@ MxChannel : AbstractPlayerProxy {
 	var <id, <>to=nil, <db=0, <mute=false, <solo=false;
 	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12;
 	var <>units;
+	
+	var <numChannels=2,<>pending=false;
 
-	var  <>pending=false;
-
-	var <numChannels=2,busJack, <>inlet,dbJack;
+	var busJack, <>inlet,dbJack;
+	var <>myUnit,<>inletMixer;
 
 	*new { arg id, to, units, db=0.0, mute=false, solo=false,
 			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0;
@@ -28,6 +29,7 @@ MxChannel : AbstractPlayerProxy {
 		breakOnBadValues = argbreakOnBadValues;
 		breakOnDbOver = argbreakOnDbOver;
 		numChannels = units.maxValue(_.numChannels) ? 2;
+		// change these to MxKrJack
 		busJack = NumberEditor(126,StaticIntegerSpec(1, 128, 1, ""));
 		dbJack = KrNumberEditor(db,\db);
 		
