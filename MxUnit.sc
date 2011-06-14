@@ -2,70 +2,94 @@
 
 MxUnit  { 
 	
-	classvar registery;
+	classvar registery,<protoHandler;
 
-	var <source,<inlets,<outlets,<relocator;
+	var <handlers,<inlets,<outlets;
 	var <>point,<>group;	
 	
-	*new { arg source,inlets,outlets,relocator;
-		^super.newCopyArgs(source,inlets,outlets,relocator)
-	}
-
 	*make { arg object,mx;
 		object.class.superclassesDo({ arg class;
-			var match;
+			var match,path;
 			match = registery[class.name];
+			if(match.isNil,{
+				path = PathName(MxUnit.class.filenameSymbol.asString).parentPath +/+ "drivers" +/+ class.name.asString ++ ".scd";
+				if(File.exists(path),{
+					path.load;
+					match = registery[class.name]
+				});
+			});				
 			if(match.notNil,{
 				^match.value(object,mx)
 			})
 		});
 		Error("No MxUnit maker function registered for " + object.class).throw;
-	}			
+	}
+	*new { arg handlers,inlets,outlets;
+		var h;
+		h = protoHandler.copy;
+		h.putAll(handlers);
+		^super.newCopyArgs(h,inlets,outlets).init
+	}
+	init {
+		handlers.use { ~init.value() }
+	}
+
 	*register { arg classname,unitMaker;
 		registery.put(classname.asSymbol, unitMaker)
 	}
-	prepareToBundle { arg group,bundle;
-		source.prepareToBundle(group,bundle)
+
+	// delegate to the handler
+	prepareToBundle { arg agroup, bundle, private, bus;
+		// create own bus and group here if it is audio/control
+		// but the source object may already create a suitable group.
+		// group is needed to make sure patch points can be reliably inserted
+		^handlers.use { ~prepareToBundle.value(agroup,bundle,true,bus) }
 	}
 	spawnToBundle { arg bundle;
-		source.spawnToBundle(bundle)
+		^handlers.use { ~spawnToBundle.value(bundle) }
 	}
 	stopToBundle { arg bundle;
-		source.stopToBundle(bundle)
+		^handlers.use { ~stopToBundle.value(bundle) }
 	}
+	play { arg group,atTime,bus;
+		^handlers.use { ~play.value(group,atTime,bus) }
+	}
+	stop { arg atTime,andFreeResources=true;
+		^handlers.use { ~stop.value(atTime,andFreeResources) }
+	}
+	// relocate  toBeat, atTime
+	// gui
+	// timeGui
+
 	*initClass {
 		registery = IdentityDictionary.new;
 		
-		this.register(\Instr,{ arg p,mx;
-			var inlets,outlets,patch,inps,connectors,conn,relocator;
-			inps = p.specs.collect({ arg spec; MxJack.forSpec(spec) });
-			patch = Patch(p,inps );
-			connectors = patch.inputs.collect({ arg inp,i; 
-				if(inp.isKindOf(MxJack),{
-					MxAdapter(inp)
-				},{
-					// many things it could be
-					nil
-				})
-			});
-			inlets = p.specs.collect({ arg spec,i; MxInlet(mx.nextID,p.argNameAt(i),i,spec,connectors[i] ) });
-			if(p.outSpec.isKindOf(AudioSpec) or: {p.outSpec.isKindOf(ControlSpec)},{
-				conn = MxPlaysOnBus({patch.bus});
-			});
-			outlets = [ MxOutlet(mx.nextID, (p.outSpec.findKey ? p.outSpec.class).asString, 0, p.outSpec, conn ) ];
-			// todo relocator
-			MxUnit(p,inlets,outlets,relocator);
-		});
+		protoHandler = (
+			init: {}, // create any resources you need
+
+			prepareToBundle:  { arg agroup, bundle, private, bus; },
+			spawnToBundle: { arg bundle; },
+			stopToBundle: { arg bundle; },
+
+			play: { arg group, atTime, bus;},
+			stop: { arg atTime,andFreeResources = true;}//,
+
+			// crop
+			// relocate: { arg toBeat, atTime; }
+			// gui
+			// timeGui
+			// zoomTimeGui
+		);
 	}
 }
 
 
 MxInlet {
 	
-	var <>uid,<>name,<>index,<>spec,<>connector;
+	var <>uid,<>name,<>index,<>spec,<>adapter;
 	
-	*new { arg uid,name,index,spec,connector;
-		^super.newCopyArgs(uid,name,index,spec,connector)
+	*new { arg uid,name,index,spec,adapter;
+		^super.newCopyArgs(uid,name,index,spec,adapter)
 	}
 		
 	printOn { arg stream;
