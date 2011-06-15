@@ -32,7 +32,7 @@ MxCable {
 	}
 	strategy {
 		^strategies[outlet.adapter.class.name -> inlet.adapter.class.name] ?? {
-			Error("No MXCable connection strategy found for" + outlet.adapter + "=>" + inlet.adapter ).throw
+			Error("No MxCableStrategy found for" + outlet.adapter + "=>" + inlet.adapter ).throw
 		}
 	}
 	spawnToBundle { arg bundle;
@@ -41,14 +41,11 @@ MxCable {
 	stopToBundle { arg bundle;
 		this.strategy.disconnect(this,bundle)
 	}
-	*spawnEndpointsToBundle { arg bundle,pool;
-		// pool[ inletID ] = [outlet, outlet, ...]	
-		
-	}	
 }
 
 
 MxAutoCable : MxCable {}
+
 
 MxCableStrategy {
 	
@@ -73,30 +70,42 @@ MxCableMapping {
 }
 
 
-MxArCableEndpoint : AbstractPlayerProxy {
+MxArCableEndpoint : PlayerSocket {
 
 	// mixes one or more busses onto a target bus
-
-	//var <>cables;
-
-//	*new { arg numChannels=2;
-//		^super.new(\audio,numChannels).makeSource
-//	}
-//	prepareToBundle { arg agroup, bundle, private, bus;
-//		
-//	makeSource {
-//		source = 
+	var patch,<>busses,<>bussesNumChannels;
+	
+	*new { arg numBusses,numChannels=2;
+		^super.new(\audio,numChannels).maceinit(numBusses)
+	}
+	maceinit { arg numBusses;
+		busses = Array.fill(numBusses,{128-numChannels}};
+		bussesNumChannels Array.fill(numBusses,numChannels);
+		this.makePatch;
+	}
+	makePatch {
+		patch = Patch(MxArCableEndpoint.instr,[
+						this.numChannels,
+						busses,
+						bussesNumChannels
+					])
+		})
+	}						
 		
-	*instr { arg numChannels=2;
-			^Instr("MxArCableJackpoint" + numChannels,{ arg busses,bussesNumChannels;
-						var in;
-						in = Mix.ar( busses.collect({ arg b,i; NumChannels.ar(In.ar(b,numChannels),bussesNumChannels[i]) }) );
-						NumChannels.ar(in,numChannels)
-					},[
-				    		StaticIntegerSpec(1,128),
-						ArraySpec(ControlSpec(0,4096,'linear',1,0,"Bus"),nil),
-						ArraySpec(StaticIntegerSpec(1,128),nil),
-					],AudioSpec(numChannels))
+	*instr { 
+		^Instr("MxArCableJackpoint",{ arg numChannels, busses,bussesNumChannels;
+					var in;
+					if(busses.size,{
+						in = Mix.ar( busses.collect { arg b,i; NumChannels.ar(In.ar(b,bussesNumChannels[i]),numChannels) } );
+					},{
+						in = Silent.ar(numChannels)
+					});
+					in
+				},[
+			    		StaticIntegerSpec(1,128),
+					ArraySpec(ControlSpec(0,4096,'linear',1,0,"Bus"),nil),
+					ArraySpec(StaticIntegerSpec(1,128),nil),
+				],AudioSpec(nil))
 	}
 }
 		

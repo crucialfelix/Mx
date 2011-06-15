@@ -159,12 +159,14 @@ Mx : AbstractPlayerProxy {
 			};
 			if(newautos.size > 0,{
 				if(chan.inletMixer.isNil,{
-					chan.inletMixer = MxUnit.make( MxArCableEndpoint.new, this );
+					chan.inletMixer = MxUnit.make( MxArCableEndpoint(newautos.size,newautos.maxValue(_.numChannels)), this );
+					// but its will spawn to listen to nothing
 					chan.inletMixer.spawnToBundle(bundle);
 				});
 				mixers.remove(chan.inletMixer);
 				newautos.do { arg unit;
 					var ac;
+					// connect everything to the first inlet which is a recieving api point
 					ac = MxAutoCable( unit.outlets.first, chan.inletMixer.inlets.first );
 					autoCables = autoCables.add( ac );
 					ac.spawnToBundle(bundle);
