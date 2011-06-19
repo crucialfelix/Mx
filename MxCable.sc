@@ -5,30 +5,13 @@ MxCable {
 	classvar strategies;
 	
 	var <>outlet,<>inlet,<>mapping,<>active=true,<>pending=false;
+	var <state;
 	
 	*new { arg outlet,inlet,mapping;
-		^super.newCopyArgs(outlet,inlet,mapping)
+		^super.newCopyArgs(outlet,inlet,mapping).init
 	}
-	*register { arg outAdapterClassName,inAdapterClassName, strategy;
-		strategies[ outAdapterClassName -> inAdapterClassName] = strategy
-	}
-	*initClass {
-		strategies = Dictionary.new;
-
-		this.register(\MxPlaysOnBus,\MxHasJack,
-			MxCableStrategy({ arg cable,bundle;
-				bundle.addFunction({
-					var bus;
-					bus = cable.outlet.adapter.value;
-					cable.inlet.adapter.value.value = bus;
-				})
-			},{ arg cable,bundle;
-				bundle.addFunction({
-					// um, listen to a dead channel ?
-					// what if a connection is in the same bundle ?
-					cable.inlet.adapter.value = 127
-				})
-			}));		
+	init {
+		state = ()
 	}
 	strategy {
 		^strategies[outlet.adapter.class.name -> inlet.adapter.class.name] ?? {
@@ -40,6 +23,65 @@ MxCable {
 	}
 	stopToBundle { arg bundle;
 		this.strategy.disconnect(this,bundle)
+	}
+
+	*register { arg outAdapterClassName,inAdapterClassName, strategy;
+		strategies[ outAdapterClassName -> inAdapterClassName] = strategy
+	}
+	*initClass {
+		strategies = Dictionary.new;
+
+		Instr("MxCable.ar",{ arg inBus=126,outBus=126,inNumChannels=2,outNumChannels=2;
+			Out.ar(outBus,
+				NumChannels.ar( In.ar(inBus,inNumChannels), outNumChannels )
+			)
+		},[
+			ControlSpec(0,127),
+			ControlSpec(0,127),
+			StaticIntegerSpec(1,128),
+			StaticIntegerSpec(1,128)
+		],\audio);
+		
+		this.register(\MxPlaysOnBus,\MxHasJack,
+			MxCableStrategy({ arg cable,bundle;
+				bundle.addFunction({
+					var bus;
+					bus = cable.outlet.adapter.value;
+					cable.inlet.adapter.value.value = bus;
+				})
+			},{ arg cable,bundle;
+				bundle.addFunction({
+					// um, listen to a dead channel ?
+					// what if a connection is in the same bundle ?
+					cable.inlet.adapter.value.value = 127
+				})
+			}));
+			
+		this.register(\MxPlaysOnBus,\MxListensToBus,
+			// depends on being on the same server
+			MxCableStrategy({ arg cable,bundle;
+				cable.state.use {
+					var inbus,outbus,def,group;
+					outbus = cable.inlet.adapter.value;
+					inbus = cable.outlet.adapter.value;
+
+					// cache these
+					def = Instr("MxCable.ar").asSynthDef([
+								inbus.index,
+								inbus.numChannels,
+								outbus.numChannels
+							 ]);
+					InstrSynthDef.loadDefFileToBundle(def.insp,bundle,inbus.server);
+							
+					group = cable.inlet.adapter.getGroup.value;
+					~synth = Synth.basicNew(def.name,group.server);
+					bundle.add( ~synth.addToHeadMsg(group,[inbus.index,outbus.index]) );
+				}
+			},{ arg cable,bundle;
+				var synth;
+				synth = cable.state.removeAt('synth');
+				bundle.add( synth.freeMsg )
+			}));						
 	}
 }
 
@@ -69,44 +111,4 @@ MxCableMapping {
 	
 }
 
-
-MxArCableEndpoint : PlayerSocket {
-
-	// mixes one or more busses onto a target bus
-	var patch,<>busses,<>bussesNumChannels;
-	
-	*new { arg numBusses,numChannels=2;
-		^super.new(\audio,numChannels).maceinit(numBusses)
-	}
-	maceinit { arg numBusses;
-		busses = Array.fill(numBusses,{128-numChannels}};
-		bussesNumChannels Array.fill(numBusses,numChannels);
-		this.makePatch;
-	}
-	makePatch {
-		patch = Patch(MxArCableEndpoint.instr,[
-						this.numChannels,
-						busses,
-						bussesNumChannels
-					])
-		})
-	}						
-		
-	*instr { 
-		^Instr("MxArCableJackpoint",{ arg numChannels, busses,bussesNumChannels;
-					var in;
-					if(busses.size,{
-						in = Mix.ar( busses.collect { arg b,i; NumChannels.ar(In.ar(b,bussesNumChannels[i]),numChannels) } );
-					},{
-						in = Silent.ar(numChannels)
-					});
-					in
-				},[
-			    		StaticIntegerSpec(1,128),
-					ArraySpec(ControlSpec(0,4096,'linear',1,0,"Bus"),nil),
-					ArraySpec(StaticIntegerSpec(1,128),nil),
-				],AudioSpec(nil))
-	}
-}
-		
 

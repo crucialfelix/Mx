@@ -14,14 +14,11 @@ MxUnit.register('MxChannel',{ arg chan,mx;
 
 	var inlets,outlets,patch,inps,connectors,conn,handlers;
 
-	inps = [MxArJack(chan.numChannels)];
-	inlets = [ MxInlet(mx.nextID, "MxChannelIn", 0, MxHasJack({inps[0]})) ];
-
-	conn = MxPlaysOnBus({chan.source.bus});
-	outlets = [ MxOutlet(mx.nextID, "MxChannelOut", 0, AudioSpec(chan.numChannels), conn ) ];
+	inlets  = [ MxInlet(mx.nextID, "MxChannelIn", 0, AudioSpec(chan.numChannels), MxListensToBus({chan.source.bus},{chan.server},{chan.mixGroup})) ];
+	outlets = [ MxOutlet(mx.nextID, "MxChannelOut", 0, AudioSpec(chan.numChannels),MxPlaysOnBus({chan.source.bus}) ) ];
 
 	// doesn't play as a unit
-	// just does its patching as a unit
+	// we just wanted the inlets and outlets for patching
 	handlers = (
 		init: {
 			~source = chan

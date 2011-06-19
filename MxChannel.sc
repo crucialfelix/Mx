@@ -10,8 +10,7 @@ MxChannel : AbstractPlayerProxy {
 	
 	var <numChannels=2,<>pending=false;
 
-	var busJack, <>inlet,dbJack;
-	var <>myUnit,<>inletMixer;
+	var <bus,busJack,dbJack,<>myUnit,unitGroups,<mixGroup;
 
 	*new { arg id, to, units, db=0.0, mute=false, solo=false,
 			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0;
@@ -32,7 +31,6 @@ MxChannel : AbstractPlayerProxy {
 		// change these to MxKrJack
 		busJack = NumberEditor(126,StaticIntegerSpec(1, 128, 1, ""));
 		dbJack = KrNumberEditor(db,\db);
-		
 		this.makeSource;
 	}
 	at { arg index;
@@ -52,7 +50,7 @@ MxChannel : AbstractPlayerProxy {
 					limit ? 0,
 					breakOnBadValues.binaryValue,
 					breakOnDbOver
-				])
+				]);
 	}
 	children {
 		^super.children ++ units
@@ -61,22 +59,44 @@ MxChannel : AbstractPlayerProxy {
 		// if has a to-destination then play on a private bus
 		// and the Mx will cable it to that destination
 		// else play on public/main out => this is a master channel
-		group = Group(agroup,\addToTail);
-		units.do { arg unit;
-			unit.prepareToBundle(group,bundle,true)
+		group = Group.basicNew(agroup.server);
+		bundle.add( group.addToTailMsg(agroup) );
+		
+		unitGroups = units.collect { arg u; 
+			var g;
+			g = Group.basicNew(this.server);
+			bundle.add( g.addToTailMsg(group) );
+			g
 		};
-		^super.prepareToBundle(group,bundle,to.notNil,bus)
+		mixGroup = Group.basicNew(this.server);
+		bundle.add( mixGroup.addToTailMsg(group) );
+		// prepares the children
+		source.prepareToBundle(mixGroup,bundle,to.notNil,bus);
+		units.do { arg unit,i;
+			unit.prepareToBundle(unitGroups[i],bundle,true)
+		};
 	}
-	
+	prepareChildrenToBundle { arg bundle;}	
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
-	}		
+	}	
 	spawnToBundle { arg bundle;
 		units.do(_.spawnToBundle(bundle));
 		super.spawnToBundle(bundle);
 	}
-	db_ { arg d; 
-		db = d; 
+	freeToBundle { arg bundle;
+		super.freeToBundle(bundle);
+		
+		bundle.add( mixGroup.freeMsg );
+		unitGroups.do { arg u;
+			bundle.add( u.freeMsg );
+		};
+		bundle.addFunction({
+			mixGroup = unitGroups = nil;
+		});
+	}
+	db_ { arg d;
+		db = d;
 		dbJack.value = db;
 		dbJack.changed;
 	}
@@ -105,7 +125,7 @@ MxChannel : AbstractPlayerProxy {
 		// or create it on the fly so the on trigs can go
 		// could also pass those in
 		^cInstr ?? {
-			cInstr = Instr("MxChannel.channelInstr",{ arg numChannels=2,inBus=126,
+			cInstr = Instr("MxChannel.channelStrip",{ arg numChannels=2,inBus=126,
 									db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12;
 						var ok,threshold,c,k,in;
 						in = In.ar(inBus,numChannels);

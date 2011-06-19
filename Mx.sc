@@ -22,7 +22,6 @@ Mx : AbstractPlayerProxy {
 			outlets
 		};
 		register = IdentityDictionary.new;
-		source = MxChannel(this.nextID,nil,[]);
 		autoCables = [];
 	}
 	nextID {
@@ -63,10 +62,11 @@ Mx : AbstractPlayerProxy {
 		// add audio output
 		var chan,out;
 		chan = MxChannel(this,nil,[]);
-		if(master.isNil,{
+		if(master.isNil,{ // first added channel becomes the master
 			master = source = chan;
 		});
-		out = MxOutlet(this.nextID,"out",outlets.size,'audio',MxPlaysOnBus.new);
+		chan.myUnit = MxUnit.make(chan,this);
+		out = MxOutlet(this.nextID,"out",outlets.size,'audio',MxPlaysOnBus({chan.bus}));
 		outlets = outlets.add(out);
 		^chan
 	}
@@ -125,19 +125,35 @@ Mx : AbstractPlayerProxy {
 		});
 		cables.remove(cable);
 	}
-	
-	autoCables { arg bundle;
-		/* needs to be run as an update:
-			remove/create any to get to current patch state */
-		var patched,autoCabled,mixers;
-		
-		// current mixers
-		mixers = [];
-		channels.do { arg chan;
-			if(chan.inletMixer.notNil,{
-				mixers.add(chan.inletMixer)
+
+	children {
+		^super.children ++ channels
+	}
+	loadDefFileToBundle { arg b,server;
+		this.children.do(_.loadDefFileToBundle(b,server))
+	}		
+	spawnToBundle { arg bundle;
+		channels.do(_.spawnToBundle(bundle));
+		super.spawnToBundle(bundle);
+		this.spawnCablesToBundle(bundle);
+	}
+	prepareChildrenToBundle { arg bundle;
+		channels.do { arg c;
+			if(c !== master,{
+				c.prepareToBundle(group,bundle,true)
 			})
 		};
+		master.prepareToBundle(group,bundle,false,this.bus);
+	}
+
+	spawnCablesToBundle { arg bundle;
+		cables.do(_.spawnToBundle(bundle));
+		this.autoCables(bundle);
+	}	
+	autoCables { arg bundle;
+		/* updates autoCables, adding and removing to get to current patch state */
+		var patched,autoCabled;
+		
 		// already explicitly cabled
 		patched = [];
 		cables.do { arg c;
@@ -149,7 +165,7 @@ Mx : AbstractPlayerProxy {
 			autoCabled = autoCabled.add( c.outlet.unit ) 
 		};
 		channels.do { arg chan;
-			var newautos;
+			var newautos,chanOut;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
 				if(patched.includes(unit).not and: {autoCabled.includes(unit).not} ,{
@@ -158,33 +174,37 @@ Mx : AbstractPlayerProxy {
 				});
 			};
 			if(newautos.size > 0,{
-				if(chan.inletMixer.isNil,{
-					chan.inletMixer = MxUnit.make( MxArCableEndpoint(newautos.size,newautos.maxValue(_.numChannels)), this );
-					// but its will spawn to listen to nothing
-					chan.inletMixer.spawnToBundle(bundle);
-				});
-				mixers.remove(chan.inletMixer);
 				newautos.do { arg unit;
 					var ac;
 					// connect everything to the first inlet which is a recieving api point
-					ac = MxAutoCable( unit.outlets.first, chan.inletMixer.inlets.first );
+					ac = MxAutoCable( unit.outlets.first, chan.myUnit.inlets.first );
 					autoCables = autoCables.add( ac );
 					ac.spawnToBundle(bundle);
 				};
 			});
-			// TODO patch channel to master
+			if(chan !== master,{ // patch channel to master
+				if( patched.includes(chan.myUnit).not and: {autoCabled.includes(chan.myUnit).not},{ 
+					{
+						var ac;
+						ac = MxAutoCable( chan.myUnit.outlets.first, master.myUnit.inlets.first );
+						autoCables = autoCables.add( ac );
+						ac.spawnToBundle(bundle);
+						
+						autoCabled.remove( chan.myUnit );
+					}.value;
+				});
+			});					
 			
+			// MxChannels are patched to master with explicit cables when created
 		};
 		// these are left from a previous patch-state and can be removed now
 		autoCabled.do { arg ac;
 			ac.stopToBundle(bundle)
 		};
-		mixers.do { arg mix;
-			mix.freeToBundle(bundle);
-		};
 	}
 
-	update { arg bundle;
+	// enact all changes on the server after things have been added/removed dis/connected
+	update { arg bundle=nil;
 		var b;
 		b = bundle ?? { MixedBundle.new };
 		removing.do { arg r; r.freeToBundle(b) };
@@ -198,31 +218,6 @@ Mx : AbstractPlayerProxy {
 		});
 		^b
 	}
-	
-	children {
-		^super.children ++ channels
-	}
-	loadDefFileToBundle { arg b,server;
-		this.children.do(_.loadDefFileToBundle(b,server))
-	}		
-	spawnToBundle { arg bundle;
-		channels.do(_.spawnToBundle(bundle));
-		super.spawnToBundle(bundle);
-		this.spawnCablesToBundle(bundle);
-	}
-	spawnCablesToBundle { arg bundle;
-		var pool;
-		pool = Dictionary.new;
-		cables.do(_.spawnToBundle(bundle),pool);
-		this.autoCables(bundle);
-		
-		// pool[inlet] = [outlet,outlet,...]
-		// spawn the mixers
-	}
-
-	/*makeBundle { arg bundle;
-		^bundle ?? {if(this.isPlaying,{MixedBundle.new},{EagerBundle.new})}
-	}*/
 }
 
 

@@ -10,6 +10,8 @@ the strategy objects contain the connection implementations that connect one ada
 
 eg. to fetch the Bus, get/set value, set action etc.
 
+they do not hold any state or reference to specific objects
+
 */
 
 
@@ -17,10 +19,10 @@ AbsMxAdapter {}
 
 AbsMxFuncAdapter : AbsMxAdapter {
 	
-	var <>func;
+	var <>func,<>getServer,<>getGroup;
 
-	*new { arg thingGetter;
-		^super.new.func_(thingGetter)
+	*new { arg thingGetter,getServer,getGroup;
+		^super.new.func_(thingGetter).getServer_(getServer).getGroup_(getGroup)
 	}	
 	value { ^func.value }	
 }
@@ -30,4 +32,5 @@ MxHasBus : AbsMxFuncAdapter {}
 MxHasJack : AbsMxFuncAdapter {}
 
 MxPlaysOnBus : AbsMxFuncAdapter {}
+MxListensToBus : MxPlaysOnBus {}
 
