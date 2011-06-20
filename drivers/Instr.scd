@@ -34,6 +34,12 @@ MxUnit.register('Instr',{ arg instr,mx;
 		stopToBundle: { arg bundle; 
 			~source.stopToBundle(bundle)
 			},
+		freeToBundle: { arg bundle; 
+			~source.freeToBundle(bundle)
+			},
+		numChannels: { 
+			~source.numChannels
+			},
 
 		play: { arg group, atTime, bus;
 			~source.play(group,atTime,bus) 

@@ -14,7 +14,7 @@ MxCable {
 		state = ()
 	}
 	strategy {
-		^strategies[outlet.adapter.class.name -> inlet.adapter.class.name] ?? {
+		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ] ?? {
 			Error("No MxCableStrategy found for" + outlet.adapter + "=>" + inlet.adapter ).throw
 		}
 	}
@@ -26,12 +26,12 @@ MxCable {
 	}
 
 	*register { arg outAdapterClassName,inAdapterClassName, strategy;
-		strategies[ outAdapterClassName -> inAdapterClassName] = strategy
+		strategies[ [outAdapterClassName, inAdapterClassName] ] = strategy;
 	}
 	*initClass {
 		strategies = Dictionary.new;
 
-		Instr("MxCable.ar",{ arg inBus=126,outBus=126,inNumChannels=2,outNumChannels=2;
+		Instr("MxCable.cableAr",{ arg inBus=126,outBus=126,inNumChannels=2,outNumChannels=2;
 			Out.ar(outBus,
 				NumChannels.ar( In.ar(inBus,inNumChannels), outNumChannels )
 			)
@@ -44,9 +44,13 @@ MxCable {
 		
 		this.register(\MxPlaysOnBus,\MxHasJack,
 			MxCableStrategy({ arg cable,bundle;
+				// need it as a message in same bundle
+				
 				bundle.addFunction({
-					var bus;
+					var bus, jack;
 					bus = cable.outlet.adapter.value;
+					jack = cable.inlet.adapter.value;
+					MxArJack
 					cable.inlet.adapter.value.value = bus;
 				})
 			},{ arg cable,bundle;
@@ -66,12 +70,13 @@ MxCable {
 					inbus = cable.outlet.adapter.value;
 
 					// cache these
-					def = Instr("MxCable.ar").asSynthDef([
+					def = Instr("MxCable.cableAr").asSynthDef([
 								inbus.index,
+								outbus.index,
 								inbus.numChannels,
 								outbus.numChannels
 							 ]);
-					InstrSynthDef.loadDefFileToBundle(def.insp,bundle,inbus.server);
+					InstrSynthDef.loadDefFileToBundle(def,bundle,inbus.server);
 							
 					group = cable.inlet.adapter.getGroup.value;
 					~synth = Synth.basicNew(def.name,group.server);
@@ -81,7 +86,7 @@ MxCable {
 				var synth;
 				synth = cable.state.removeAt('synth');
 				bundle.add( synth.freeMsg )
-			}));						
+			}));		
 	}
 }
 

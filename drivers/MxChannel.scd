@@ -29,12 +29,12 @@ MxUnit.register('MxChannel',{ arg chan,mx;
 			},
 		stopToBundle: { arg bundle; 
 			},
-
+		
 		play: { arg group, atTime, bus;
 			},
 		stop: { arg atTime,andFreeResources = true;
 			}//,
-	);	
+	);
 	
 	MxUnit(handlers,inlets,outlets);
 

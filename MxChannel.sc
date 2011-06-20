@@ -86,8 +86,9 @@ MxChannel : AbstractPlayerProxy {
 	}
 	freeToBundle { arg bundle;
 		super.freeToBundle(bundle);
-		
-		bundle.add( mixGroup.freeMsg );
+		if(mixGroup.notNil,{
+			bundle.add( mixGroup.freeMsg );
+		});
 		unitGroups.do { arg u;
 			bundle.add( u.freeMsg );
 		};

@@ -31,6 +31,8 @@ MxUnit  {
 		^super.newCopyArgs(h,inlets,outlets).init
 	}
 	init {
+		inlets.do { arg in; in.unit = this };
+		outlets.do { arg out; out.unit = this };
 		handlers.use { ~init.value() }
 	}
 
@@ -51,11 +53,17 @@ MxUnit  {
 	stopToBundle { arg bundle;
 		^handlers.use { ~stopToBundle.value(bundle) }
 	}
+	freeToBundle { arg bundle;
+		^handlers.use { ~freeToBundle.value(bundle) }
+	}		
 	play { arg group,atTime,bus;
 		^handlers.use { ~play.value(group,atTime,bus) }
 	}
 	stop { arg atTime,andFreeResources=true;
 		^handlers.use { ~stop.value(atTime,andFreeResources) }
+	}
+	numChannels {
+		^handlers.use { ~numChannels.value }
 	}
 	// relocate  toBeat, atTime
 	// gui
@@ -70,9 +78,11 @@ MxUnit  {
 			prepareToBundle:  { arg agroup, bundle, private, bus; },
 			spawnToBundle: { arg bundle; },
 			stopToBundle: { arg bundle; },
+			freeToBundle: { arg bundle; },
 
 			play: { arg group, atTime, bus;},
-			stop: { arg atTime,andFreeResources = true;}//,
+			stop: { arg atTime,andFreeResources = true;},
+			numChannels: { 2 }
 
 			// crop
 			// relocate: { arg toBeat, atTime; }
@@ -87,6 +97,7 @@ MxUnit  {
 MxInlet {
 	
 	var <>uid,<>name,<>index,<>spec,<>adapter;
+	var <>unit;
 	
 	*new { arg uid,name,index,spec,adapter;
 		^super.newCopyArgs(uid,name,index,spec,adapter)

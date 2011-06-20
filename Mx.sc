@@ -80,8 +80,6 @@ Mx : AbstractPlayerProxy {
 			removing = removing.add( channel.removeAt(index) );
 		});
 		unit = MxUnit.make(object,this);
-		// problem: need to sort the adding I think
-		// maybe not. as long as cables happen after units its fine
 		adding = adding.add(unit);
 		channel.put(unit);
 	}
@@ -99,8 +97,7 @@ Mx : AbstractPlayerProxy {
 	}
 		
 	connect { arg outlet,inlet,mapping=nil;
-		var oldcable,cable,key;
-		key = outlet -> inlet;
+		var cable;
 		// remove any that goes to this inlet
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not
@@ -149,7 +146,7 @@ Mx : AbstractPlayerProxy {
 	spawnCablesToBundle { arg bundle;
 		cables.do(_.spawnToBundle(bundle));
 		this.autoCables(bundle);
-	}	
+	}
 	autoCables { arg bundle;
 		/* updates autoCables, adding and removing to get to current patch state */
 		var patched,autoCabled;
