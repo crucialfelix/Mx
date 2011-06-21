@@ -17,15 +17,13 @@ MxUnit.register('Instr',{ arg instr,mx;
 	if(instr.outSpec.isKindOf(AudioSpec) or: {instr.outSpec.isKindOf(ControlSpec)},{
 		conn = MxPlaysOnBus({patch.bus});
 	});
-	outlets = [ MxOutlet(mx.nextID, (instr.outSpec.findKey ? instr.outSpec.class).asString, 0, instr.outSpec, conn ) ];
+	outlets = [ MxOutlet(mx.nextID, (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
 
 	handlers = (
 		init: {
 			~source = patch
 		},
 		prepareToBundle:  { arg agroup, bundle, private, bus;
-			// happening twicer
-			"prepare".postln;
 			~source.prepareToBundle(agroup,bundle,private,bus)
 			},
 		spawnToBundle: { arg bundle; 

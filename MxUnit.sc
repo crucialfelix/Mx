@@ -35,16 +35,43 @@ MxUnit  {
 		outlets.do { arg out; out.unit = this };
 		handlers.use { ~init.value() }
 	}
-
+	getInlet { arg index;
+		if(index.isNil,{
+			^inlets.first
+		});
+		if(index.isInteger,{
+			^inlets[index]
+		},{
+			inlets.do { arg in;
+				if(in.name == index,{
+					^in
+				})
+			}
+		});
+		Error("Inlet not found:" + index).throw
+	}
+	getOutlet { arg index;
+		if(index.isNil,{
+			^outlets.first
+		});
+		if(index.isInteger,{
+			^outlets[index]
+		},{
+			outlets.do { arg in;
+				if(in.name == index,{
+					^in
+				})
+			}
+		});
+		Error("Outlet not found:" + index).throw
+	}
+	
 	*register { arg classname,unitMaker;
 		registery.put(classname.asSymbol, unitMaker)
 	}
 
-	// delegate to the handler
+	// methods delegated to the handler
 	prepareToBundle { arg agroup, bundle, private, bus;
-		// create own bus and group here if it is audio/control
-		// but the source object may already create a suitable group.
-		// group is needed to make sure patch points can be reliably inserted
 		^handlers.use { ~prepareToBundle.value(agroup,bundle,true,bus) }
 	}
 	spawnToBundle { arg bundle;
@@ -100,7 +127,7 @@ MxInlet {
 	var <>unit;
 	
 	*new { arg uid,name,index,spec,adapter;
-		^super.newCopyArgs(uid,name,index,spec,adapter)
+		^super.newCopyArgs(uid,name.asSymbol,index,spec,adapter)
 	}
 		
 	printOn { arg stream;

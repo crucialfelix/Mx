@@ -6,7 +6,7 @@ Mx : AbstractPlayerProxy {
 	var inlets,outlets;
 	
 	var allocator,register,unitGroups,busses;
-	var master;
+	var <master;
 	var removing,adding, cableEndpoints,autoCables;
 	
 	*new { arg channels, cables,inlets,outlets;
@@ -41,6 +41,7 @@ Mx : AbstractPlayerProxy {
 		var chan,units;
 		units = (objects ? []).collect(MxUnit.make(_,this));
 		chan = MxChannel(this.nextID,master.id, units);
+		// how would this get reloaded ?  save it with its id intact ?
 		chan.myUnit = MxUnit.make(chan,this);
 		channels = channels.insert(index,chan);
 		if(this.isPlaying,{
@@ -62,7 +63,7 @@ Mx : AbstractPlayerProxy {
 		// add audio output
 		var chan,out;
 		chan = MxChannel(this,nil,[]);
-		if(master.isNil,{ // first added channel becomes the master
+		if(master.isNil,{ // first added output channel becomes the master
 			master = source = chan;
 		});
 		chan.myUnit = MxUnit.make(chan,this);
@@ -85,19 +86,29 @@ Mx : AbstractPlayerProxy {
 	}
 	
 	// API
-	findInlet { arg point,index;
+	getInlet { arg point,index;
 		var unit;
 		unit = channels[point.x].units[point.y];
-		^unit.inlets[index]
+		^unit.getInlet(index)
 	}
-	findOutlet { arg point,index;
+	getOutlet { arg point,index;
 		var unit;
 		unit = channels[point.x].units[point.y];
-		^unit.outlets[index]
+		^unit.getOutlet(index)
 	}
 		
-	connect { arg outlet,inlet,mapping=nil;
+	connect { arg fromUnit,outlet, toUnit, inlet, mapping=nil;
+		/*
+			unit: channelNumber@slotNumber
+			outlet/inlet: 
+				\outletName 
+				integer Index 
+				nil meaning first 
+		*/
 		var cable;
+		outlet = this.getOutlet(fromUnit,outlet);
+		inlet = this.getInlet(toUnit,inlet);
+		
 		// remove any that goes to this inlet
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not

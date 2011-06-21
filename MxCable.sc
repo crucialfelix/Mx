@@ -44,21 +44,19 @@ MxCable {
 		
 		this.register(\MxPlaysOnBus,\MxHasJack,
 			MxCableStrategy({ arg cable,bundle;
-				// need it as a message in same bundle
-				
-				bundle.addFunction({
-					var bus, jack;
-					bus = cable.outlet.adapter.value;
-					jack = cable.inlet.adapter.value;
-					MxArJack
-					cable.inlet.adapter.value.value = bus;
-				})
+				var bus, jack;
+				bus = cable.outlet.adapter.value;
+				jack = cable.inlet.adapter.value;
+				jack.setValueToBundle( bus.index, bundle )
 			},{ arg cable,bundle;
-				bundle.addFunction({
-					// um, listen to a dead channel ?
-					// what if a connection is in the same bundle ?
-					cable.inlet.adapter.value.value = 127
-				})
+				var bus, jack;
+				bus = cable.outlet.adapter.value;
+				jack = cable.inlet.adapter.value;
+				// temp: set it to silence
+				// what if a new connection is in the same bundle ?
+				// then order is important
+				// disconnects are first
+				jack.setValueToBundle( 126, bundle )
 			}));
 			
 		this.register(\MxPlaysOnBus,\MxListensToBus,

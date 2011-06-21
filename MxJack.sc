@@ -26,7 +26,6 @@ MxJack {
 }
 
 
-// wrong, need to be able to do this to bundle
 MxKrJack : MxJack {
 
 	var <value,<patchOut;
@@ -35,6 +34,15 @@ MxKrJack : MxJack {
 		value = v;
 		this.changed;
 	}
+	setValueToBundle { arg v,bundle;
+		bundle.addFunction({
+			value = v;
+		});
+		patchOut.connectedTo.do { arg patchIn;
+			bundle.add( patchIn.nodeControl.setMsg(v) );
+		}
+	}
+		
 	addToSynthDef {  arg synthDef,name;
 		synthDef.addKr(name,value);
 	}
