@@ -11,6 +11,7 @@ MxChannel : AbstractPlayerProxy {
 	var <numChannels=2,<>pending=false;
 
 	var <bus,busJack,dbJack,<>myUnit,unitGroups,<mixGroup;
+	var adding,removing;
 
 	*new { arg id, to, units, db=0.0, mute=false, solo=false,
 			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0;
@@ -37,10 +38,21 @@ MxChannel : AbstractPlayerProxy {
 		^units[index]
 	}
 	put { arg index,unit;
+		this.removeAt(index);
+		if(units.size < (index+1), {
+			units = units.extend(index+1,nil)
+		});
 		units[index] = unit;
+		adding = adding.add(unit);
 	}
 	removeAt { arg index;
-		^units.removeAt(index)
+		var old;
+		old = units.at(index);
+		if(old.notNil,{
+			removing = removing.add(old)
+		});
+		units.put(index,nil);
+		^old
 	}
 	makeSource {
 		source = Patch(MxChannel.channelInstr,[
@@ -55,17 +67,22 @@ MxChannel : AbstractPlayerProxy {
 	children {
 		^super.children ++ units
 	}
-	prepareToBundle { arg agroup,bundle,private, bus;
+	prepareToBundle { arg parentGroup,bundle,private, bus,groupToUse;
 		// if has a to-destination then play on a private bus
 		// and the Mx will cable it to that destination
 		// else play on public/main out => this is a master channel
-		group = Group.basicNew(agroup.server);
-		bundle.add( group.addToTailMsg(agroup) );
+		group = groupToUse ?? {
+			group = Group.basicNew(parentGroup.server);
+			bundle.add( group.addToTailMsg(parentGroup) );
+			group
+		};
 		
-		unitGroups = units.collect { arg u; 
+		unitGroups = units.collect { arg u,i;
 			var g;
-			g = Group.basicNew(this.server);
-			bundle.add( g.addToTailMsg(group) );
+			if(u.notNil,{
+				g = Group.basicNew(this.server);
+				bundle.add( g.addToTailMsg(group) );
+			});
 			g
 		};
 		mixGroup = Group.basicNew(this.server);
@@ -83,6 +100,7 @@ MxChannel : AbstractPlayerProxy {
 	spawnToBundle { arg bundle;
 		units.do(_.spawnToBundle(bundle));
 		super.spawnToBundle(bundle);
+		adding = removing = nil;
 	}
 	freeToBundle { arg bundle;
 		super.freeToBundle(bundle);
@@ -95,6 +113,37 @@ MxChannel : AbstractPlayerProxy {
 		bundle.addFunction({
 			mixGroup = unitGroups = nil;
 		});
+	}
+	update { arg bundle;
+		removing.do { arg unit;
+			// leaves groups running
+			// they are likely to get refilled
+			unit.freeToBundle(bundle);
+		};
+		adding.do { arg unit;
+			var ui,ug;
+			ui = units.indexOf(unit);
+			ug = this.groupForIndex(ui,bundle);
+			unit.prepareToBundle(ug,bundle,true);
+			unit.spawnToBundle(bundle);
+		};
+		bundle.addFunction({
+			removing = adding = nil;
+		})
+	}
+	groupForIndex { arg index,bundle;
+		// make a group on demand if needed
+		var g,prev;
+		unitGroups.at(index) ?? {
+			g = Group.basicNew(this.server);
+			prev = unitGroups.copyRange(0,index).reverse.detect(_.notNil);
+			if(prev.notNil,{
+				bundle.add( g.addAfterMsg(prev) )
+			},{
+				bundle.add( g.addToHeadMsg(group) )
+			});
+			g
+		}
 	}
 	db_ { arg d;
 		db = d;

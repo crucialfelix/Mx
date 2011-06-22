@@ -11,7 +11,7 @@ MxCable {
 		^super.newCopyArgs(outlet,inlet,mapping).init
 	}
 	init {
-		state = ()
+		state = Environment.new;
 	}
 	strategy {
 		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ] ?? {
@@ -66,7 +66,7 @@ MxCable {
 					var inbus,outbus,def,group;
 					outbus = cable.inlet.adapter.value;
 					inbus = cable.outlet.adapter.value;
-
+					
 					// cache these
 					def = Instr("MxCable.cableAr").asSynthDef([
 								inbus.index,
