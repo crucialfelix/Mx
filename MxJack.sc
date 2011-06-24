@@ -30,6 +30,12 @@ MxKrJack : MxJack {
 
 	var <value,<patchOut;
 	
+	*new { arg v;
+		^super.new.value_(v)
+	}
+	storeArgs {
+		^[value]
+	}
 	value_ { arg v;
 		value = v;
 		this.changed;
@@ -65,6 +71,9 @@ MxArJack : MxKrJack {
 	
 	*new { arg numChannels=2,bus=126;
 		^super.new.numChannels_(numChannels).value_(bus)
+	}
+	storeArgs {
+		^[numChannels]
 	}
 	bus_ { arg v;
 		if(v.isSimpleNumber,{

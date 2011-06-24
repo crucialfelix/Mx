@@ -66,7 +66,6 @@ MxCable {
 					var inbus,outbus,def,group;
 					outbus = cable.inlet.adapter.value;
 					inbus = cable.outlet.adapter.value;
-					
 					// cache these
 					def = Instr("MxCable.cableAr").asSynthDef([
 								inbus.index,
@@ -100,7 +99,16 @@ MxCableStrategy {
 		^super.newCopyArgs(connectf,disconnectf)
 	}
 	connect { arg cable,bundle;
-		connectf.value(cable,bundle)
+		try({
+			connectf.value(cable,bundle)
+		},{ arg exc;
+			"MxCableStrategy failed".error;
+			(cable.outlet.adapter.class.asString + "->" + cable.inlet.adapter.class ).postln;
+			cable.outlet.dump;
+			cable.inlet.dump;
+			exc.reportError;
+			this.halt;
+		})
 	}
 	disconnect { arg cable,bundle;
 		disconnectf.value(cable,bundle)

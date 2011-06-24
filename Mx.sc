@@ -3,7 +3,7 @@
 Mx : AbstractPlayerProxy {
 	
 	var <channels,<cables;
-	var inlets,outlets;
+	var myUnit,inlets,outlets;
 	
 	var allocator,register,unitGroups,busses;
 	var <master;
@@ -12,6 +12,7 @@ Mx : AbstractPlayerProxy {
 	*new { arg channels, cables,inlets,outlets;
 		^super.new.init(channels,cables,inlets,outlets)
 	}
+	storeArgs { ^[channels,cables] }// inlets, outlets
 	init { arg chans,cabs,ins,outs;
 		channels = chans ?? {[]};
 		adding = channels.copy;
@@ -67,7 +68,9 @@ Mx : AbstractPlayerProxy {
 			master = source = chan;
 		});
 		chan.myUnit = MxUnit.make(chan,this);
-		out = MxOutlet(this.nextID,"out",outlets.size,'audio',MxPlaysOnBus({chan.bus}));
+		out = MxOutlet("out",outlets.size,'audio',MxPlaysOnBus({chan.bus}));
+		out.uid = this.nextID;
+		out.unit = chan.myUnit;
 		outlets = outlets.add(out);
 		adding = adding.add(chan);
 		^chan
@@ -77,7 +80,7 @@ Mx : AbstractPlayerProxy {
 	}
 	put { arg chan,index,object;
 		var channel,unit;
-		channel = channels[chan];
+		channel = channels[chan];// should create chans if needed
 		unit = MxUnit.make(object,this);
 		channel.put(unit);
 	}
@@ -200,6 +203,8 @@ Mx : AbstractPlayerProxy {
 	autoCables { arg bundle;
 		/* updates autoCables, adding and removing to get to current patch state */
 		var patched,autoCabled;
+		
+		// where does channel to get honored ?
 		
 		// already explicitly cabled
 		patched = [];

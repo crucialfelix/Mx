@@ -10,32 +10,14 @@ inlets
 	
 */
 
-MxUnit.register('MxChannel',{ arg chan,mx;
+MxUnit.register('MxChannel',
+(
+	make: { arg chan;
+		var inlets,outlets,patch,inps,connectors,conn,handlers;
+		// isnt it a MxHasJack ??
+		inlets  = [ MxInlet("MxChannelIn", 0, AudioSpec(chan.numChannels), MxListensToBus({chan.source.bus},{chan.server},{chan.mixGroup})) ];
+		outlets = [ MxOutlet("MxChannelOut", 0, AudioSpec(chan.numChannels),MxPlaysOnBus({chan.source.bus}) ) ];
 
-	var inlets,outlets,patch,inps,connectors,conn,handlers;
-
-	inlets  = [ MxInlet(mx.nextID, "MxChannelIn", 0, AudioSpec(chan.numChannels), MxListensToBus({chan.source.bus},{chan.server},{chan.mixGroup})) ];
-	outlets = [ MxOutlet(mx.nextID, "MxChannelOut", 0, AudioSpec(chan.numChannels),MxPlaysOnBus({chan.source.bus}) ) ];
-
-	// doesn't play as a unit
-	// we just wanted the inlets and outlets for patching
-	handlers = (
-		init: {
-			~source = chan
-		},
-		prepareToBundle:  { arg agroup, bundle, private, bus;
-			},
-		spawnToBundle: { arg bundle; 
-			},
-		stopToBundle: { arg bundle; 
-			},
-		
-		play: { arg group, atTime, bus;
-			},
-		stop: { arg atTime,andFreeResources = true;
-			}//,
-	);
-	
-	MxUnit(handlers,inlets,outlets);
-
-});
+		MxUnit(chan,inlets,outlets);
+	}
+));

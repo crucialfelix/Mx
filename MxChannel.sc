@@ -14,14 +14,22 @@ MxChannel : AbstractPlayerProxy {
 	var adding,removing;
 
 	*new { arg id, to, units, db=0.0, mute=false, solo=false,
-			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0;
-		^super.new.init(id,to,units ? [],db,mute,solo,limit,breakOnBadValues,breakOnDbOver)
+			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0,mx;
+		^super.new.init(id,to,units ? [],db,mute,solo,limit,breakOnBadValues,breakOnDbOver,mx)
 	}
+	storeArgs { ^[id,to,units.collect(_.saveData),db,mute,solo,limit,breakOnBadValues,breakOnDbOver] }
+
 	init { arg argid,argto,argunits,argdb,argmute,argsolo,
-			arglimit,argbreakOnBadValues,argbreakOnDbOver;
+			arglimit,argbreakOnBadValues,argbreakOnDbOver,mx;
 		id = argid;
 		to = argto;
-		units = argunits;
+		units = argunits.collect { arg u;
+					if(u.isKindOf(MxUnit),{
+						u
+					},{
+						MxUnit.loadData(u.add(mx))
+					});
+				};
 		db = argdb;
 		mute = argmute;
 		solo = argsolo;

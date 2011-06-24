@@ -4,11 +4,51 @@ MxUnit  {
 	
 	classvar registery,<protoHandler;
 
-	var <handlers,<inlets,<outlets;
+	var <>source,<inlets,<outlets,<>handlers;
 	var <>point,<>group;	
 	
-	*make { arg object,mx;
-		object.class.superclassesDo({ arg class;
+	*make { arg source,mx,ids;
+		var handlers;
+		handlers = this.handlersFor(source.class);
+		ids = ids ? [[],[]];
+		^handlers.use {
+			var unit;
+			unit = ~make.value(source);
+			if(~source.isNil,{
+				~source = source;
+			});
+			unit.handlers = handlers;
+			unit.inlets.do { arg in,i;
+				in.uid = ids[0].at(i) ?? {mx.nextID};
+				in.unit = unit;
+			};
+			unit.outlets.do { arg out,i;
+				out.uid = ids[1].at(i) ?? {mx.nextID};
+				out.unit = unit;
+			};
+			unit
+		}
+	}
+	*new { arg source,inlets,outlets;
+		^super.newCopyArgs(source,inlets,outlets)
+	}
+	*loadData { arg class,data,ids,mx;
+		var h,source;
+		class = class.asClass;
+		h = this.handlersFor(class);
+		source = h.use { ~load.value(data) };
+		^this.make(source,mx,ids)
+	}
+	saveData {
+		var data,ids;
+		data = handlers.use { ~save.value(source) };
+		ids = [ inlets.collect(_.uid), outlets.collect(_.uid) ];
+		^[source.class.name,data,ids]
+	}
+	*handlersFor { arg class;
+		var h;
+		h = protoHandler.copy;
+		class.superclassesDo({ arg class;
 			var match,path;
 			match = registery[class.name];
 			if(match.isNil,{
@@ -19,21 +59,11 @@ MxUnit  {
 				});
 			});				
 			if(match.notNil,{
-				^match.value(object,mx)
+				h.putAll(match);
+				^h
 			})
 		});
-		Error("No MxUnit maker function registered for " + object.class).throw;
-	}
-	*new { arg handlers,inlets,outlets;
-		var h;
-		h = protoHandler.copy;
-		h.putAll(handlers);
-		^super.newCopyArgs(h,inlets,outlets).init
-	}
-	init {
-		inlets.do { arg in; in.unit = this };
-		outlets.do { arg out; out.unit = this };
-		handlers.use { ~init.value() }
+		Error("No MxUnit driver found for " + class).throw;
 	}
 	getInlet { arg index;
 		if(index.isNil,{
@@ -66,11 +96,12 @@ MxUnit  {
 		Error("Outlet not found:" + index).throw
 	}
 	
-	*register { arg classname,unitMaker;
-		registery.put(classname.asSymbol, unitMaker)
+	*register { arg classname,handlers;
+		registery.put(classname.asSymbol, handlers)
 	}
 
-	// methods delegated to the handler
+
+	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
 		^handlers.use { ~prepareToBundle.value(agroup,bundle,true,bus) }
 	}
@@ -96,12 +127,15 @@ MxUnit  {
 	// gui
 	// timeGui
 
+
 	*initClass {
 		registery = IdentityDictionary.new;
 		
 		protoHandler = (
-			init: {}, // create any resources you need
-
+			make: { arg object; MxUnit(object) },
+			save: { ~source.asCompileString },
+			load: { arg string; string.compile() },
+			
 			prepareToBundle:  { arg agroup, bundle, private, bus; },
 			spawnToBundle: { arg bundle; },
 			stopToBundle: { arg bundle; },
@@ -116,6 +150,7 @@ MxUnit  {
 			// gui
 			// timeGui
 			// zoomTimeGui
+			// asCompileString
 		);
 	}
 }
@@ -123,13 +158,15 @@ MxUnit  {
 
 MxInlet {
 	
-	var <>uid,<>name,<>index,<>spec,<>adapter;
-	var <>unit;
+	var <>name,<>index,<>spec,<>adapter;
+	var <>uid,<>unit;
 	
-	*new { arg uid,name,index,spec,adapter;
-		^super.newCopyArgs(uid,name.asSymbol,index,spec,adapter)
+	*new { arg name,index,spec,adapter;
+		^super.newCopyArgs(name.asSymbol,index,spec,adapter)
 	}
-		
+	storeArgs {
+		^[name,index,spec,adapter]
+	}
 	printOn { arg stream;
 		stream << name
 	}
