@@ -10,12 +10,27 @@ MxCable {
 	*new { arg outlet,inlet,mapping;
 		^super.newCopyArgs(outlet,inlet,mapping).init
 	}
+	saveData {
+		^[outlet.uid,inlet.uid,mapping,active]
+	}
+	*loadData { arg data,mx;
+		var oid,iid,mapping,active;
+		if(data.isKindOf(MxCable),{
+			^data
+		});
+		# oid,iid,mapping,active = data;
+		^this.new(
+			mx.atID(oid) ?? {Error("outlet not found" + oid).throw},
+			mx.atID(iid) ?? {Error("inlet not found" + iid).throw},
+			mapping,active)
+	}
+		
 	init {
 		state = Environment.new;
 	}
 	strategy {
 		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ] ?? {
-			Error("No MxCableStrategy found for" + outlet.adapter + "=>" + inlet.adapter ).throw
+			Error("No MxCableStrategy found for" + outlet + outlet.adapter + "=>" + inlet + inlet.adapter ).throw
 		}
 	}
 	spawnToBundle { arg bundle;

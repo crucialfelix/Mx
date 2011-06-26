@@ -7,9 +7,9 @@ MxUnit  {
 	var <>source,<inlets,<outlets,<>handlers;
 	var <>point,<>group;	
 	
-	*make { arg source,mx,ids;
+	*make { arg source,mx,ids,class;
 		var handlers;
-		handlers = this.handlersFor(source.class);
+		handlers = this.handlersFor(class ? source.class);
 		ids = ids ? [[],[]];
 		^handlers.use {
 			var unit;
@@ -19,25 +19,27 @@ MxUnit  {
 			});
 			unit.handlers = handlers;
 			unit.inlets.do { arg in,i;
-				in.uid = ids[0].at(i) ?? {mx.nextID};
+				mx.register(in,ids[0][i]);
 				in.unit = unit;
 			};
 			unit.outlets.do { arg out,i;
-				out.uid = ids[1].at(i) ?? {mx.nextID};
+				mx.register(out,ids[1][i]);
 				out.unit = unit;
 			};
+			// unit.registerWithMx(mx);
 			unit
 		}
 	}
-	*new { arg source,inlets,outlets;
-		^super.newCopyArgs(source,inlets,outlets)
-	}
-	*loadData { arg class,data,ids,mx;
-		var h,source;
+	*loadData { arg data,mx;
+		var h,source,class,ids;
+		# class, data, ids = data;
 		class = class.asClass;
 		h = this.handlersFor(class);
 		source = h.use { ~load.value(data) };
-		^this.make(source,mx,ids)
+		^this.make(source,mx,ids,class)
+	}
+	*new { arg source,inlets,outlets;
+		^super.newCopyArgs(source,inlets,outlets)
 	}
 	saveData {
 		var data,ids;
@@ -99,7 +101,11 @@ MxUnit  {
 	*register { arg classname,handlers;
 		registery.put(classname.asSymbol, handlers)
 	}
-
+	// change name, confusing
+	registerWithMx { arg mx;
+		inlets.do { arg in; mx.register(in,in.uid) };
+		outlets.do { arg in; mx.register(in,in.uid) };
+	}
 
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
@@ -134,7 +140,7 @@ MxUnit  {
 		protoHandler = (
 			make: { arg object; MxUnit(object) },
 			save: { ~source.asCompileString },
-			load: { arg string; string.compile() },
+			load: { arg string; string.compile.value() },
 			
 			prepareToBundle:  { arg agroup, bundle, private, bus; },
 			spawnToBundle: { arg bundle; },

@@ -4,32 +4,47 @@ MxChannel : AbstractPlayerProxy {
 
 	classvar cInstr;
 
-	var <id, <>to=nil, <db=0, <mute=false, <solo=false;
+	var <>uid, <>cableTo=nil, <db=0, <mute=false, <solo=false;
 	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12;
 	var <>units;
 	
 	var <numChannels=2,<>pending=false;
 
-	var <bus,busJack,dbJack,<>myUnit,unitGroups,<mixGroup;
+	var busJack,dbJack,<>myUnit,unitGroups,<mixGroup;
 	var adding,removing;
 
-	*new { arg id, to, units, db=0.0, mute=false, solo=false,
-			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0,mx;
-		^super.new.init(id,to,units ? [],db,mute,solo,limit,breakOnBadValues,breakOnDbOver,mx)
+	*new { arg units, db=0.0, mute=false, solo=false,
+			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0,
+			cableTo, uid;
+		^super.new.init(uid,cableTo,units ? [],db,mute,solo,limit,breakOnBadValues,breakOnDbOver)
 	}
-	storeArgs { ^[id,to,units.collect(_.saveData),db,mute,solo,limit,breakOnBadValues,breakOnDbOver] }
+	storeArgs { 
+		^[units.collect(_.saveData),db,mute,solo,limit,breakOnBadValues,breakOnDbOver,cableTo,uid] 
+	}
+	saveData {
+		^this.storeArgs
+	}
+	*loadData { arg data,mx;
+		var units;
+		if(data.isSequenceableCollection,{
+			units = data[0] ? [];
+			units = units.collect(MxUnit.loadData(_,mx));
+			if(data.size == 0,{
+				data = [units]
+			},{
+				data[0] = units;
+			});
+			data = MxChannel(*data)
+		});
+         data.makeUnit(mx).registerWithMx(mx);
+        ^data		
+	}				
 
 	init { arg argid,argto,argunits,argdb,argmute,argsolo,
-			arglimit,argbreakOnBadValues,argbreakOnDbOver,mx;
-		id = argid;
-		to = argto;
-		units = argunits.collect { arg u;
-					if(u.isKindOf(MxUnit),{
-						u
-					},{
-						MxUnit.loadData(u.add(mx))
-					});
-				};
+			arglimit,argbreakOnBadValues,argbreakOnDbOver;
+		uid = argid;
+		cableTo = argto;
+		units = argunits;
 		db = argdb;
 		mute = argmute;
 		solo = argsolo;
@@ -96,7 +111,7 @@ MxChannel : AbstractPlayerProxy {
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
 		// prepares the children
-		source.prepareToBundle(mixGroup,bundle,to.notNil,bus);
+		source.prepareToBundle(mixGroup,bundle,cableTo.notNil,bus);
 		units.do { arg unit,i;
 			unit.prepareToBundle(unitGroups[i],bundle,true)
 		};
@@ -139,6 +154,9 @@ MxChannel : AbstractPlayerProxy {
 			removing = adding = nil;
 		})
 	}
+	bus {
+		^source.bus
+	}
 	groupForIndex { arg index,bundle;
 		// make a group on demand if needed
 		var g,prev;
@@ -153,6 +171,17 @@ MxChannel : AbstractPlayerProxy {
 			g
 		}
 	}
+	makeUnit { arg mx;
+		myUnit = MxUnit.make(this,mx);
+		myUnit.registerWithMx(mx);
+	}
+	registerWithMx { arg mx;
+		mx.register(this, uid);
+		units.do { arg unit;
+			unit.registerWithMx(mx);
+		}	
+	}
+	
 	db_ { arg d;
 		db = d;
 		dbJack.value = db;

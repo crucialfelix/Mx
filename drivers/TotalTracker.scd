@@ -1,11 +1,15 @@
 
 /*
 
-no inlets assumed, write a drive for specific subclasses
-	
+setSongControl
+
+setPatternControl
+
+gotoPatternID
+
 */
 
-MxUnit.register('AbstractPlayer',
+MxUnit.register('TotalTracker',
 (
 	make: { arg player;
 		var inlets,outlets;
@@ -30,17 +34,22 @@ MxUnit.register('AbstractPlayer',
 		~source.stop(atTime,andFreeResources)
 	},
 	save: {
-		if(~source.path.notNil,{
-			~source.enpath
-		},{
-			~source
-		})
+		var app;
+		app = ~source.app;
+		[~source.song.path,app.playMode,app.currentPatternID,[1,2,3,4].collect(app.getSongControl(_)) ]
 	},
 	load: { arg data;
-		if(data.isString,{
-			data.loadPath
+		var t;
+		t = TotalTracker(data[0],false);
+		if(data[1] == "song",{
+			t.app.setSongPlayMode
 		},{
-			data
-		})
+			t.app.setPatternPlayMode;
+			t.app.gotoPatternID(data[2])
+		});
+		data[3].do { arg v,i;
+			t.app.setSongControl(i+1,v)
+		};
+		t
 	}
 ));

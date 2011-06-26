@@ -1,11 +1,16 @@
 
+
 MxUnit.register('Instr',(
 
 	make: { arg instr;
 
 		var inlets,outlets,patch,inps,connectors,conn,handlers;
-	
-		inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,instr.defArgAt(i) ) });
+		// accept either an instr or [instr, inputs]
+		if(instr.isSequenceableCollection,{
+			# instr,inps = instr;
+		},{
+			inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,instr.defArgAt(i) ) });
+		});
 		patch = Patch(instr,inps );
 		connectors = patch.inputs.collect({ arg inp,i; 
 			if(inp.isKindOf(MxJack),{
@@ -15,7 +20,8 @@ MxUnit.register('Instr',(
 				nil
 			})
 		});
-		inlets = instr.specs.collect({ arg spec,i; MxInlet(instr.argNameAt(i),i,spec,connectors[i] ) });
+		inlets = instr.specs
+			.collect({ arg spec,i; MxInlet(instr.argNameAt(i),i,spec,connectors[i] ) });
 		if(instr.outSpec.isKindOf(AudioSpec) or: {instr.outSpec.isKindOf(ControlSpec)},{
 			conn = MxPlaysOnBus({patch.bus});
 		});
@@ -46,7 +52,11 @@ MxUnit.register('Instr',(
 		},
 	stop: { arg atTime,andFreeResources = true;
 		~source.stop(atTime,andFreeResources)
-		}//,
-	);	
-);
+		},
+	save: { [~source.instr.dotNotation, ~source.inputs] },
+	load: { arg nameinp;
+		[Instr(nameinp[0]),nameinp[1]]
+	}
+
+));
 

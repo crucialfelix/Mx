@@ -12,25 +12,37 @@ Mx : AbstractPlayerProxy {
 	*new { arg channels, cables,inlets,outlets;
 		^super.new.init(channels,cables,inlets,outlets)
 	}
-	storeArgs { ^[channels,cables] }// inlets, outlets
+	storeArgs { 
+		^[channels.collect(_.saveData), cables.collect(_.saveData) ] 
+		// inlets, outlets not saved yet
+	}
 	init { arg chans,cabs,ins,outs;
-		channels = chans ?? {[]};
-		adding = channels.copy;
-		cables = cabs ? [];
+		register = IdentityDictionary.new;
 		allocator = NodeIDAllocator(0,0);
+
 		inlets = ins ? [];
 		outlets = outs ?? {
 			this.addOutput;
 			outlets
 		};
-		register = IdentityDictionary.new;
+		channels = (chans ? []).collect(MxChannel.loadData(_,this));
+		adding = channels.copy; // not needed really
+
+		cables = (cabs ? []).collect(MxCable.loadData(_,this));
 		autoCables = [];
 	}
 	nextID {
 		^allocator.alloc
 	}
-	register { arg uid,object;
-		register[uid] = object
+	// registerIOlet
+	register { arg object,uid;
+		uid = uid ?? { this.nextID };
+		register[uid] = object;
+		object.uid = uid;
+		^uid
+	}
+	atID { arg uid;
+		^register[uid]
 	}
 	unregister { arg uid;
 		register.removeAt(uid)
@@ -42,9 +54,9 @@ Mx : AbstractPlayerProxy {
 	insertChannel { arg index, objects;
 		var chan,units;
 		units = (objects ? []).collect(MxUnit.make(_,this));
-		chan = MxChannel(this.nextID,master.id, units);
-		// how would this get reloaded ?  save it with its id intact ?
-		chan.myUnit = MxUnit.make(chan,this);
+		chan = MxChannel(units,cableTo:master.uid);
+		chan.makeUnit(this).registerWithMx(this);
+		
 		if(channels.size < (index+1),{
 			channels = channels.extend(index+1,nil)
 		});
@@ -63,14 +75,17 @@ Mx : AbstractPlayerProxy {
 	addOutput { arg rate='audio',numChannels=2;
 		// add audio output
 		var chan,out;
-		chan = MxChannel(this.nextID,nil);
+		chan = MxChannel.loadData([],this);
 		if(master.isNil,{ // first added output channel becomes the master
 			master = source = chan;
 		});
-		chan.myUnit = MxUnit.make(chan,this);
+		
+		// chan.myUnit = MxUnit.make(chan,this);
+		// do not like
 		out = MxOutlet("out",outlets.size,'audio',MxPlaysOnBus({chan.bus}));
-		out.uid = this.nextID;
+		this.register(out);
 		out.unit = chan.myUnit;
+
 		outlets = outlets.add(out);
 		adding = adding.add(chan);
 		^chan
@@ -127,7 +142,7 @@ Mx : AbstractPlayerProxy {
 		cables = cables.add( cable );
 	}
 	disconnect { arg fromUnit,outlet, toUnit, inlet;
-		
+		// TODO
 	}
 	// enact all changes on the server after things have been added/removed dis/connected
 	update { arg bundle=nil;
@@ -154,6 +169,10 @@ Mx : AbstractPlayerProxy {
 		};
 		channels.do { arg chan; chan.update(b); };
 		b.addFunction({
+			// TODO
+			//removing.do { arg r;
+			//	r.unregisterWithMx
+				
 			removing = adding = nil
 		});
 		this.autoCables(b);
@@ -162,9 +181,9 @@ Mx : AbstractPlayerProxy {
 		});
 		^b
 	}
+	
 
-
-	////////// private   ////////////
+	//////////  private  ////////////
 	disconnectCable { arg cable;
 		if(this.isPlaying,{
 			removing = removing.add( cable );
