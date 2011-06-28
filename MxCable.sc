@@ -39,6 +39,13 @@ MxCable {
 	stopToBundle { arg bundle;
 		this.strategy.disconnect(this,bundle)
 	}
+	map { arg v;
+		if(mapping.notNil,{
+			^mapping.value(v)
+		},{
+			^v
+		})
+	}
 
 	*register { arg outAdapterClassName,inAdapterClassName, strategy;
 		strategies[ [outAdapterClassName, inAdapterClassName] ] = strategy;
@@ -98,7 +105,22 @@ MxCable {
 				var synth;
 				synth = cable.state.removeAt('synth');
 				bundle.add( synth.freeMsg )
-			}));		
+			}));	
+
+		this.register(\MxHasAction,\MxSetter,
+			// always active, doesn't wait for play
+			MxCableStrategy({ arg cable,bundle;
+				var setter,action;
+				setter = cable.inlet.adapter; 
+				action = { arg val;
+					setter.value( cable.map( val ) )
+				};
+				cable.outlet.adapter.value(setter);
+			},{ arg cable,bundle;
+				cable.outlet.adapter.value(nil);
+			})
+		);
+				
 	}
 }
 

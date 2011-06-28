@@ -34,3 +34,5 @@ MxHasJack : AbsMxFuncAdapter {}
 MxPlaysOnBus : AbsMxFuncAdapter {}
 MxListensToBus : MxPlaysOnBus {}
 
+MxSetter : AbsMxFuncAdapter {}
+MxHasAction : AbsMxFuncAdapter {}

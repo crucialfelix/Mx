@@ -103,12 +103,12 @@ Mx : AbstractPlayerProxy {
 	// API
 	getInlet { arg point,index;
 		var unit;
-		unit = channels[point.x].units[point.y];
+		unit = channels[point.x].units[point.y] ?? {Error("no unit at" + point).throw};
 		^unit.getInlet(index)
 	}
 	getOutlet { arg point,index;
 		var unit;
-		unit = channels[point.x].units[point.y];
+		unit = channels[point.x].units[point.y] ?? {Error("no unit at" + point).throw};
 		^unit.getOutlet(index)
 	}
 		
@@ -143,6 +143,9 @@ Mx : AbstractPlayerProxy {
 	}
 	disconnect { arg fromUnit,outlet, toUnit, inlet;
 		// TODO
+	}
+	mute { arg channel,boo=true;
+		channels[channel].mute = boo
 	}
 	// enact all changes on the server after things have been added/removed dis/connected
 	update { arg bundle=nil;

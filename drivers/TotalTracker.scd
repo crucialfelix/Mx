@@ -2,7 +2,8 @@
 /*
 
 setSongControl
-
+	MxSetter
+	
 setPatternControl
 
 gotoPatternID
@@ -12,8 +13,15 @@ gotoPatternID
 MxUnit.register('TotalTracker',
 (
 	make: { arg player;
-		var inlets,outlets;
-		inlets  = [];
+		var inlets,outlets,sips;
+		sips = [1,2,3,4].collect { arg i; 
+				var ii;
+				ii = i + 1;
+				MxInlet(ii.asString,i,\unipolar, 
+					MxSetter({ arg v; player.app.setSongControl(ii,v)},{player.server},{player.group}) 
+				)
+			};
+		inlets  = sips;
 		outlets = [ MxOutlet(player.name, 0, player.spec ,MxPlaysOnBus({player.bus}) ) ];
 		MxUnit(player,inlets,outlets);
 	},
