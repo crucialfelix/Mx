@@ -7,7 +7,7 @@ Mx : AbstractPlayerProxy {
 	
 	var allocator,register,unitGroups,busses;
 	var <master;
-	var removing,adding, cableEndpoints,autoCables;
+	var removing,adding, cableEndpoints,<autoCables;
 	
 	*new { arg channels, cables,inlets,outlets;
 		^super.new.init(channels,cables,inlets,outlets)
@@ -61,6 +61,7 @@ Mx : AbstractPlayerProxy {
 			channels = channels.extend(index+1,nil)
 		});
 		channels.put(index,chan);
+		this.updatePoints;
 		chan.pending = true;
 		adding = adding.add(chan);
 		^chan
@@ -69,9 +70,20 @@ Mx : AbstractPlayerProxy {
 		var chan;
 		chan = channels.removeAt(index);
 		chan.pending = true;
-		removing = removing.add( chan )
+		removing = removing.add( chan );
+		this.updatePoints;
 	}
-	
+	updatePoints {
+		channels.do { arg ch,ci;
+			ch.units.do { arg un,ri;
+				un.point = ci@ri
+			}
+		};
+		// should be outlets
+		master.units.do { arg un,ri;
+			un.point = channels.size@ri
+		}
+	}
 	addOutput { arg rate='audio',numChannels=2;
 		// add audio output
 		var chan,out;
@@ -80,7 +92,6 @@ Mx : AbstractPlayerProxy {
 			master = source = chan;
 		});
 		
-		// chan.myUnit = MxUnit.make(chan,this);
 		// do not like
 		out = MxOutlet("out",outlets.size,'audio',MxPlaysOnBus({chan.bus}));
 		this.register(out);
@@ -91,13 +102,14 @@ Mx : AbstractPlayerProxy {
 		^chan
 	}
 	at { arg chan,index;
-		^channels.at(chan).at(index)
+		^(channels.at(chan) ? []).at(index)
 	}
 	put { arg chan,index,object;
 		var channel,unit;
 		channel = channels[chan];// should create chans if needed
 		unit = MxUnit.make(object,this);
-		channel.put(unit);
+		channel.put(index,unit);
+		this.updatePoints
 	}
 	
 	// API
@@ -119,11 +131,18 @@ Mx : AbstractPlayerProxy {
 				\outletName 
 				integer Index 
 				nil meaning first 
+				outlet/inlet object
 		*/
 		var cable;
-		outlet = this.getOutlet(fromUnit,outlet);
-		inlet = this.getInlet(toUnit,inlet);
+		// should be in API
+		if(outlet.isKindOf(MxOutlet).not,{
+			outlet = this.getOutlet(fromUnit,outlet);
+		});
+		if(inlet.isKindOf(MxInlet).not,{	
+			inlet = this.getInlet(toUnit,inlet);
+		});
 		
+		// actual connection here
 		// remove any that goes to this inlet
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not
@@ -178,7 +197,7 @@ Mx : AbstractPlayerProxy {
 				
 			removing = adding = nil
 		});
-		this.autoCables(b);
+		this.autoCablesToBundle(b);
 		if(bundle.isNil,{
 			b.send(this.server)
 		});
@@ -220,9 +239,9 @@ Mx : AbstractPlayerProxy {
 
 	spawnCablesToBundle { arg bundle;
 		cables.do(_.spawnToBundle(bundle));
-		this.autoCables(bundle);
+		this.autoCablesToBundle(bundle);
 	}
-	autoCables { arg bundle;
+	autoCablesToBundle { arg bundle;
 		/* updates autoCables, adding and removing to get to current patch state */
 		var patched,autoCabled;
 		

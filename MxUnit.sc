@@ -5,7 +5,7 @@ MxUnit  {
 	classvar registery,<protoHandler;
 
 	var <>source,<inlets,<outlets,<>handlers;
-	var <>point,<>group;	
+	var <>group,<>point;
 	
 	*make { arg source,mx,ids,class;
 		var handlers;
@@ -97,7 +97,9 @@ MxUnit  {
 		});
 		Error("Outlet not found:" + index).throw
 	}
-	
+	name {
+		^source.asString
+	}
 	*register { arg classname,handlers;
 		registery.put(classname.asSymbol, handlers)
 	}
