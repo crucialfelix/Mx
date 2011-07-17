@@ -8,7 +8,7 @@ MxMatrixGui : SCViewHolder {
     var <>currentDragPoint,draggingXY,draggingOutlet,mouseDownPoint,isDown=false;
 
     var selected,hovering,dragging;
-    
+
     var <>ioHeight=10,<>faderHeight=100.0;
 
     var <>dragOn=4; // pixel distance to initiate drag or a symbol like \isCntrl
@@ -31,18 +31,16 @@ MxMatrixGui : SCViewHolder {
             boxColor: skin.offColor,
             borderColor: skin.foreground,
             center: false
-            );        
+            );
         this.makeDefaultStyles(skin);
 
         this.calcNumRows;
 
         // will leave room for mixer control at bottom
-        bounds = argbounds ?? {Rect(20, 20, min(numCols * 100,1000), numRows * 80 + faderHeight)};
+        bounds = argbounds ?? {Rect(20, 20, min(numCols * 100,1000), numRows * 80 + faderHeight + ioHeight + ioHeight)};
         bounds = bounds.asRect;
-        // these will all be recalced on resize
         bounds = Rect(bounds.left + 0.5, bounds.top + 0.5, bounds.width, bounds.height);
-        boxBounds = Rect(bounds.top, bounds.left,bounds.width,bounds.height - faderHeight).moveTo(0,0);
-        
+
         if(w.isNil, {
             w = Window(mx.asString, bounds.resizeBy(40,40).moveTo(10,250) );
             w.front
@@ -51,10 +49,14 @@ MxMatrixGui : SCViewHolder {
         bounds = Rect(bounds.left+1, bounds.top+1, bounds.width, bounds.height);
         view = UserView(w, bounds);
         bounds = bounds.moveTo(0,0); // my reference
+        // these will all be recalced on resize
+        boxBounds = Rect(bounds.left,bounds.top + ioHeight,bounds.width,bounds.height - faderHeight - ioHeight);
+
         boxWidth = bounds.width.asFloat / numCols;
         boxHeight = min( (bounds.height.asFloat - faderHeight) / numRows, 80 );
         view.focusColor = defaultStyle.borderColor;
-       
+
+        pen = GUI.pen;
         view.drawFunc = { this.drawGrid };
 
         // mouses
@@ -62,7 +64,7 @@ MxMatrixGui : SCViewHolder {
             this.mouseOver(x,y,modifiers)
         };
         view.mouseDownAction = {|me, x, y, modifiers, buttonNumber, clickCount|
-	        mouseDownPoint = x@y;
+            mouseDownPoint = x@y;
             if(this.mouseDownIsDragStart(modifiers,x,y),{
                 this.startDrag(x,y,modifiers,buttonNumber);
             },{
@@ -76,7 +78,7 @@ MxMatrixGui : SCViewHolder {
             var outlet;
             if(this.isDragging(modifiers,x,y),{
                 if(dragging.isNil,{ // initiating drag now because it moved far enough
-				dragging = this.getByCoord(mouseDownPoint.x,mouseDownPoint.y);
+                dragging = this.getByCoord(mouseDownPoint.x,mouseDownPoint.y);
                 });
                 draggingXY = x@y;
                 this.view.refresh;
@@ -114,35 +116,42 @@ MxMatrixGui : SCViewHolder {
         };
     }
 
-	mouseDown { arg x, y, modifiers, buttonNumber, clickCount;
-		var obj;
-		obj = this.getByCoord(x,y);
-		// click to select
-		if(modifiers.isShift,{
-			selected = selected.add(obj)
-		},{
-			selected = [obj]
-		});
-		// move fader, mute/solo button
-	}
+    mouseDown { arg x, y, modifiers, buttonNumber, clickCount;
+        var obj;
+        obj = this.getByCoord(x,y);
+        // move fader, mute/solo button
+
+        if(clickCount == 2,{
+            if(obj.isKindOf(MxUnit),{
+                obj.gui
+            });
+        },{
+            // click to select
+            if(modifiers.isShift,{
+                selected = selected.add(obj)
+            },{
+                selected = [obj]
+            });
+        });
+    }
     mouseOver { arg x,y,modifiers;
         var obj,unit;
         hovering = this.getByCoord(x,y);
     }
 
-	// internal dragging
+    // internal dragging
     endDrag { arg x,y,modifiers;
-	    // patch it
-	    var target;
-	    target = this.getByCoord(x,y);
-	    if(target.notNil,{
-		    if(dragging.isKindOf(MxOutlet) and: {target.isKindOf(MxInlet)},{
-			    mx.connect(nil,dragging,nil,target)
-		    },{
-			    //if(dragging.isKindOf(MxUnit
-		        // move it, copy it, replace it
-		    });
-		});      
+        // patch it
+        var target;
+        target = this.getByCoord(x,y);
+        if(target.notNil,{
+            if(dragging.isKindOf(MxOutlet) and: {target.isKindOf(MxInlet)},{
+                mx.connect(nil,dragging,nil,target)
+            },{
+                //if(dragging.isKindOf(MxUnit
+                // move it, copy it, replace it
+            });
+        });
         currentDragPoint = nil;
         //this.transferFocus(toBoxPoint);
         dragging = nil;
@@ -154,9 +163,7 @@ MxMatrixGui : SCViewHolder {
         });
         draggingXY = x@y;
         this.view.refresh;
-    } 
-
-
+    }
 
     focusedUnit {
         ^focusedPoint !? {
@@ -174,7 +181,7 @@ MxMatrixGui : SCViewHolder {
         numCols = mx.channels.size + 1;
         numRows = mx.channels.maxValue({ arg ch; ch.units.size });
         numRows = max(numRows,mx.master.units.size);
-    }       
+    }
     boxPoint { arg x,y;// view coords
         var col,row;
         if(boxBounds.containsPoint(x@y).not,{
@@ -197,68 +204,63 @@ MxMatrixGui : SCViewHolder {
         ^this.getUnit(this.boxPoint(x,y) ?? {^nil});
     }
     getByCoord { arg x,y;
-        // outlet, inlet, box, fader    
-        var unit,bp,oi,ioArea,b,iolets;
+        // outlet, inlet, box, fader
+        var unit,bp,oi,ioArea,b,iolets,p;
+        p = x@y;
         bp = this.boxPoint(x,y);
         if(bp.notNil,{
             unit = this.getUnit(bp);
             if(unit.isNil,{
                 ^nil
             });
-             b = this.getBounds(bp);
+            b = this.getBounds(bp);
             //outlet hit
-             ioArea = this.outletsArea(b);
-             if(ioArea.containsPoint(x@y),{
-                iolets = unit.outlets;
-                if(iolets.size > 0,{
-                    oi = ((x - ioArea.left).asFloat / (ioArea.width.asFloat / iolets.size)).floor.asInteger;
-                    ^iolets[oi]
+            if(unit.outlets.size > 0,{
+                ioArea = this.outletsArea(b);
+                if(ioArea.containsPoint(p),{
+                    ^this.findIOlet(unit.outlets,ioArea,p)
                 })
             });
             //inlet hit
-             ioArea = this.inletsArea(b);
-             if(ioArea.containsPoint(x@y),{
-                iolets = unit.inlets;
-                if(iolets.size > 0,{
-                    oi = ((x - ioArea.left).asFloat / (ioArea.width.asFloat / iolets.size)).floor.asInteger;
-                    ^iolets[oi]
+            if(unit.inlets.size > 0,{
+                ioArea = this.inletsArea(b);
+                if(ioArea.containsPoint(p),{
+                    ^this.findIOlet(unit.inlets,ioArea,p)
                 })
             });
             ^unit
         });
-        ^nil
-    }
-    getOutletByCoord { arg x,y;
-        var unit,bp,oi,outletsArea,b,outlets;
-        bp = this.boxPoint(x,y);
-        unit = this.getUnit(bp);
-        if(unit.isNil,{
-            ^nil
+        if(mx.inlets.size > 0,{
+            if(p.y < ioHeight) {
+                ^this.findIOlet( mx.inlets, Rect(0,0,bounds.width,ioHeight), p )
+            }
         });
-         b = this.getBounds(bp);
-         outletsArea = Rect.newSides( b.left, b.bottom - ioHeight, b.right,b.bottom);
-         if(outletsArea.containsPoint(x@y),{
-            outlets = unit.outlets;
-            if(outlets.size > 0,{
-                oi = ((x - outletsArea.left).asFloat / (outletsArea.width.asFloat / outlets.size)).floor.asInteger;
-                ^outlets[oi]
-            })
+        if(mx.outlets.size > 0,{
+            if(p.y >= (bounds.bottom - ioHeight),{
+                ^this.findIOlet( mx.outlets, Rect(0,bounds.bottom - ioHeight,bounds.width,ioHeight), p )
+            });
         });
         ^nil
     }
-        
+    findIOlet { arg iolets,ioArea,point;
+        // inside an iolet area find which one the point is on
+        var oi;
+         oi = ((point.x - ioArea.left).asFloat / (ioArea.width.asFloat / iolets.size)).floor.asInteger;
+         ^iolets[oi]
+    }
+
     getBounds { arg boxPoint;
         // x is col
         // y is row
-        ^Rect(boxPoint.x * boxWidth,boxPoint.y * boxHeight, boxWidth, boxHeight)
+        ^Rect(boxPoint.x * boxWidth, boxPoint.y * boxHeight + boxBounds.top, boxWidth, boxHeight)
     }
     mouseDownIsDragStart { arg modifiers,x,y;
-	    var boo;
+        var boo;
         if(dragOn.isNumber,{
-		    // wait for mouse move to confirm
+            // wait for mouse move to confirm
             ^false
         },{
-	        // immediate pick up
+            // immediate pick up
             boo = modifiers.perform(dragOn);
             ^boo
         })
@@ -284,27 +286,39 @@ MxMatrixGui : SCViewHolder {
     }
     inletsArea { arg rect;
         ^Rect( rect.left, rect.top, rect.width,ioHeight)
-    }    
-    ioArea { arg iosArea,i, iowidth;
-    		^Rect(iosArea.left + (iowidth * i), iosArea.top,iowidth,ioHeight)
     }
-    inletArea { arg inlet;	    
-	    var p,b,r;
-	    p = inlet.unit.point;
-	 	b = this.getBounds(p);
-	 	r = this.inletsArea(b);
-		^this.ioArea( r , inlet.index, r.width.asFloat / inlet.unit.inlets.size )
-	}
-    outletArea { arg outlet;	    
-	    var p,b,r;
-	    p = outlet.unit.point;
-	 	b = this.getBounds(p);
-	 	r = this.outletsArea(b);
-		^this.ioArea( r , outlet.index, r.width.asFloat / outlet.unit.outlets.size )
-	}
+    ioArea { arg iosArea,i, iowidth;
+        ^Rect(iosArea.left + (iowidth * i), iosArea.top,iowidth,ioHeight)
+    }
+    inletArea { arg inlet;
+        var p,b,r;
+        p = inlet.unit.point;
+        b = this.getBounds(p);
+        r = this.inletsArea(b);
+        ^this.ioArea( r , inlet.index, r.width.asFloat / inlet.unit.inlets.size )
+    }
+    outletArea { arg outlet;
+        var p,b,r;
+        p = outlet.unit.point;
+        b = this.getBounds(p);
+        r = this.outletsArea(b);
+        ^this.ioArea( r , outlet.index, r.width.asFloat / outlet.unit.outlets.size )
+    }
+    drawIOlets { arg ioarea,lets;
+        var iowidth;
+        iowidth = ioarea.width.asFloat / lets.size;
+        lets.do { arg outlet,i;
+            var or;
+            or = this.ioArea(ioarea,i,iowidth);
+            pen.color = outlet.spec.color;
+            pen.fillRect(or);
+            pen.color = Color.grey(alpha: 0.4);
+            pen.strokeRect(or);
+            pen.stringLeftJustIn(outlet.name.asString,or.insetBy(1,1))
+        }
+    }
     drawGrid {
         var d,box,style,r;
-        pen = GUI.pen;
         d = { arg rect,unit,styleName,boxPoint;
             var style,styleNames,name,ioarea,iowidth;
             // cascade styles: defaultStyle + box style + box's set styles (playing, selected) + temp style (down, focused)
@@ -314,7 +328,7 @@ MxMatrixGui : SCViewHolder {
                 name = unit.name
             },{
                 styleNames = [];
-            });         
+            });
             if(styleName.notNil,{
                 styleNames = styleNames.add(styleName)
             });
@@ -322,8 +336,8 @@ MxMatrixGui : SCViewHolder {
                 styles[sn].keysValuesDo { arg k,v;
                     style[k] = v.value(style[k],unit)
                 }
-            };      
-                    
+            };
+
             pen.color = style['boxColor'];
             pen.fillRect( rect );
             pen.color = style['borderColor'];
@@ -336,31 +350,13 @@ MxMatrixGui : SCViewHolder {
                 },{
                     pen.stringLeftJustIn(name, rect.insetBy(2,2) )
                 });
-                
+
                 // outlets
                 if(unit.outlets.size > 0,{
-                    ioarea = this.outletsArea(rect);
-                    iowidth = ioarea.width.asFloat / unit.outlets.size;
-                    unit.outlets.do { arg outlet,i;
-                        var or;
-                        or = this.ioArea(ioarea,i,iowidth);
-                        pen.color = outlet.spec.color;
-                        pen.fillRect(or);
-                        pen.color = Color.grey(alpha: 0.4);
-                        pen.strokeRect(or);
-                    }
+                    this.drawIOlets(this.outletsArea(rect),unit.outlets);
                 });
                 if(unit.inlets.size > 0,{
-                    ioarea = this.inletsArea(rect);
-                    iowidth = ioarea.width.asFloat / unit.inlets.size.asFloat;
-                    unit.inlets.do { arg inlet,i;
-                        var or;
-                        or = this.ioArea(ioarea,i,iowidth);
-                        pen.color = inlet.spec.color;
-                        pen.fillRect(or);
-                        pen.color = Color.grey(alpha: 0.4);
-                        pen.strokeRect(or);
-                    }
+                    this.drawIOlets(this.inletsArea(rect),unit.inlets);
                 });
             });
         };
@@ -383,67 +379,70 @@ MxMatrixGui : SCViewHolder {
                 d.value(this.getBounds(p),unit, nil, p );
             })
         });
-        
+        // main inlets / outlets
+        this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight),mx.inlets);
+        this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight).bottom_(bounds.bottom),mx.outlets);
+
         // draw focused on top so border style wins out against neighbors
         if(focusedPoint.notNil,{
             if(isDown) {
                 style = 'down'
-            }{
+            } {
                 style = 'focused'
             };
             d.value(this.getBounds(this.focusedPoint),mx.at(this.focusedPoint.x,this.focusedPoint.y),style, this.focusedPoint );
         });
 
         if(dragging.notNil,{
-	        if(dragging.isKindOf(MxUnit),{
-	            d.value(
-	                Rect(draggingXY.x,draggingXY.y,boxWidth,boxHeight)
-	                	.moveBy((boxWidth / 2).neg,(boxHeight / 2).neg),
-	              dragging,
-	              'dragging',
-	              draggingXY
-	              )
-	        },{
-		        pen.color = dragging.spec.color;
-		        pen.width = 2;
-		        r = Rect(draggingXY.x,draggingXY.y,ioHeight,ioHeight).moveBy(ioHeight.neg / 2,ioHeight.neg / 2);
-		        pen.fillOval( r );
-		        pen.color = Color.red;
-		        pen.strokeOval( r );
-	        });
+            if(dragging.isKindOf(MxUnit),{
+                d.value(
+                    Rect(draggingXY.x,draggingXY.y + boxBounds.top,boxWidth,boxHeight)
+                        .moveBy((boxWidth / 2).neg,(boxHeight / 2).neg),
+                  dragging,
+                  'dragging',
+                  draggingXY
+                  )
+            },{
+                pen.color = dragging.spec.color;
+                pen.width = 2;
+                r = Rect(draggingXY.x,draggingXY.y,ioHeight,ioHeight).moveBy(ioHeight.neg / 2,ioHeight.neg / 2);
+                pen.fillOval( r );
+                pen.color = Color.blue;
+                pen.strokeOval( r );
+            });
         });
-        
+
         // inlets that can accept
         // hovering
 
         mx.cables.do { arg cable,i;
-	        var f,t,c;
-	        f = this.outletArea(cable.outlet);
-	        t = this.inletArea(cable.inlet);
-	        c = cable.outlet.spec.color;
-	        if(cable.active.not,{
-		        c = Color(c.red,c.green,c.blue,0.3)
-	        });
-	        pen.color = c;
-	        pen.width = 2;
-	        pen.moveTo(f.center);
-	        pen.lineTo(t.center);
-	        pen.stroke;
+            var f,t,c;
+            f = this.outletArea(cable.outlet);
+            t = this.inletArea(cable.inlet);
+            c = cable.outlet.spec.color;
+            if(cable.active.not,{
+                c = Color(c.red,c.green,c.blue,0.3)
+            });
+            pen.color = c;
+            pen.width = 2;
+            pen.moveTo(f.center);
+            pen.lineTo(t.center);
+            pen.stroke;
         };
         mx.autoCables.do { arg cable,i;
-	        var f,t,c;
-	        f = this.outletArea(cable.outlet);
-	        t = this.inletArea(cable.inlet);
-	        c = cable.outlet.spec.color;
-	        c = c.lighten(Color.grey,0.6);
-	        if(cable.active.not,{
-		        c = Color(c.red,c.green,c.blue,0.3)
-	        });
-	        pen.color = c;
-	        pen.width = 2;
-	        pen.moveTo(f.center);
-	        pen.lineTo(t.center);
-	        pen.stroke;
+            var f,t,c;
+            f = this.outletArea(cable.outlet);
+            t = this.inletArea(cable.inlet);
+            c = cable.outlet.spec.color;
+            c = c.lighten(Color.grey,0.6);
+            if(cable.active.not,{
+                c = Color(c.red,c.green,c.blue,0.3)
+            });
+            pen.color = c;
+            pen.width = 2;
+            pen.moveTo(f.center);
+            pen.lineTo(t.center);
+            pen.stroke;
         };
     }
     makeDefaultStyles { arg skin;
@@ -485,11 +484,11 @@ MxMatrixGui : SCViewHolder {
             borderColor: Color.blue
             );
         styles['unit'] = (
-            boxColor: { arg c; c.darken(Color(0.2202380952381, 0.40008503401361, 0.5)) },        
+            boxColor: { arg c; c.darken(Color(0.2202380952381, 0.40008503401361, 0.5)) },
             borderColor: Color(0.2202380952381, 0.40008503401361, 0.5)
             );
     }
-    
+
         // dragging on or off the matrix using command-drag
     // box
 //    beginDragAction_ { arg func;
@@ -547,7 +546,7 @@ MxMatrixGui : SCViewHolder {
     keyModifiersChangedAction_ { arg func;
         //this.setHandler('keyModifiersChangedAction',func)
     }
-    
+
 }
 
 /*

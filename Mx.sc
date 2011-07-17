@@ -3,7 +3,7 @@
 Mx : AbstractPlayerProxy {
 	
 	var <channels,<cables;
-	var myUnit,inlets,outlets;
+	var myUnit,<inlets,<outlets;
 	
 	var allocator,register,unitGroups,busses;
 	var <master;
@@ -79,12 +79,20 @@ Mx : AbstractPlayerProxy {
 				un.point = ci@ri
 			}
 		};
-		// should be outlets
+		// should be all outlets
 		master.units.do { arg un,ri;
 			un.point = channels.size@ri
-		}
+		};
+		// temporary hack to give it a point
+		// will refactor the master anyway
+		master.myUnit.point = channels.size@0;
 	}
 	addOutput { arg rate='audio',numChannels=2;
+		// change this to keep the master as just a normal channel on grid
+		// created by .mixer
+		// the MxOutlet can specify how to find that
+		// and master will be just for the player to use as its out
+		// only trick then is to make addChannel insert before the output channels
 		// add audio output
 		var chan,out;
 		chan = MxChannel.loadData([],this);
@@ -93,10 +101,10 @@ Mx : AbstractPlayerProxy {
 		});
 		
 		// do not like
-		out = MxOutlet("out",outlets.size,'audio',MxPlaysOnBus({chan.bus}));
+		out = MxOutlet("out",outlets.size,'audio'.asSpec,MxPlaysOnBus({chan.bus}));
 		this.register(out);
 		out.unit = chan.myUnit;
-
+		
 		outlets = outlets.add(out);
 		adding = adding.add(chan);
 		^chan
@@ -297,6 +305,8 @@ Mx : AbstractPlayerProxy {
 			cable.stopToBundle(bundle)
 		};
 	}
+	
+	guiClass { ^MxGui }
 }
 
 

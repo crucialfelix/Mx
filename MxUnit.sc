@@ -132,7 +132,9 @@ MxUnit  {
 		^handlers.use { ~numChannels.value }
 	}
 	// relocate  toBeat, atTime
-	// gui
+	gui { arg layout,bounds;
+		^handlers.use { ~gui.value(layout,bounds) }
+	}		
 	// timeGui
 
 
@@ -151,7 +153,8 @@ MxUnit  {
 
 			play: { arg group, atTime, bus;},
 			stop: { arg atTime,andFreeResources = true;},
-			numChannels: { 2 }
+			numChannels: { 2 },
+			gui: { arg layout,bounds; ~source.gui(layout,bounds) }
 
 			// crop
 			// relocate: { arg toBeat, atTime; }
