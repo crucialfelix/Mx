@@ -70,12 +70,22 @@ MxChannel : AbstractPlayerProxy {
 	}
 	removeAt { arg index;
 		var old;
-		old = units.at(index);
-		if(old.notNil,{
-			removing = removing.add(old)
-		});
-		units.put(index,nil);
+		if(units.size > index,{
+			old = units.at(index);
+			if(old.notNil,{
+				removing = removing.add(old)
+			});
+			units.put(index,nil);
+		})
 		^old
+	}
+	move { arg fromIndex,toIndex;
+		var old;
+		// on the update this removes then adds
+		old = this.removeAt(fromIndex);
+		if(old.notNil,{
+			this.put(toIndex,old)
+		})
 	}
 	makeSource {
 		source = Patch(MxChannel.channelInstr,[
@@ -160,7 +170,7 @@ MxChannel : AbstractPlayerProxy {
 	groupForIndex { arg index,bundle;
 		// make a group on demand if needed
 		var g,prev;
-		unitGroups.at(index) ?? {
+		^unitGroups.at(index) ?? {
 			g = Group.basicNew(this.server);
 			prev = unitGroups.copyRange(0,index).reverse.detect(_.notNil);
 			if(prev.notNil,{
@@ -178,7 +188,9 @@ MxChannel : AbstractPlayerProxy {
 	registerWithMx { arg mx;
 		mx.register(this, uid);
 		units.do { arg unit;
-			unit.registerWithMx(mx);
+			if(unit.notNil) {
+				unit.registerWithMx(mx);
+			}
 		}	
 	}
 	

@@ -6,8 +6,6 @@ MxJack {
 		if(spec.isKindOf(AudioSpec),{
 			^MxArJack.new.value_(defArg ? 127)
 		});
-		// StaticSpec
-		// StaticIntegerSpec
 		// EnvSpec
 		// SampleSpec
 		// BusSpec
@@ -17,8 +15,14 @@ MxJack {
 		if(spec.isKindOf(TrigSpec),{
 			^MxTrJack.new
 		});
+		if(spec.isKindOf(StaticSpec),{
+			^NumberEditor(defArg ? spec.default,spec)
+		});
+		if(spec.isKindOf(NamedIntegersSpec),{
+			^spec.defaultControl(defArg)
+		});
 		if(spec.isKindOf(ControlSpec),{
-			^MxKrJack.new.value_(defArg ? spec.default)
+			^MxKrJack.new.value_(defArg ? spec.default).spec_(spec)
 			//^KrNumberEditor(defArg ? spec.default,spec)
 		});
 		
@@ -28,7 +32,7 @@ MxJack {
 
 MxKrJack : MxJack {
 
-	var <value,<patchOut;
+	var <value,<patchOut,<>spec;
 	
 	*new { arg v;
 		^super.new.value_(v)
@@ -60,7 +64,8 @@ MxKrJack : MxJack {
 	}
 	connectToPatchIn { arg patchIn,needsValueSetNow = true;
 		patchOut.connectTo(patchIn,needsValueSetNow);
-	}	
+	}
+	guiClass { ^MxKrJackGui }
 }
 
 

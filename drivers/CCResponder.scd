@@ -7,7 +7,7 @@ MxUnit.register('CCResponder',
 	make: { arg ccr;
 		var inlets,outlets,sips;
 		inlets  = [];
-		outlets = [ MxOutlet("CC"+ccr.num, 0, cs ,
+		outlets = [ MxOutlet("CC"+ccr.matchEvent.b, 0, cs ,
 						MxHasAction({arg action; ccr.function = action  }) ) 
 				];
 		MxUnit(ccr,inlets,outlets);

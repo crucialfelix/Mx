@@ -104,7 +104,9 @@ MxCable {
 			},{ arg cable,bundle;
 				var synth;
 				synth = cable.state.removeAt('synth');
-				bundle.add( synth.freeMsg )
+				if(synth.notNil,{
+					bundle.add( synth.freeMsg )
+				})
 			}));	
 
 		this.register(\MxHasAction,\MxSetter,

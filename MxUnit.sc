@@ -9,6 +9,9 @@ MxUnit  {
 	
 	*make { arg source,mx,ids,class;
 		var handlers;
+		if(source.isKindOf(MxUnit),{
+			^source
+		});
 		handlers = this.handlersFor(class ? source.class);
 		ids = ids ? [[],[]];
 		^handlers.use {
@@ -97,9 +100,6 @@ MxUnit  {
 		});
 		Error("Outlet not found:" + index).throw
 	}
-	name {
-		^source.asString
-	}
 	*register { arg classname,handlers;
 		registery.put(classname.asSymbol, handlers)
 	}
@@ -131,10 +131,16 @@ MxUnit  {
 	numChannels {
 		^handlers.use { ~numChannels.value }
 	}
+	copySource {
+		^handlers.use { ~copy.value }
+	}
 	// relocate  toBeat, atTime
+	name {
+		^handlers.use { ~name.value }
+	}
 	gui { arg layout,bounds;
 		^handlers.use { ~gui.value(layout,bounds) }
-	}		
+	}	
 	// timeGui
 
 
@@ -145,6 +151,7 @@ MxUnit  {
 			make: { arg object; MxUnit(object) },
 			save: { ~source.asCompileString },
 			load: { arg string; string.compile.value() },
+			copy: { ~source.deepCopy },
 			
 			prepareToBundle:  { arg agroup, bundle, private, bus; },
 			spawnToBundle: { arg bundle; },
@@ -154,11 +161,13 @@ MxUnit  {
 			play: { arg group, atTime, bus;},
 			stop: { arg atTime,andFreeResources = true;},
 			numChannels: { 2 },
-			gui: { arg layout,bounds; ~source.gui(layout,bounds) }
+			gui: { arg layout,bounds; 
+				~source.gui(layout ?? {Window(~name.value,bounds).front},bounds) 
+			},
+			name: { ~source.asString }
 
 			// crop
 			// relocate: { arg toBeat, atTime; }
-			// gui
 			// timeGui
 			// zoomTimeGui
 			// asCompileString
@@ -173,7 +182,7 @@ MxInlet {
 	var <>uid,<>unit;
 	
 	*new { arg name,index,spec,adapter;
-		^super.newCopyArgs(name.asSymbol,index,spec,adapter)
+		^super.newCopyArgs(name.asSymbol,index,spec.asSpec,adapter)
 	}
 	storeArgs {
 		^[name,index,spec,adapter]

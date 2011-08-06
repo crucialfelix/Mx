@@ -53,14 +53,15 @@ Mx : AbstractPlayerProxy {
 	}
 	insertChannel { arg index, objects;
 		var chan,units;
-		units = (objects ? []).collect(MxUnit.make(_,this));
-		chan = MxChannel(units,cableTo:master.uid);
-		chan.makeUnit(this).registerWithMx(this);
+		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj,this)}});
+		chan = this.prMakeChannel(units);
 		
 		if(channels.size < (index+1),{
-			channels = channels.extend(index+1,nil)
+			channels = channels.extend(index,this.prMakeChannel);
+			channels = channels.add(chan)
+		},{
+			channels.put(index,chan);
 		});
-		channels.put(index,chan);
 		this.updatePoints;
 		chan.pending = true;
 		adding = adding.add(chan);
@@ -71,21 +72,34 @@ Mx : AbstractPlayerProxy {
 		chan = channels.removeAt(index);
 		chan.pending = true;
 		removing = removing.add( chan );
+		// cut any cables going to any of those units
+		
 		this.updatePoints;
+	}
+	prMakeChannel { arg units;
+		var chan;
+		chan = MxChannel(units ? [],cableTo:master.uid);
+		chan.makeUnit(this).registerWithMx(this);
+		^chan
 	}
 	updatePoints {
 		channels.do { arg ch,ci;
 			ch.units.do { arg un,ri;
-				un.point = ci@ri
-			}
+				if(un.notNil) {
+					un.point = ci@ri
+				}
+			};
+			ch.myUnit.point = ci@(ch.units.size);// temp
 		};
 		// should be all outlets
 		master.units.do { arg un,ri;
-			un.point = channels.size@ri
+			if(un.notNil) {
+				un.point = channels.size@ri
+			}
 		};
 		// temporary hack to give it a point
 		// will refactor the master anyway
-		master.myUnit.point = channels.size@0;
+		master.myUnit.point = channels.size@master.units.size;
 	}
 	addOutput { arg rate='audio',numChannels=2;
 		// change this to keep the master as just a normal channel on grid
@@ -113,13 +127,43 @@ Mx : AbstractPlayerProxy {
 		^(channels.at(chan) ? []).at(index)
 	}
 	put { arg chan,index,object;
-		var channel,unit;
-		channel = channels[chan];// should create chans if needed
+		var channel,unit,old;
+		channel = channels[chan] ?? {
+			this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
+			^this
+		};
 		unit = MxUnit.make(object,this);
+		old = channel.at(index);
+		if(old.notNil,{
+			// cut or take any cables
+			this.disconnectUnit(old)
+		});
 		channel.put(index,unit);
-		this.updatePoints
+		this.updatePoints;
+		^unit
+	}
+	move { arg chan,index,toChan,toIndex;
+		var moving;
+		moving = this.at(chan,index) ?? {^this};
+		if(chan != toChan) {
+			channels[chan].removeAt(index);
+			// not yet checking if some cables need to be cut
+			this.put(toChan,toIndex, moving);
+		} {
+			// not yet checking if some cables need to be cut
+			channels[chan].move(index,toIndex)
+		};
+		this.updatePoints;
 	}
 	
+	/* playAt { arg chan,index;
+		var unit;
+		unit = this.at(chan,index);
+		if(unit.isPrepared.not,{
+			unit.play( MxChannel )
+		})
+	} */
+		
 	// API
 	getInlet { arg point,index;
 		var unit;
@@ -171,43 +215,53 @@ Mx : AbstractPlayerProxy {
 	disconnect { arg fromUnit,outlet, toUnit, inlet;
 		// TODO
 	}
+	disconnectUnit { arg unit;
+		cables.copy.do { arg cable;
+			if(cable.inlet.unit === unit or: {cable.outlet.unit === unit},{
+				this.disconnectCable(cable);
+			})
+		}
+	}
 	mute { arg channel,boo=true;
 		channels[channel].mute = boo
 	}
 	// enact all changes on the server after things have been added/removed dis/connected
+	// syncChanges
 	update { arg bundle=nil;
 		var b;
-		b = bundle ?? { MixedBundle.new };
-		removing.do { arg r; r.freeToBundle(b) };
-		// new channels
-		adding.do { arg a;
-			var g,prev,ci;
-			if(a.isKindOf(MxChannel),{
-				g = Group.basicNew(group.server);
-				ci = channels.indexOf(a);
-				prev = channels[ ci - 1];
-				if(prev.notNil,{
-					b.add( g.addAfterMsg( prev.group ) )
+		if(this.isPlaying,{
+			b = bundle ?? { MixedBundle.new };
+			removing.do { arg r; r.freeToBundle(b) };
+			// new channels
+			adding.do { arg a;
+				var g,prev,ci;
+				if(a.isKindOf(MxChannel),{
+					g = Group.basicNew(group.server);
+					ci = channels.indexOf(a);
+					prev = channels[ ci - 1];
+					if(prev.notNil,{
+						b.add( g.addAfterMsg( prev.group ) )
+					},{
+						b.add( g.addToHeadMsg( group ) )
+					});
+					a.prepareToBundle(group,b,true,groupToUse: g); 
 				},{
-					b.add( g.addToHeadMsg( group ) )
-				});
-				a.prepareToBundle(group,b,true,groupToUse: g); 
-			},{
-				a.prepareToBundle(group,b,true);
-			}); 
-			a.spawnToBundle(b) 
-		};
-		channels.do { arg chan; chan.update(b); };
-		b.addFunction({
-			// TODO
-			//removing.do { arg r;
-			//	r.unregisterWithMx
-				
-			removing = adding = nil
-		});
-		this.autoCablesToBundle(b);
-		if(bundle.isNil,{
-			b.send(this.server)
+					a.prepareToBundle(group,b,true);
+				}); 
+				a.spawnToBundle(b) 
+			};
+			channels.do { arg chan; chan.update(b); };
+			b.addFunction({
+				// TODO
+				//removing.do { arg r;
+				//	r.unregisterWithMx
+					
+				removing = adding = nil
+			});
+			this.autoCablesToBundle(b);
+			if(bundle.isNil,{
+				b.send(this.server)
+			});
 		});
 		^b
 	}
@@ -270,7 +324,7 @@ Mx : AbstractPlayerProxy {
 			var newautos,chanOut;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
-				if(patched.includes(unit).not,{
+				if(unit.notNil and: patched.includes(unit).not,{
 					if(autoCabled.at(unit).isNil ,{
 						newautos = newautos.add( unit );
 					},{

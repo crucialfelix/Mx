@@ -14,6 +14,8 @@ MxUnit.register('TotalTracker',
 (
 	make: { arg player;
 		var inlets,outlets,sips;
+		~loadDefs.value;
+		
 		sips = [1,2,3,4].collect { arg i; 
 				var ii;
 				ii = i + 1;
@@ -48,6 +50,7 @@ MxUnit.register('TotalTracker',
 	},
 	load: { arg data;
 		var t;
+		~loadDefs.value;
 		t = TotalTracker(data[0],false);
 		if(data[1] == "song",{
 			t.app.setSongPlayMode
@@ -59,5 +62,17 @@ MxUnit.register('TotalTracker',
 			t.app.setSongControl(i+1,v)
 		};
 		t
+	},
+	name: { ~source.name },
+	gui: {
+		InfiniteGesture(gui:false).total_(~source).gui
+	},
+	
+	// private
+	loadDefs: {
+		if(TrEventDef.eventDefs.size == 0,{
+			TrEventDef.loadAll;
+		})
 	}
+
 ));

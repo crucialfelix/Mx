@@ -56,7 +56,9 @@ MxUnit.register('Instr',(
 	save: { [~source.instr.dotNotation, ~source.inputs] },
 	load: { arg nameinp;
 		[Instr(nameinp[0]),nameinp[1]]
-	}
+	},
+	copy: { ~source.instr },
+	name: { ~source.instr.dotNotation }
 
 ));
 
