@@ -1,16 +1,18 @@
-
-var cs;
-cs = ControlSpec(0,127,\lin,1);
+/*
+	for the moment make this a 0..1 generic slider
+	and let the mapping on the target take care of range
+*/
 
 MxUnit.register('NumberEditor',
 (
 	make: { arg num;
-		var inlets,outlets,sips;
+		var inlets,outlets,sips,ne;
+		ne = NumberEditor(num,\unipolar);
 		inlets  = [];
-		outlets = [ MxOutlet(num.asString, 0, num.spec ,
-						MxHasAction({arg action; num.action = action  }) ) 
+		outlets = [ MxOutlet(ne.asString, 0, ne.spec ,
+						MxHasAction({arg action; ne.action = action  }) ) 
 				];
-		MxUnit(num,inlets,outlets);
+		MxUnit(ne,inlets,outlets);
 	},
 	spec: {
 		~source.spec
@@ -23,7 +25,8 @@ MxUnit.register('NumberEditor',
 	},
 
 	save: {
-		~source
+		// this just saves the value
+		~source.value
 	},
 	load: { arg data;
 		data
