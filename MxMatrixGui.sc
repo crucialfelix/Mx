@@ -79,6 +79,9 @@ MxMatrixGui : SCViewHolder {
 			if(this.isDragging(modifiers,x,y),{
 				if(dragging.isNil,{ // initiating drag now because it moved far enough
 					dragging = this.getByCoord(mouseDownPoint.x,mouseDownPoint.y);
+					if(dragging.class === MxInlet,{ // not these
+						dragging = nil
+					});
 				});
 				draggingXY = x@y;
 				this.view.refresh;
@@ -432,6 +435,7 @@ MxMatrixGui : SCViewHolder {
 				  draggingXY
 				  )
 			},{
+				// outlet
 				pen.color = dragging.spec.color;
 				pen.width = 2;
 				r = Rect(draggingXY.x,draggingXY.y,ioHeight,ioHeight).moveBy(ioHeight.neg / 2,ioHeight.neg / 2);
@@ -452,8 +456,13 @@ MxMatrixGui : SCViewHolder {
 			if(cable.active.not,{
 				c = Color(c.red,c.green,c.blue,0.3)
 			});
+			pen.color = Color.black;
+			pen.width = 3;
+			pen.moveTo(f.center);
+			pen.lineTo(t.center);
+			pen.stroke;
 			pen.color = c;
-			pen.width = 2;
+			pen.width = 1;
 			pen.moveTo(f.center);
 			pen.lineTo(t.center);
 			pen.stroke;
@@ -467,8 +476,13 @@ MxMatrixGui : SCViewHolder {
 			if(cable.active.not,{
 				c = Color(c.red,c.green,c.blue,0.3)
 			});
+			pen.color = Color.grey;
+			pen.width = 3;
+			pen.moveTo(f.center);
+			pen.lineTo(t.center);
+			pen.stroke;
 			pen.color = c;
-			pen.width = 2;
+			pen.width = 1;
 			pen.moveTo(f.center);
 			pen.lineTo(t.center);
 			pen.stroke;
