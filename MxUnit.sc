@@ -121,7 +121,7 @@ MxUnit  {
 	}
 	freeToBundle { arg bundle;
 		^handlers.use { ~freeToBundle.value(bundle) }
-	}		
+	}	
 	play { arg group,atTime,bus;
 		^handlers.use { ~play.value(group,atTime,bus) }
 	}
@@ -130,6 +130,9 @@ MxUnit  {
 	}
 	numChannels {
 		^handlers.use { ~numChannels.value }
+	}
+	spec {
+		^handlers.use { ~spec.value }
 	}
 	copySource {
 		^handlers.use { ~copy.value }
@@ -160,7 +163,8 @@ MxUnit  {
 
 			play: { arg group, atTime, bus;},
 			stop: { arg atTime,andFreeResources = true;},
-			numChannels: { 2 },
+			numChannels: { ~source.numChannels ? 2 },
+			spec: { ~source.spec ?? {'audio'.asSpec} },
 			gui: { arg layout,bounds; 
 				~source.gui(layout ?? {Window(~name.value,bounds).front},bounds) 
 			},
