@@ -93,7 +93,9 @@ MxDrawerGui : ObjectGui {
         fg = Color(0.94029850746269, 0.96588486140725, 1.0);
 		
 		// view = userView ?? { UserView(layout,bounds ?? { Rect(0,0,100,800) }) };
-		
+		ActionButton(layout,"..",{
+			this.drillUp
+		});
 		// using ListView, though it cannot drag directly into a unit yet
         lv = ListView(layout,min(layout.bounds.width,200)@(layout.bounds.height-17-17-4-20));
 
@@ -137,6 +139,7 @@ MxDrawerGui : ObjectGui {
    			});
             this.update;
         };
+        lv.keyDownAction = this.keyDownResponder;
 	}
 	drillDown { arg itemGroup;
 		items = itemGroup.drill; // title, data
@@ -148,7 +151,24 @@ MxDrawerGui : ObjectGui {
         keys = MxDrawer.registery.keys.as(Array).sort;
         items = keys.collect { arg k; MxDrawer.registery[k] };
         lv.items = keys;
-	}		
+	}
+	keyDownResponder {
+		var k;
+		k = UnicodeResponder.new;
+		//  control 63232
+		k.register(   63232  ,   false, false, false, true, {
+			this.drillUp
+		});
+		//  control 63233
+		k.register(   63233  ,   false, false, false, true, {
+			this.drillDown
+		});
+		
+		^k ++ { arg view, char,modifier,unicode,keycode;
+				lv.defaultKeyDownAction(char,modifier,unicode)
+			};
+	}
+				
 }
 
 				
