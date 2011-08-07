@@ -19,7 +19,7 @@ MxChannel : AbstractPlayerProxy {
 		^super.new.init(uid,cableTo,units ? [],db,mute,solo,limit,breakOnBadValues,breakOnDbOver)
 	}
 	storeArgs { 
-		^[units.collect(_.saveData),db,mute,solo,limit,breakOnBadValues,breakOnDbOver,cableTo,uid] 
+		^[units.collect({|u| u !? {u.saveData}}),db,mute,solo,limit,breakOnBadValues,breakOnDbOver,cableTo,uid] 
 	}
 	saveData {
 		^this.storeArgs
@@ -28,7 +28,7 @@ MxChannel : AbstractPlayerProxy {
 		var units;
 		if(data.isSequenceableCollection,{
 			units = data[0] ? [];
-			units = units.collect(MxUnit.loadData(_,mx));
+			units = units.collect({ |d| d !? {MxUnit.loadData(d,mx)}});
 			if(data.size == 0,{
 				data = [units]
 			},{
@@ -141,7 +141,9 @@ MxChannel : AbstractPlayerProxy {
 			bundle.add( mixGroup.freeMsg );
 		});
 		unitGroups.do { arg u;
-			bundle.add( u.freeMsg );
+			if(u.notNil,{
+				bundle.add( u.freeMsg );
+			});
 		};
 		bundle.addFunction({
 			mixGroup = unitGroups = nil;
