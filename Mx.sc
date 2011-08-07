@@ -213,7 +213,19 @@ Mx : AbstractPlayerProxy {
 		cables = cables.add( cable );
 	}
 	disconnect { arg fromUnit,outlet, toUnit, inlet;
-		// TODO
+		// should be in API
+		if(outlet.isKindOf(MxOutlet).not,{
+			outlet = this.getOutlet(fromUnit,outlet);
+		});
+		if(inlet.isKindOf(MxInlet).not,{	
+			inlet = this.getInlet(toUnit,inlet);
+		});
+		cables.do { arg cab;
+			if(cab.inlet === inlet and: {cab.outlet === outlet},{
+				^this.disconnectCable(cab)
+			})
+		};
+		^nil
 	}
 	disconnectUnit { arg unit;
 		cables.copy.do { arg cable;
@@ -324,7 +336,7 @@ Mx : AbstractPlayerProxy {
 			var newautos,chanOut;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
-				if(unit.notNil and: patched.includes(unit).not,{
+				if(unit.notNil and: {patched.includes(unit).not} and: {unit.spec.isKindOf(AudioSpec)},{
 					if(autoCabled.at(unit).isNil ,{
 						newautos = newautos.add( unit );
 					},{
