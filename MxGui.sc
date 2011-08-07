@@ -11,6 +11,7 @@ MxGui : AbstractPlayerGui {
 		bounds = bounds ?? {layout.innerBounds.moveTo(0,0)};
 		bb = bounds.resizeBy(-200,0);
 		boxes = MxMatrixGui(model, layout, bb );
+		boxes.transferFocus(0@0);
 		this.drawer(layout,(bounds - bb).resizeTo(200,bounds.height));
 	}
 
