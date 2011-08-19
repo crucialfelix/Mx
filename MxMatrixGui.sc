@@ -8,7 +8,8 @@ MxMatrixGui : SCViewHolder {
 	var <>currentDragPoint,draggingXY,draggingOutlet,mouseDownPoint,isDown=false;
 
 	var selected,hovering,dragging;
-
+	var points;
+	
 	var <>ioHeight=10,<>faderHeight=100.0;
 
 	var <>dragOn=4; // pixel distance to initiate drag or a symbol like \isCntrl
@@ -35,6 +36,7 @@ MxMatrixGui : SCViewHolder {
 		this.makeDefaultStyles(skin);
 
 		this.calcNumRows;
+		
 		boxWidth = 100.0;//bounds.width.asFloat / numCols;
 		boxHeight = 80.0;//min( (bounds.height.asFloat - faderHeight) / numRows, 80 );
 	   
@@ -47,12 +49,20 @@ MxMatrixGui : SCViewHolder {
 			w = Window(mx.asString, bounds.resizeBy(40,40).moveTo(10,250) );
 			w.front
 		});
-
+		Updater(mx,{ arg mx,message;
+			if(message == 'grid',{
+				this.calcNumRows;
+				this.updatePoints;
+			})
+		}).removeOnClose(w);
+		
 		bounds = Rect(bounds.left+1, bounds.top+1, bounds.width, bounds.height);
 		view = UserView(w, bounds);
+
 		//view.resize = 5;
 		bounds = bounds.moveTo(0,0); // my reference
-	   this.calcBoxBounds;
+		this.calcBoxBounds;
+		this.updatePoints;
 
 		view.focusColor = defaultStyle.borderColor;
 
@@ -148,7 +158,7 @@ MxMatrixGui : SCViewHolder {
 	// internal dragging
 	endDrag { arg x,y,modifiers;
 		// patch it
-		var target,targetPoint;
+		var target,targetPoint,dp;
 		targetPoint = this.boxPoint(x,y);
 		target = this.getByCoord(x,y);
 		if(target.notNil,{
@@ -163,7 +173,8 @@ MxMatrixGui : SCViewHolder {
 			if(modifiers.isAlt,{
 				mx.put(targetPoint.x,targetPoint.y, dragging.copySource );
 			},{
-				mx.move(dragging.point.x,dragging.point.y,targetPoint.x,targetPoint.y)
+				dp = points[dragging];
+				mx.move(dp.x,dp.y,targetPoint.x,targetPoint.y)
 			});
 			mx.update;
 		});
@@ -196,6 +207,30 @@ MxMatrixGui : SCViewHolder {
 		numCols = mx.channels.size + 1;
 		numRows = mx.channels.maxValue({ arg ch; ch.units.size }) ? 0;
 		numRows = max(numRows,mx.master.units.size) + 1;
+	}
+	updatePoints {
+		var lastRow,lastCol,bounds;
+		points = IdentityDictionary.new;
+		bounds = view.bounds;
+		lastRow = (bounds.height / boxHeight).floor - 1;
+		lastCol = (bounds.width / boxWidth).floor - 1;
+		mx.channels.do { arg ch,ci;
+			ch.units.do { arg un,ri;
+				if(un.notNil) {
+					points[un] = ci@ri;
+				}
+			};
+			// or should it put the fader there ?
+			points[ch.fader.myUnit] = ci@(lastRow);
+		};
+		// should be all outlets
+		mx.master.units.do { arg un,ri;
+			if(un.notNil) {
+				points[un] = (lastCol)@ri
+			}
+		};
+		// or master fader
+		points[mx.master.fader.myUnit] = (lastCol)@(lastRow)
 	}
 	calcBoxBounds {
 		boxBounds = Rect(bounds.left,
@@ -260,11 +295,13 @@ MxMatrixGui : SCViewHolder {
 			});
 			^unit
 		});
+		// top level inlets
 		if(mx.inlets.size > 0,{
 			if(p.y < ioHeight) {
 				^this.findIOlet( mx.inlets, Rect(0,0,bounds.width,ioHeight), p )
 			}
 		});
+		// top level outlets
 		if(mx.outlets.size > 0,{
 			if(p.y >= (bounds.bottom - ioHeight),{
 				^this.findIOlet( mx.outlets, Rect(0,bounds.bottom - ioHeight,bounds.width,ioHeight), p )
@@ -272,10 +309,10 @@ MxMatrixGui : SCViewHolder {
 		});
 		^nil
 	}
-	findIOlet { arg iolets,ioArea,point;
+	findIOlet { arg iolets,ioArea,screenPoint;
 		// inside an iolet area find which one the point is on
 		var oi;
-		oi = ((point.x - ioArea.left).asFloat / (ioArea.width.asFloat / iolets.size)).floor.asInteger;
+		oi = ((screenPoint.x - ioArea.left).asFloat / (ioArea.width.asFloat / iolets.size)).floor.asInteger;
 		^iolets[oi]
 	}
 
@@ -322,14 +359,14 @@ MxMatrixGui : SCViewHolder {
 	}
 	inletArea { arg inlet;
 		var p,b,r;
-		p = inlet.unit.point;
+		p = points[inlet.unit];
 		b = this.getBounds(p);
 		r = this.inletsArea(b);
 		^this.ioArea( r , inlet.index, r.width.asFloat / inlet.unit.inlets.size )
 	}
 	outletArea { arg outlet;
 		var p,b,r;
-		p = outlet.unit.point;
+		p = points[outlet.unit];
 		b = this.getBounds(p);
 		r = this.outletsArea(b);
 		^this.ioArea( r , outlet.index, r.width.asFloat / outlet.unit.outlets.size )
@@ -373,14 +410,10 @@ MxMatrixGui : SCViewHolder {
 			pen.color = style['borderColor'];
 			pen.strokeRect( rect );
 			if(unit.notNil,{
-				pen.color = style['fontColor'];
-				pen.font = style['font'];
-				if(style['center'],{
-					pen.stringCenteredIn(name,rect)
-				},{
-					pen.stringLeftJustIn(name, rect.insetBy(2,2) )
-				});
-
+				// central box draw writes the name
+				unit.draw(pen,rect,style);
+				// 
+				
 				// outlets
 				if(unit.outlets.size > 0,{
 					this.drawIOlets(this.outletsArea(rect),unit.outlets);
@@ -396,21 +429,35 @@ MxMatrixGui : SCViewHolder {
 		pen.fillRect(bounds); // background fill
 
 		// each time ?
-		this.calcNumRows;
+		//this.calcNumRows;
 		this.calcBoxBounds;
-		
+
+		points.keysValuesDo { arg unit,p;
+			d.value(this.getBounds(p),unit,nil,p);
+		};
+		/*		
 		numCols.do({ arg ci;
+			var last = numRows - 1;
 			numRows.do({ arg ri;
 				var p,unit;
 				p = ci@ri;
 				if(ci == mx.channels.size,{ // master
-					unit = mx.master.units.at(ri)
+					if(ri == last,{
+						unit = mx.master.fader.myUnit
+					},{
+						unit = mx.master.units.at(ri)
+					})
 				},{
-				   unit = mx.at(p.x,p.y);
+					if(ri == last,{
+						unit = mx.channels[ci].fader.myUnit
+					},{
+					   unit = mx.at(p.x,p.y);
+					})
 				});
 				d.value(this.getBounds(p),unit, nil, p );
-			})
+			});
 		});
+		*/
 		// main inlets / outlets
 		this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight),mx.inlets);
 		this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight).bottom_(bounds.bottom),mx.outlets);

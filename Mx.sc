@@ -62,7 +62,7 @@ Mx : AbstractPlayerProxy {
 		},{
 			channels.put(index,chan);
 		});
-		this.updatePoints;
+		this.changed('grid');
 		chan.pending = true;
 		adding = adding.add(chan);
 		^chan
@@ -73,8 +73,7 @@ Mx : AbstractPlayerProxy {
 		chan.pending = true;
 		removing = removing.add( chan );
 		// cut any cables going to any of those units
-		
-		this.updatePoints;
+		this.changed('grid');
 	}
 	prMakeChannel { arg units;
 		var chan;
@@ -82,25 +81,7 @@ Mx : AbstractPlayerProxy {
 		chan.makeUnit(this).registerWithMx(this);
 		^chan
 	}
-	updatePoints {
-		channels.do { arg ch,ci;
-			ch.units.do { arg un,ri;
-				if(un.notNil) {
-					un.point = ci@ri
-				}
-			};
-			ch.myUnit.point = ci@(ch.units.size);// temp
-		};
-		// should be all outlets
-		master.units.do { arg un,ri;
-			if(un.notNil) {
-				un.point = channels.size@ri
-			}
-		};
-		// temporary hack to give it a point
-		// will refactor the master anyway
-		master.myUnit.point = channels.size@master.units.size;
-	}
+
 	addOutput { arg rate='audio',numChannels=2;
 		// change this to keep the master as just a normal channel on grid
 		// created by .mixer
@@ -139,7 +120,7 @@ Mx : AbstractPlayerProxy {
 			this.disconnectUnit(old)
 		});
 		channel.put(index,unit);
-		this.updatePoints;
+		this.changed('grid');
 		^unit
 	}
 	move { arg chan,index,toChan,toIndex;
@@ -153,7 +134,8 @@ Mx : AbstractPlayerProxy {
 			// not yet checking if some cables need to be cut
 			channels[chan].move(index,toIndex)
 		};
-		this.updatePoints;
+		this.changed('grid');
+	}
 	}
 	
 	/* playAt { arg chan,index;

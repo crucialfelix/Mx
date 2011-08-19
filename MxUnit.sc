@@ -5,11 +5,11 @@ MxUnit  {
 	classvar registery,<protoHandler;
 
 	var <>source,<inlets,<outlets,<>handlers;
-	var <>group,<>point;
+	var <>group;
 	
 	*make { arg source,mx,ids,class;
 		var handlers;
-		if(source.isKindOf(MxUnit),{
+		if(source.isKindOf(MxUnit) or: {source.isNil},{
 			^source
 		});
 		handlers = this.handlersFor(class ? source.class);
@@ -144,6 +144,9 @@ MxUnit  {
 	gui { arg layout,bounds;
 		^handlers.use { ~gui.value(layout,bounds) }
 	}	
+	draw { arg pen,bounds,style;
+		^handlers.use { ~draw.value(pen,bounds,style) }
+	}
 	// timeGui
 
 
@@ -156,10 +159,10 @@ MxUnit  {
 			load: { arg string; string.compile.value() },
 			copy: { ~source.deepCopy },
 			
-			prepareToBundle:  { arg agroup, bundle, private, bus; },
-			spawnToBundle: { arg bundle; },
-			stopToBundle: { arg bundle; },
-			freeToBundle: { arg bundle; },
+			prepareToBundle:  { arg agroup, bundle, private, bus; ~source.prepareToBundle(agroup,bundle,private,bus) },
+			spawnToBundle: { arg bundle; ~source.spawnToBundle(bundle) },
+			stopToBundle: { arg bundle; ~source.stopToBundle(bundle) },
+			freeToBundle: { arg bundle; ~source.freeToBundle(bundle) },
 
 			play: { arg group, atTime, bus;},
 			stop: { arg atTime,andFreeResources = true;},
@@ -168,6 +171,15 @@ MxUnit  {
 			gui: { arg layout,bounds; 
 				~source.gui(layout ?? {Window(~name.value,bounds).front},bounds) 
 			},
+			draw: { arg pen,bounds,style;
+				pen.color = style['fontColor'];
+				pen.font = style['font'];
+				if(style['center'],{
+					pen.stringCenteredIn(~name.value,bounds)
+				},{
+					pen.stringLeftJustIn(~name.value, bounds.insetBy(2,2) )
+				});
+			}, 
 			name: { ~source.asString }
 
 			// crop
@@ -192,12 +204,15 @@ MxInlet {
 		^[name,index,spec,adapter]
 	}
 	printOn { arg stream;
-		stream << name
+		stream << "in:" << name
 	}
 }
 
 
 MxOutlet : MxInlet {
-	
+
+	printOn { arg stream;
+		stream << "out:" << name
+	}
 }
 
