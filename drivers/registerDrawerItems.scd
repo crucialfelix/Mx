@@ -6,7 +6,7 @@ MxDrawer.addGroup("Instr",{
 	onMake.value(instr)
 });
 
-MxDrawer.add("Slider",{ arg i,onMake; onMake.value(NumberEditor.new) });
+MxDrawer.add("Slider",{ arg i,onMake; onMake.value(1.0) });
 
-MxDrawer.add("CC",{ arg i,onMake; onMake.vavlue(CCResponder.new) });
+MxDrawer.add("CC",{ arg i,onMake; onMake.value(CCResponder.new) });
 

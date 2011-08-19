@@ -13,6 +13,7 @@ MxUnit.register('AbstractPlayer',
 		outlets = [ MxOutlet(player.name, 0, player.spec ,MxPlaysOnBus({player.bus}) ) ];
 		MxUnit(player,inlets,outlets);
 	},
+	/*
 	prepareToBundle:  { arg agroup, bundle, private, bus;
 		~source.prepareToBundle(agroup,bundle,private,bus)
 	},
@@ -21,7 +22,7 @@ MxUnit.register('AbstractPlayer',
 	},
 	stopToBundle: { arg bundle; 
 		~source.stopToBundle(bundle)
-	},
+	},*/
 
 	play: { arg group, atTime, bus;
 		~source.play(group,atTime,bus)

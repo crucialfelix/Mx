@@ -17,7 +17,7 @@ MxUnit.register('TotalTracker',
 		
 		sips = [1,2,3,4].collect { arg i; 
 				MxInlet(i.asString,i-1,\unipolar, 
-					MxSetter({ arg v; player.app.setSongControl(i,v.debug("setting v"))},{player.server},{player.group}) 
+					MxSetter({ arg v; player.app.setSongControl(i,v)},{player.server},{player.group}) 
 				)
 			};
 		inlets  = sips;
@@ -33,6 +33,9 @@ MxUnit.register('TotalTracker',
 	stopToBundle: { arg bundle; 
 		~source.stopToBundle(bundle)
 	},
+	freeToBundle: { arg bundle;
+		~source.freeToBundle(bundle)
+	},	
 
 	play: { arg group, atTime, bus;
 		~source.play(group,atTime,bus)

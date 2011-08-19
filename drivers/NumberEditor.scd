@@ -8,6 +8,7 @@ MxUnit.register('NumberEditor',
 	make: { arg num;
 		var inlets,outlets,sips,ne;
 		ne = NumberEditor(num,\unipolar);
+		~source = ne;
 		inlets  = [];
 		outlets = [ MxOutlet(ne.asString, 0, ne.spec ,
 						MxHasAction({arg action; ne.action = action  }) ) 
@@ -29,6 +30,7 @@ MxUnit.register('NumberEditor',
 		~source.value
 	},
 	load: { arg data;
-		data
+		// return args for make
+		data // NumberEditor(data,\unipolar)
 	}
 ));
