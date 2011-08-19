@@ -136,6 +136,21 @@ Mx : AbstractPlayerProxy {
 		};
 		this.changed('grid');
 	}
+	remove { arg chan,index;
+		var del;
+		del = this.at(chan,index) ?? {^this};
+		this.put(chan,index,nil);
+		removing = removing.add(del);
+		cables.do { arg cab;
+			if(cab.inlet.unit === del or: {cab.outlet.unit === del},{
+				this.disconnectCable(cab)
+			})
+		};
+		autoCables.do { arg cab;
+			if(cab.inlet.unit === del or: {cab.outlet.unit === del},{
+				this.disconnectCable(cab)
+			})
+		};
 	}
 	
 	/* playAt { arg chan,index;
