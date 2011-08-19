@@ -120,9 +120,8 @@ MxMatrixGui : SCViewHolder {
 
 
 		// keys
-		view.keyDownAction_({ arg me,char,modifiers,unicode,keycode;
-			//this.handleByFocused('keyDownAction',[char,modifiers,unicode,keycode])
-		});
+		view.keyDownAction = this.keyDownResponder;
+
 		view.keyUpAction = { arg me,char,modifiers,unicode,keycode;
 			//this.handleByFocused('keyUpAction',[char,modifiers,unicode,keycode])
 		};
@@ -143,9 +142,15 @@ MxMatrixGui : SCViewHolder {
 		},{
 			// click to select
 			if(modifiers.isShift,{
-				selected = selected.add(obj)
+				if(obj.notNil,{
+					selected = selected.add(obj)
+				})
 			},{
-				selected = [obj]
+				if(obj.notNil,{
+					selected = [obj]
+				},{
+					selected = []
+				})
 			});
 			focusedPoint = this.boxPoint(x,y)
 		});
@@ -154,7 +159,67 @@ MxMatrixGui : SCViewHolder {
 		var obj,unit;
 		hovering = this.getByCoord(x,y);
 	}
+	keyDownResponder {
+		// probably move to MxGui
+		var k;
+		k = UnicodeResponder.new;
+		//  127 delete
+		k.register(   127  ,   false, false, false, false, {
+			selected.do { arg obj;
+				mx.remove(obj.point.x,obj.point.y)
+			};
+			this.refresh;
+		});
+		//  63232 up
+		k.register(   63232  ,   false, false, false, false, {
+			var p;
+			p = (focusedPoint ? 0@0);
+			focusedPoint = (p.x)@(p.y - 1).clip(0,inf);
+			this.refresh;
+		});
+		//  63233 down
+		k.register(   63233  ,   false, false, false, false, {
+			var p;
+			p = (focusedPoint ? 0@0);
+			focusedPoint = (p.x)@(p.y + 1).clip(0,inf);
+			this.refresh;
+		});
+		//  63234 left
+		k.register(   63234  ,   false, false, false, false, {
+			var p;
+			p = (focusedPoint ? 0@0);
+			focusedPoint = (p.x - 1).clip(0,inf)@(p.y);
+			this.refresh;
+		});
+		//  63235 right
+		k.register(   63235  ,   false, false, false, false, {
+			var p;
+			p = (focusedPoint ? 0@0);
+			focusedPoint = (p.x + 1).clip(0,inf)@(p.y);
+			this.refresh;
+		});
 
+		// drawer drill up / down
+		//  control 63232
+		k.register(   63232  ,   false, false, false, true, {
+			
+		});
+		//  control 63233
+		k.register(   63233  ,   false, false, false, true, {
+
+		});
+
+		// drawer left/right
+		//  option 63232
+		k.register(   63232  ,   false, false, true, false, {
+
+		});
+		//  option 63233
+		k.register(   63233  ,   false, false, true, false, {
+
+		});
+		^k
+	}
 	// internal dragging
 	endDrag { arg x,y,modifiers;
 		// patch it
