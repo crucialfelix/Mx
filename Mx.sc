@@ -5,9 +5,11 @@ Mx : AbstractPlayerProxy {
 	var <channels,<cables;
 	var myUnit,<inlets,<outlets;
 	
+	var <>autoCable=true;
+	
 	var allocator,register,unitGroups,busses;
 	var <master;
-	var removing,adding, cableEndpoints,<autoCables;
+	var removing,adding, cableEndpoints;
 	
 	*new { arg channels, cables,inlets,outlets;
 		^super.new.init(channels,cables,inlets,outlets)
@@ -28,8 +30,8 @@ Mx : AbstractPlayerProxy {
 		channels = (chans ? []).collect(MxChannel.loadData(_,this));
 		adding = channels.copy; // not needed really
 
-		cables = (cabs ? []).collect(MxCable.loadData(_,this));
-		autoCables = [];
+		cables = MxCableCollection.newFrom((cabs ? []).collect(MxCable.loadData(_,this)));
+		//this.updateAutoCables;
 	}
 	nextID {
 		^allocator.alloc
@@ -55,12 +57,14 @@ Mx : AbstractPlayerProxy {
 		var chan,units;
 		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj,this)}});
 		chan = this.prMakeChannel(units);
-		
 		if(channels.size < (index+1),{
 			channels = channels.extend(index,this.prMakeChannel);
 			channels = channels.add(chan)
 		},{
 			channels.put(index,chan);
+		});
+		if(autoCable,{
+			this.updateAutoCables
 		});
 		this.changed('grid');
 		chan.pending = true;
@@ -72,7 +76,14 @@ Mx : AbstractPlayerProxy {
 		chan = channels.removeAt(index);
 		chan.pending = true;
 		removing = removing.add( chan );
-		// cut any cables going to any of those units
+		// cut any cables going to/from any of those units
+		chan.units.do { arg unit;
+			cables.fromUnit.do(this.disconnectCable(_));
+			cables.toUnit.do(this.disconnectCable(_));
+		};
+		//if(autoCable,{
+		//	this.updateAutoCables
+		//});
 		this.changed('grid');
 	}
 	prMakeChannel { arg units;
@@ -117,22 +128,29 @@ Mx : AbstractPlayerProxy {
 		old = channel.at(index);
 		if(old.notNil,{
 			// cut or take any cables
-			this.disconnectUnit(old)
+			this.disconnectUnit(old);
 		});
 		channel.put(index,unit);
 		this.changed('grid');
 		^unit
 	}
 	move { arg chan,index,toChan,toIndex;
-		var moving;
+		var moving,unit;
 		moving = this.at(chan,index) ?? {^this};
 		if(chan != toChan) {
-			channels[chan].removeAt(index);
-			// not yet checking if some cables need to be cut
+			unit = channels[chan].removeAt(index);
+			cables.fromUnit(moving).do { arg cable;
+				if(cable.inlet.unit.source.isKindOf(MxChannel),{
+					this.disconnectCable(cable);
+				})
+			};
 			this.put(toChan,toIndex, moving);
+			if(autoCable,{
+				this.updateAutoCables;
+			})
 		} {
 			// not yet checking if some cables need to be cut
-			channels[chan].move(index,toIndex)
+			channels[chan].move(index,toIndex);
 		};
 		this.changed('grid');
 	}
@@ -141,18 +159,26 @@ Mx : AbstractPlayerProxy {
 		del = this.at(chan,index) ?? {^this};
 		this.put(chan,index,nil);
 		removing = removing.add(del);
-		cables.do { arg cab;
+		cables.toUnit(del).do { arg cab;
 			if(cab.inlet.unit === del or: {cab.outlet.unit === del},{
 				this.disconnectCable(cab)
 			})
 		};
-		autoCables.do { arg cab;
+		/*autoCables.do { arg cab;
 			if(cab.inlet.unit === del or: {cab.outlet.unit === del},{
 				this.disconnectCable(cab)
 			})
-		};
+		};*/
 	}
-	
+	removeUnit { arg unit;
+		channels.do { arg ch,ci;
+			ch.units.do { arg u,ri;
+				if(unit === u,{
+					^this.remove(ci,ri)
+				})
+			}
+		}
+	}
 	/* playAt { arg chan,index;
 		var unit;
 		unit = this.at(chan,index);
@@ -172,7 +198,7 @@ Mx : AbstractPlayerProxy {
 		unit = channels[point.x].units[point.y] ?? {Error("no unit at" + point).throw};
 		^unit.getOutlet(index)
 	}
-		
+	
 	connect { arg fromUnit,outlet, toUnit, inlet, mapping=nil;
 		/*
 			unit: channelNumber@slotNumber
@@ -195,11 +221,12 @@ Mx : AbstractPlayerProxy {
 		// remove any that goes to this inlet
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not
-		cables.do { arg oldcable;
-			if(oldcable.inlet === inlet,{
-				if(oldcable.active,{
-					this.disconnectCable(oldcable);
-				});
+		
+		cables.toUnit(inlet.unit).do { arg oldcable;
+			if(oldcable.inlet === inlet 
+					and: {oldcable.inlet.unit.source.isKindOf(MxChannel).not} 
+					and: {oldcable.active},{
+				this.disconnectCable(oldcable);
 			})
 		};
 		cable = MxCable( outlet, inlet, mapping );
@@ -229,8 +256,18 @@ Mx : AbstractPlayerProxy {
 			if(cable.inlet.unit === unit or: {cable.outlet.unit === unit},{
 				this.disconnectCable(cable);
 			})
+		};
+	}
+	disconnectInlet { arg inlet;
+		cables.toInlet(inlet).do { arg cable;
+			this.disconnectCable(cable)
 		}
 	}
+	disconnectOutlet { arg outlet;
+		cables.fromOutlet(outlet).do { arg cable;
+			this.disconnectCable(cable)
+		}
+	}		
 	mute { arg channel,boo=true;
 		channels[channel].mute = boo
 	}
@@ -267,14 +304,13 @@ Mx : AbstractPlayerProxy {
 					
 				removing = adding = nil
 			});
-			this.autoCablesToBundle(b);
+			// this.autoCablesToBundle(b);
 			if(bundle.isNil,{
 				b.send(this.server)
 			});
 		});
 		^b
 	}
-	
 
 	//////////  private  ////////////
 	disconnectCable { arg cable;
@@ -310,63 +346,52 @@ Mx : AbstractPlayerProxy {
 
 	spawnCablesToBundle { arg bundle;
 		cables.do(_.spawnToBundle(bundle));
-		this.autoCablesToBundle(bundle);
+		//this.autoCablesToBundle(bundle);
 	}
-	autoCablesToBundle { arg bundle;
-		/* updates autoCables, adding and removing to get to current patch state */
-		var patched,autoCabled;
+//	autoCablesToBundle { arg bundle;
+//		/* updates autoCables, adding and removing to get to current patch state */
+//		var adds,rms;
+//		adds = this.updateAutoCables;
+//		adds.do { arg a;
+//			a.spawnToBundle(bundle)
+//		};
+//		
+//		/*rms.do { arg r;
+//			r.stopToBundle(bundle)
+//			//r.freeToBundle(bundle)
+//		}*/
+//	}
+	updateAutoCables {
+		// the expensive way: scan the whole thing
+		// and check for integrity
+
+		var patched,autoCabled,ac,changed=false;
+		var addingCables,removingCables;
 		
-		// where does channel to get honored ?
-		
-		// already explicitly cabled
-		patched = [];
-		cables.do { arg c;
-			patched.add( c.outlet.unit );
-		};
-		// already autoCabled
-		autoCabled = IdentityDictionary.new;
-		autoCables.do { arg c;
-			autoCabled[c.outlet.unit] = c;
-		};
-		autoCabled.removeAt(master.myUnit);
 		channels.do { arg chan;
-			var newautos,chanOut;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
-				if(unit.notNil and: {patched.includes(unit).not} and: {unit.spec.isKindOf(AudioSpec)},{
-					if(autoCabled.at(unit).isNil ,{
-						newautos = newautos.add( unit );
-					},{
-						autoCabled.removeAt( unit );
-					});
-				});
+				if(unit.notNil and: {unit.spec.isKindOf(AudioSpec)},{
+					if(cables.fromUnit(unit).any({ arg cable; cable.inlet.unit === chan.myUnit }).not,{
+						ac = MxCable( unit.outlets.first, chan.myUnit.inlets.first );
+						cables.add(ac);									addingCables = addingCables.add(ac);
+						changed = true;
+					})
+				})
 			};
-			newautos.do { arg unit;
-				var ac;
-				// connect everything to the first inlet which is a recieving api point
-				ac = MxAutoCable( unit.outlets.first, chan.myUnit.inlets.first );
-				autoCables = autoCables.add( ac );
-				ac.spawnToBundle(bundle);
-			};
-			if(chan !== master,{ // patch channel to master
-				if(patched.includes(chan.myUnit).not,{
-					if(autoCabled.at(chan.myUnit).isNil,{ 
-						{
-							var ac;
-							ac = MxAutoCable( chan.myUnit.outlets.first, master.myUnit.inlets.first );
-							autoCables = autoCables.add( ac );
-							ac.spawnToBundle(bundle);
-						}.value;
-					},{
-						autoCabled.removeAt( chan.myUnit );
-					});
-				});
-			});					
+			if(chan !== master,{
+				// if the channel is not patched to anything then patch it to the master
+				if(cables.fromUnit(chan.myUnit).isEmpty,{
+					ac = MxCable( chan.myUnit.outlets.first, master.myUnit.inlets.first );
+					cables.add(ac);
+					addingCables = addingCables.add(ac);
+					changed = true;
+				})
+			})
 		};
-		// these are left from a previous patch-state and can be removed now
-		autoCabled.keysValuesDo { arg unit,cable;
-			cable.stopToBundle(bundle)
-		};
+		// patch units in master
+		
+		^addingCables
 	}
 	
 	guiClass { ^MxGui }

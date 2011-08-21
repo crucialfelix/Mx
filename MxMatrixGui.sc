@@ -36,7 +36,7 @@ MxMatrixGui : SCViewHolder {
 		this.makeDefaultStyles(skin);
 
 		this.calcNumRows;
-		
+		selected = [];
 		boxWidth = 100.0;//bounds.width.asFloat / numCols;
 		boxHeight = 80.0;//min( (bounds.height.asFloat - faderHeight) / numRows, 80 );
 	   
@@ -96,6 +96,7 @@ MxMatrixGui : SCViewHolder {
 				draggingXY = x@y;
 				this.view.refresh;
 			});
+			// else move fader
 		};
 		view.mouseUpAction = { arg me, x, y, modifiers;
 			isDown = false;
@@ -164,10 +165,20 @@ MxMatrixGui : SCViewHolder {
 		var k;
 		k = UnicodeResponder.new;
 		//  127 delete
-		k.register(   127  ,   false, false, false, false, {
+		k.register( 127, false, false, false, false, {
 			selected.do { arg obj;
-				mx.remove(obj.point.x,obj.point.y)
+				if(obj.class === MxOutlet,{
+					// all cables going to or from this
+					mx.disconnectOutlet(obj)
+				},{
+					if(obj.class === MxInlet,{
+						mx.disconnectInlet(obj)
+					},{
+						mx.removeUnit(obj)
+					})
+				})
 			};
+			mx.update;
 			this.refresh;
 		});
 		//  63232 up
@@ -223,7 +234,7 @@ MxMatrixGui : SCViewHolder {
 	// internal dragging
 	endDrag { arg x,y,modifiers;
 		// patch it
-		var target,targetPoint,dp;
+		var target,targetPoint,dp,fi;
 		targetPoint = this.boxPoint(x,y);
 		target = this.getByCoord(x,y);
 		if(target.notNil,{
@@ -242,6 +253,16 @@ MxMatrixGui : SCViewHolder {
 				mx.move(dp.x,dp.y,targetPoint.x,targetPoint.y)
 			});
 			mx.update;
+		},{
+			// dragging an outlet to a fader
+			fi = this.detectFader(x@y);
+			if(fi.notNil,{
+				if(fi >= mx.channels.size,{
+					mx.insertChannel(fi)
+				});
+				mx.connect(nil,dragging,nil,mx.channels[fi].myUnit.inlets.first);
+				mx.update;
+			});
 		});
 		currentDragPoint = nil;
 		this.transferFocus(targetPoint);
@@ -302,7 +323,20 @@ MxMatrixGui : SCViewHolder {
 						bounds.top + ioHeight,
 						view.bounds.width,
 						view.bounds.height - faderHeight - ioHeight - ioHeight);
-	}		
+	}
+	fadersBounds {
+		^Rect(0,boxBounds.bottom,boxBounds.width, faderHeight)
+	}
+	detectFader { arg p; // which fader is the point inside of ?
+		var fb;
+		fb = this.fadersBounds;
+		if(fb.containsPoint(p),{
+			// return nil if past numCols
+			// how is master expressed ?
+			^(p.x / boxWidth).asInteger
+		});
+		^nil
+	}
 	boxPoint { arg x,y;// view coords
 		var col,row,p;
 		p = x@y;
@@ -334,8 +368,9 @@ MxMatrixGui : SCViewHolder {
 		^this.getUnit(this.boxPoint(x,y) ?? {^nil});
 	}
 	getByCoord { arg x,y;
+		// what got hit at x@y ?
 		// outlet, inlet, box, fader
-		var unit,bp,oi,ioArea,b,iolets,p;
+		var unit,bp,oi,ioArea,b,iolets,p,fi;
 		p = x@y;
 		bp = this.boxPoint(x,y);
 		if(bp.notNil,{
@@ -359,7 +394,14 @@ MxMatrixGui : SCViewHolder {
 				})
 			});
 			^unit
-		});
+		},{
+			// fader
+			fi = this.detectFader(p);
+			// not doing anything yet
+			// could select it and use arrows to change the levels
+			//fi.debug("detected fader in getByCoord");
+		});	
+			
 		// top level inlets
 		if(mx.inlets.size > 0,{
 			if(p.y < ioHeight) {
@@ -424,14 +466,14 @@ MxMatrixGui : SCViewHolder {
 	}
 	inletArea { arg inlet;
 		var p,b,r;
-		p = points[inlet.unit];
+		p = points[inlet.unit] ?? {^nil};
 		b = this.getBounds(p);
 		r = this.inletsArea(b);
 		^this.ioArea( r , inlet.index, r.width.asFloat / inlet.unit.inlets.size )
 	}
 	outletArea { arg outlet;
 		var p,b,r;
-		p = points[outlet.unit];
+		p = points[outlet.unit] ?? {^nil};
 		b = this.getBounds(p);
 		r = this.outletsArea(b);
 		^this.ioArea( r , outlet.index, r.width.asFloat / outlet.unit.outlets.size )
@@ -444,13 +486,17 @@ MxMatrixGui : SCViewHolder {
 			or = this.ioArea(ioarea,i,iowidth);
 			pen.color = outlet.spec.color;
 			pen.fillRect(or);
-			pen.color = Color.grey(alpha: 0.4);
+			if(selected.includes(outlet),{
+				pen.color = styles['selected']['borderColor']
+			},{
+				pen.color = Color.grey(alpha: 0.4);
+			});
 			pen.strokeRect(or);
 			pen.stringLeftJustIn(outlet.name.asString,or.insetBy(1,1))
 		}
 	}
 	drawGrid {
-		var d,box,style,r;
+		var d,box,style,r,fb;
 		d = { arg rect,unit,styleName,boxPoint;
 			var style,styleNames,name,ioarea,iowidth;
 			// cascade styles: defaultStyle + box style + box's set styles (playing, selected) + temp style (down, focused)
@@ -472,8 +518,13 @@ MxMatrixGui : SCViewHolder {
 
 			pen.color = style['boxColor'];
 			pen.fillRect( rect );
-			pen.color = style['borderColor'];
+			if(selected.includes(unit),{
+				pen.color = styles['selected']['borderColor'];
+			},{
+				pen.color = style['borderColor'];
+			});				
 			pen.strokeRect( rect );
+
 			if(unit.notNil,{
 				// central box draw writes the name
 				unit.draw(pen,rect,style);
@@ -493,36 +544,12 @@ MxMatrixGui : SCViewHolder {
 		pen.color = background;
 		pen.fillRect(bounds); // background fill
 
-		// each time ?
-		//this.calcNumRows;
+		// only need this on resize
 		this.calcBoxBounds;
 
 		points.keysValuesDo { arg unit,p;
 			d.value(this.getBounds(p),unit,nil,p);
 		};
-		/*		
-		numCols.do({ arg ci;
-			var last = numRows - 1;
-			numRows.do({ arg ri;
-				var p,unit;
-				p = ci@ri;
-				if(ci == mx.channels.size,{ // master
-					if(ri == last,{
-						unit = mx.master.fader.myUnit
-					},{
-						unit = mx.master.units.at(ri)
-					})
-				},{
-					if(ri == last,{
-						unit = mx.channels[ci].fader.myUnit
-					},{
-					   unit = mx.at(p.x,p.y);
-					})
-				});
-				d.value(this.getBounds(p),unit, nil, p );
-			});
-		});
-		*/
 		// main inlets / outlets
 		this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight),mx.inlets);
 		this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight).bottom_(bounds.bottom),mx.outlets);
@@ -560,44 +587,42 @@ MxMatrixGui : SCViewHolder {
 		// inlets that can accept
 		// hovering
 
+		fb = this.fadersBounds;
 		mx.cables.do { arg cable,i;
-			var f,t,c;
+			var f,t,c,chan,ci;
 			f = this.outletArea(cable.outlet);
-			t = this.inletArea(cable.inlet);
-			c = cable.outlet.spec.color;
-			if(cable.active.not,{
-				c = Color(c.red,c.green,c.blue,0.3)
+
+			// if its to a MxChannel then draw to fader top
+			chan = cable.inlet.unit.source;
+			if(chan.class === MxChannel,{
+				// channel doesn't know its number
+				if(chan === mx.master,{
+					t = Rect(fb.right - boxWidth,fb.top,boxWidth,0)
+				},{
+					// this is slow
+					ci = mx.channels.indexOf(chan);
+					t = Rect(ci * boxWidth,fb.top,boxWidth,0)
+				})
+			},{
+				t = this.inletArea(cable.inlet);
 			});
-			pen.color = Color.black;
-			pen.width = 3;
-			pen.moveTo(f.center);
-			pen.lineTo(t.center);
-			pen.stroke;
-			pen.color = c;
-			pen.width = 1;
-			pen.moveTo(f.center);
-			pen.lineTo(t.center);
-			pen.stroke;
-		};
-		mx.autoCables.do { arg cable,i;
-			var f,t,c;
-			f = this.outletArea(cable.outlet);
-			t = this.inletArea(cable.inlet);
-			c = cable.outlet.spec.color;
-			c = c.lighten(Color.grey,0.6);
-			if(cable.active.not,{
-				c = Color(c.red,c.green,c.blue,0.3)
-			});
-			pen.color = Color.grey;
-			pen.width = 3;
-			pen.moveTo(f.center);
-			pen.lineTo(t.center);
-			pen.stroke;
-			pen.color = c;
-			pen.width = 1;
-			pen.moveTo(f.center);
-			pen.lineTo(t.center);
-			pen.stroke;
+			
+			if(f.notNil and: t.notNil,{
+				c = cable.outlet.spec.color;
+				if(cable.active.not,{
+					c = Color(c.red,c.green,c.blue,0.3)
+				});
+				pen.color = Color.black;
+				pen.width = 3;
+				pen.moveTo(f.center);
+				pen.lineTo(t.center);
+				pen.stroke;
+				pen.color = c;
+				pen.width = 1;
+				pen.moveTo(f.center);
+				pen.lineTo(t.center);
+				pen.stroke;
+			})
 		};
 	}
 	makeDefaultStyles { arg skin;
