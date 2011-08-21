@@ -19,4 +19,8 @@ MxKrJackGui : ObjectGui {
 	}
 }
 
+MxArJackGui : ObjectGui {
+	
+}
+
 

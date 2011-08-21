@@ -23,9 +23,8 @@ MxJack {
 		});
 		if(spec.isKindOf(ControlSpec),{
 			^MxKrJack.new.value_(defArg ? spec.default).spec_(spec)
-			//^KrNumberEditor(defArg ? spec.default,spec)
 		});
-		
+		^defArg
 	}
 }
 
@@ -71,8 +70,7 @@ MxKrJack : MxJack {
 
 MxArJack : MxKrJack {
 	
-	var <value, <>numChannels=2;
-	var patchOut;
+	var <>numChannels=2;
 	
 	*new { arg numChannels=2,bus=126;
 		^super.new.numChannels_(numChannels).value_(bus)
@@ -94,6 +92,7 @@ MxArJack : MxKrJack {
 	instrArgFromControl { arg control;
 		^In.ar(control,numChannels)
 	}
+	guiClass { ^MxArJackGui }
 }
 
 
