@@ -53,9 +53,24 @@ MxUnit.register('Instr',(
 	stop: { arg atTime,andFreeResources = true;
 		~source.stop(atTime,andFreeResources)
 		},
-	save: { [~source.instr.dotNotation, ~source.inputs] },
+	save: { 
+		var inps;
+		inps = ~source.inputs.collect { arg inp;
+			if(inp.isKindOf(MxKrJack) and: {inp.isKindOf(MxArJack).not},{
+				inp.value
+			},{
+				inp
+			})
+		};
+		[~source.instr.dotNotation, inps ] 
+	},
 	load: { arg nameinp;
-		[Instr(nameinp[0]),nameinp[1]]
+		var inps,instr;
+		inps = nameinp[1];
+		instr = Instr(nameinp[0]);
+		inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,inps[i]) });
+
+		[instr,inps]
 	},
 	copy: { ~source.instr },
 	name: { ~source.instr.dotNotation }
