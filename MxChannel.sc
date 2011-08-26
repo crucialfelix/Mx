@@ -2,46 +2,34 @@
 
 MxChannel : AbstractPlayerProxy {
 
-	var <>uid, <>cableTo=nil;
+	var <>cableTo=nil;
 	var <>units,<fader;
 	
 	var <numChannels=2,<>pending=false;
 
-	var <>myUnit,unitGroups,<mixGroup;
+	var <myUnit,unitGroups,<mixGroup;
 	var adding,removing;
 
-	*new { arg units, fader, cableTo, uid;
+	*new { arg units, faderArgs, cableTo;
+		var fader;
 		units = units ? [];
-		^super.new.init(uid,cableTo,units,fader ?? {MxChannelFader(numChannels:units.maxValue(_.numChannels) ? 2)})
+		if(faderArgs.isNil,{
+			fader = MxChannelFader(numChannels:units.maxValue(_.numChannels) ? 2)
+		},{
+			fader = MxChannelFader(*faderArgs)
+		});
+		^super.new.init(cableTo,units,fader)
 	}
 	storeArgs { 
-		^[units.collect({|u| u !? {u.saveData}}),fader,cableTo,uid] 
+		^[units.collect({|u| u !? {u.saveData}}),fader.storeArgs, cableTo] 
 	}
-	saveData {
-		^this.storeArgs
-	}
-	*loadData { arg data,mx;
-		var units;
-		if(data.isSequenceableCollection,{
-			units = data[0] ? [];
-			units = units.collect({ |d| d !? {MxUnit.loadData(d,mx)}});
-			if(data.size == 0,{
-				data = [units]
-			},{
-				data[0] = units;
-			});
-			data = MxChannel(*data)
-		});
-         data.makeUnit(mx).registerWithMx(mx);
-        ^data		
-	}				
 
-	init { arg argid,argto,argunits,argfader;
-		uid = argid;
+	init { arg argto,argunits,argfader;
 		cableTo = argto;
 		units = argunits;
 		fader = argfader;
 		source = fader; // 2 proxy layers
+		myUnit = MxUnit.make(this);
 	}
 	at { arg index;
 		^units[index]
@@ -159,19 +147,6 @@ MxChannel : AbstractPlayerProxy {
 			g
 		}
 	}
-	makeUnit { arg mx;
-		myUnit = MxUnit.make(this,mx);
-		myUnit.registerWithMx(mx);
-		fader.makeUnit(mx);
-	}
-	registerWithMx { arg mx;
-		mx.register(this, uid);
-		units.do { arg unit;
-			if(unit.notNil) {
-				unit.registerWithMx(mx);
-			}
-		};
-	}
 	
 	db_ { arg d;
 		fader.db = d;
@@ -182,6 +157,9 @@ MxChannel : AbstractPlayerProxy {
 	solo_ { arg boo;
 		fader.solo = boo
 	}
+	draw { arg pen,bounds,style;
+		fader.draw(pen,bounds,style)
+	}	
 }
 
 

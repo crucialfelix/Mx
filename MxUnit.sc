@@ -7,13 +7,12 @@ MxUnit  {
 	var <>source,<inlets,<outlets,<>handlers;
 	var <>group;
 	
-	*make { arg source,mx,ids,class;
+	*make { arg source,class;
 		var handlers;
 		if(source.isKindOf(MxUnit) or: {source.isNil},{
 			^source
 		});
 		handlers = this.handlersFor(class ? source.class);
-		ids = ids ? [[],[]];
 		^handlers.use {
 			var unit;
 			unit = ~make.value(source);
@@ -21,34 +20,27 @@ MxUnit  {
 				~source = source;
 			});
 			unit.handlers = handlers;
-			unit.inlets.do { arg in,i;
-				mx.register(in,ids[0][i]);
-				in.unit = unit;
-			};
-			unit.outlets.do { arg out,i;
-				mx.register(out,ids[1][i]);
-				out.unit = unit;
-			};
-			// unit.registerWithMx(mx);
 			unit
 		}
-	}
-	*loadData { arg data,mx;
-		var h,source,class,ids;
-		# class, data, ids = data;
-		class = class.asClass;
-		h = this.handlersFor(class);
-		source = h.use { ~load.value(data) };
-		^this.make(source,mx,ids,class)
-	}
-	*new { arg source,inlets,outlets;
-		^super.newCopyArgs(source,inlets,outlets)
 	}
 	saveData {
 		var data,ids;
 		data = handlers.use { ~save.value(source) };
-		ids = [ inlets.collect(_.uid), outlets.collect(_.uid) ];
-		^[source.class.name,data,ids]
+		^[source.class.name,data]
+	}
+	*loadData { arg data;
+		var source,class;
+		# class, data = data;
+		class = class.asClass;
+		source = this.handlersFor(class).use { ~load.value(data) };
+		^this.make(source,class)
+	}
+	*new { arg source,inlets,outlets;
+		^super.newCopyArgs(source,inlets,outlets).init
+	}
+	init {
+		inlets.do(_.unit = this);
+		outlets.do(_.unit = this);
 	}
 	*handlersFor { arg class;
 		var h;
@@ -102,11 +94,6 @@ MxUnit  {
 	}
 	*register { arg classname,handlers;
 		registery.put(classname.asSymbol, handlers)
-	}
-	// change name, confusing
-	registerWithMx { arg mx;
-		inlets.do { arg in; mx.register(in,in.uid) };
-		outlets.do { arg in; mx.register(in,in.uid) };
 	}
 
 	// methods delegated to the handlers
@@ -192,15 +179,18 @@ MxUnit  {
 }
 
 
+
 MxInlet {
 	
 	var <>name,<>index,<>spec,<>adapter;
-	var <>uid,<>unit;
+	var <>unit;
 	
 	*new { arg name,index,spec,adapter;
 		^super.newCopyArgs(name.asSymbol,index,spec.asSpec,adapter)
 	}
 	storeArgs {
+		// adapter: AbsMxAdapter subclass
+		// which is not really savable
 		^[name,index,spec,adapter]
 	}
 	printOn { arg stream;

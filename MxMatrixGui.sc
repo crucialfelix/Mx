@@ -307,7 +307,7 @@ MxMatrixGui : SCViewHolder {
 				}
 			};
 			// or should it put the fader there ?
-			points[ch.fader.myUnit] = ci@(lastRow);
+			points[ch.myUnit] = ci@(lastRow);
 		};
 		// should be all outlets
 		mx.master.units.do { arg un,ri;
@@ -316,7 +316,7 @@ MxMatrixGui : SCViewHolder {
 			}
 		};
 		// or master fader
-		points[mx.master.fader.myUnit] = (lastCol)@(lastRow)
+		points[mx.master.myUnit] = (lastCol)@(lastRow)
 	}
 	calcBoxBounds {
 		boxBounds = Rect(bounds.left,

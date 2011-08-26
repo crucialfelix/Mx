@@ -7,7 +7,7 @@ MxChannelFader : AbstractPlayerProxy {
 	var <numChannels,<db=0, <mute=false, <solo=false;
 	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12;
 	
-	var busJack,dbJack,<myUnit;
+	var busJack,dbJack;
 	
 	*new { arg db=0.0, mute=false, solo=false,
 			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0,numChannels=2;
@@ -38,10 +38,6 @@ MxChannelFader : AbstractPlayerProxy {
 					breakOnBadValues.binaryValue,
 					breakOnDbOver
 				]);
-	}
-	makeUnit { arg mx;
-		myUnit = MxUnit.make(this,mx);
-		myUnit.registerWithMx(mx);
 	}
 	db_ { arg d;
 		db = d;

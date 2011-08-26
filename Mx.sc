@@ -3,7 +3,7 @@
 Mx : AbstractPlayerProxy {
 	
 	var <channels,<cables;
-	var myUnit,<inlets,<outlets;
+	var <myUnit,<inlets,<outlets;
 	
 	var <>autoCable=true;
 	
@@ -15,23 +15,97 @@ Mx : AbstractPlayerProxy {
 		^super.new.init(channels,cables,inlets,outlets)
 	}
 	storeArgs { 
-		^[channels.collect(_.saveData), cables.collect(_.saveData) ] 
-		// inlets, outlets not saved yet
+		^[
+			channels.collect({ arg channel;
+				this.findID(channel) -> channel.units.collect({ arg unit; unit !? {this.findID(unit) -> unit.saveData} })
+			}), 
+			channels.collect({ arg channel;
+				this.findID(channel) -> channel.fader.storeArgs
+			}),
+			MxIDDataSource.saveIOlets(register,this), 
+			cables.collect({ arg cable;
+					[this.findID(cable.outlet),this.findID(cable.inlet),cable.mapping,cable.active]
+				}),
+			inlets.collect({ arg out;
+					[this.findID(out), out.name,out.spec ] // , spec, name, 
+				}),
+			outlets.collect({ arg out;
+					[this.findID(out), out.name,out.spec ] // , spec, name, 
+				})
+		]
 	}
-	init { arg chans,cabs,ins,outs;
+	init { arg argChannels,faderData,ioids,argCables,ins,outs;
+		var faderMap,ds,uid;
+		
 		register = IdentityDictionary.new;
 		allocator = NodeIDAllocator(0,0);
 
-		inlets = ins ? [];
-		outlets = outs ?? {
-			this.addOutput;
-			outlets
-		};
-		channels = (chans ? []).collect(MxChannel.loadData(_,this));
-		adding = channels.copy; // not needed really
+		ds = MxIDDataSource(ioids);
+		
+		uid = this.register(this);		
 
-		cables = MxCableCollection.newFrom((cabs ? []).collect(MxCable.loadData(_,this)));
-		//this.updateAutoCables;
+		faderMap = Dictionary.new;
+		faderData.do { arg ass;
+			faderMap[ass.key] = ass.value
+		};
+		channels = [];
+		argChannels.do { arg ass;
+			var cuid,unitsData,chan,units;
+			cuid = ass.key;
+			unitsData = ass.value;
+			units = unitsData.collect { arg uass;
+				var unitid,unitData, unit;
+				if(uass.isNil,{
+					nil
+				},{
+					unitid = uass.key;
+					unitData = uass.value;
+					unit = MxUnit.loadData(unitData);
+					this.registerUnit(unit,unitid,ds);
+				});
+			};
+			
+			chan = MxChannel(units,faderMap[cuid]);
+			this.registerChannel(chan,cuid,ds);
+			
+			channels = channels.add(chan)
+		};
+		master = channels.last ?? {
+			master = this.prMakeChannel;
+			this.registerChannel(master);
+			channels = channels.add(master);
+			master
+		};
+		source = master;
+		
+		inlets = [];
+		(ins ? []).do { arg inletData,i;
+			var in;
+			// no adapter yet
+			in =  MxInlet(inletData[1],i,inletData[2],nil);
+			inlets = inlets.add(in);
+			this.register(in,ds.getInletID(uid,in.name) ?? {this.nextID});
+		};
+		outlets = [];
+		if(outs.notNil,{
+			outs.do { arg outletData,i;
+				var in;
+				// no adapter yet
+				in =  MxOutlet(outletData[1],i,outletData[2],nil);
+				outlets = outlets.add(in);
+				this.register(in,ds.getOutletID(uid,in.name) ?? {this.nextID});
+			}
+		},{
+			this.addOutput;
+		});				
+		
+		cables = MxCableCollection.new;
+		argCables.do { arg cableData;
+			var oid,iid,mapping,active;
+			# oid,iid,mapping,active = cableData;
+			// iid is nil
+			cables.add( MxCable(this.atID(oid).insp(oid),this.atID(iid).insp(iid),mapping,active) );
+		};
 	}
 	nextID {
 		^allocator.alloc
@@ -40,35 +114,117 @@ Mx : AbstractPlayerProxy {
 	register { arg object,uid;
 		uid = uid ?? { this.nextID };
 		register[uid] = object;
-		object.uid = uid;
 		^uid
 	}
 	atID { arg uid;
 		^register[uid]
 	}
-	unregister { arg uid;
-		register.removeAt(uid)
+	findID { arg object;
+		^register.findKeyForValue(object)
 	}
-	
+	unregister { arg uid;
+		var item;
+		item = register.removeAt(uid);
+		if(item.isKindOf(MxChannel),{
+			item.units.do { arg u;
+				this.unregister(this.findID(u))
+			};
+			this.unregister(this.findID(item.myUnit));
+		},{
+			if(item.isKindOf(MxUnit),{
+				item.inlets.do({ arg in; this.unregister(this.findID(in)) });
+				item.outlets.do({ arg in; this.unregister(this.findID(in)) });
+			})
+		})
+	}
+	registerUnit { arg unit,uid,ds;
+		uid = this.register(unit,uid);
+		unit.inlets.do { arg inlet;
+			var iid;
+			if(ds.notNil,{
+				iid = ds.getInletID(uid,inlet.name) ?? {this.nextID};
+			},{
+				iid = this.nextID
+			});
+			this.register(inlet,iid);
+		};
+		unit.outlets.do { arg outlet;
+			var iid;
+			if(ds.notNil,{
+				iid = ds.getOutletID(uid,outlet.name) ?? {this.nextID};
+			},{
+				iid  = this.nextID
+			});
+			this.register(outlet,iid);
+		};
+	}
+	registerChannel { arg chan,uid,ds;
+		chan.insp("r"+uid);
+		uid = this.register(chan,uid);
+		// channel and its unit have same id ?
+		// fuck
+		// this.register(chan,ds);
+		// the ds has stored them as inlets/outlets of the channel itself
+		// might be an issue decideing which the cuid refers to
+		
+		chan.myUnit.inlets.do { arg inlet;
+			var iid;
+			if(ds.isNil,{
+				iid = this.nextID
+			},{
+				iid = ds.getInletID(uid,inlet.name) ?? {this.nextID};
+			});
+			this.register(inlet,iid);
+		};
+		chan.myUnit.outlets.do { arg outlet;
+			var iid;
+			if(ds.isNil,{
+				iid = this.nextID
+			},{
+				iid = ds.getOutletID(uid,outlet.name) ?? {this.nextID};
+			});
+			this.register(outlet,iid);
+		};
+	}		
+		
 	add { arg ... objects;
 		^this.insertChannel(channels.size,objects)
 	}
 	insertChannel { arg index, objects;
-		var chan,units;
-		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj,this)}});
-		chan = this.prMakeChannel(units);
-		if(channels.size < (index+1),{
-			channels = channels.extend(index,this.prMakeChannel);
-			channels = channels.add(chan)
-		},{
-			channels.put(index,chan);
+		var chan,units,nuchan,prior;
+		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj)}});
+		units.do { arg unit;
+			this.registerUnit(unit)
+		};
+		// leaving space 1 for the master
+		channels.insp("channels");
+
+		prior = index - 1;
+		if(prior > -1,{
+			// fill in spaces
+			while {
+				channels[prior].isNil or: {(channels[prior] === master)}
+			} {
+				nuchan = this.prMakeChannel;
+				channels = channels.insert(channels.size-1,nuchan);
+				this.registerChannel(nuchan);
+				adding = adding.add(nuchan);
+				nuchan.pending = true;
+				channels.insp("made one");
+			};
 		});
+
+
+		// now inserting it 
+		chan = this.prMakeChannel(units);
+		this.registerChannel(chan);
+		channels = channels.insert(index,chan);
+		chan.pending = true;
+		adding = adding.add(chan);
 		if(autoCable,{
 			this.updateAutoCables
 		});
 		this.changed('grid');
-		chan.pending = true;
-		adding = adding.add(chan);
 		^chan
 	}
 	removeChannel { arg index;
@@ -87,13 +243,18 @@ Mx : AbstractPlayerProxy {
 		this.changed('grid');
 	}
 	prMakeChannel { arg units;
-		var chan;
-		chan = MxChannel(units ? [],cableTo:master.uid);
-		chan.makeUnit(this).registerWithMx(this);
+		var chan,cableTo;
+		if(master.notNil,{
+			cableTo = this.findID(master.myUnit)
+		});
+		chan = MxChannel(units ? [],cableTo:cableTo);
 		^chan
 	}
 
 	addOutput { arg rate='audio',numChannels=2;
+		// not finished
+		// just creates a default out for now, coming from the master
+		
 		// change this to keep the master as just a normal channel on grid
 		// created by .mixer
 		// the MxOutlet can specify how to find that
@@ -101,18 +262,20 @@ Mx : AbstractPlayerProxy {
 		// only trick then is to make addChannel insert before the output channels
 		// add audio output
 		var chan,out;
-		chan = MxChannel.loadData([],this);
-		if(master.isNil,{ // first added output channel becomes the master
-			master = source = chan;
+		
+		// master output
+		if(outlets.isNil or: {outlets.isEmpty},{
+			// do not like. this is not in anything and should be created in the same way
+			// as other outlets/inlets via make: mx.myUnit
+			// otoh outlets is an array here and make would read that
+			// and its variable
+			chan = master;
+			out = MxOutlet(\out,outlets.size,'audio'.asSpec,MxPlaysOnBus({chan.bus}));
+			out.unit = this;
+			outlets = outlets.add(out);
+			this.register(out);
 		});
 		
-		// do not like
-		out = MxOutlet("out",outlets.size,'audio'.asSpec,MxPlaysOnBus({chan.bus}));
-		this.register(out);
-		out.unit = chan.myUnit;
-		
-		outlets = outlets.add(out);
-		adding = adding.add(chan);
 		^chan
 	}
 	at { arg chan,index;
@@ -120,11 +283,12 @@ Mx : AbstractPlayerProxy {
 	}
 	put { arg chan,index,object;
 		var channel,unit,old;
-		channel = channels[chan] ?? {
+		// how do you insert into master then ??
+		if(channels[chan].isNil or: {channels[chan] === master},{
 			this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
 			^this
-		};
-		unit = MxUnit.make(object,this);
+		});
+		unit = MxUnit.make(object);
 		old = channel.at(index);
 		if(old.notNil,{
 			// cut or take any cables
@@ -139,6 +303,7 @@ Mx : AbstractPlayerProxy {
 		moving = this.at(chan,index) ?? {^this};
 		if(chan != toChan) {
 			unit = channels[chan].removeAt(index);
+			// could keep them connected, depends on order of execution
 			cables.fromUnit(moving).do { arg cable;
 				if(cable.inlet.unit.source.isKindOf(MxChannel),{
 					this.disconnectCable(cable);
@@ -179,14 +344,8 @@ Mx : AbstractPlayerProxy {
 			}
 		}
 	}
-	/* playAt { arg chan,index;
-		var unit;
-		unit = this.at(chan,index);
-		if(unit.isPrepared.not,{
-			unit.play( MxChannel )
-		})
-	} */
-		
+
+
 	// API
 	getInlet { arg point,index;
 		var unit;
@@ -277,7 +436,9 @@ Mx : AbstractPlayerProxy {
 		var b;
 		if(this.isPlaying,{
 			b = bundle ?? { MixedBundle.new };
-			removing.do { arg r; r.freeToBundle(b) };
+			removing.do { arg r; 
+				r.freeToBundle(b); 
+			};
 			// new channels
 			adding.do { arg a;
 				var g,prev,ci;
@@ -298,13 +459,14 @@ Mx : AbstractPlayerProxy {
 			};
 			channels.do { arg chan; chan.update(b); };
 			b.addFunction({
-				// TODO
-				//removing.do { arg r;
-				//	r.unregisterWithMx
-					
+				removing.do { arg r;
+					this.unregister(r); 
+				};
 				removing = adding = nil
 			});
-			// this.autoCablesToBundle(b);
+			//if(autoCable,{
+			//	this.autoCablesToBundle(b);
+			//}); 
 			if(bundle.isNil,{
 				b.send(this.server)
 			});
@@ -348,25 +510,27 @@ Mx : AbstractPlayerProxy {
 		cables.do(_.spawnToBundle(bundle));
 		//this.autoCablesToBundle(bundle);
 	}
-//	autoCablesToBundle { arg bundle;
-//		/* updates autoCables, adding and removing to get to current patch state */
-//		var adds,rms;
-//		adds = this.updateAutoCables;
-//		adds.do { arg a;
-//			a.spawnToBundle(bundle)
-//		};
-//		
-//		/*rms.do { arg r;
-//			r.stopToBundle(bundle)
-//			//r.freeToBundle(bundle)
-//		}*/
-//	}
+	autoCablesToBundle { arg bundle;
+		/* updates autoCables, adding and removing to get to current patch state.
+			BUT do not use this if you use .update
+			
+			probably remove this method
+		 */
+		var adds,rms;
+		adds = this.updateAutoCables;
+		adds.do { arg a;
+			a.spawnToBundle(bundle)
+		};
+		
+		/*rms.do { arg r;
+			r.stopToBundle(bundle)
+			//r.freeToBundle(bundle)
+		}*/
+	}
 	updateAutoCables {
-		// the expensive way: scan the whole thing
-		// and check for integrity
 
 		var patched,autoCabled,ac,changed=false;
-		var addingCables,removingCables;
+		var addingCables=[],removingCables;
 		
 		channels.do { arg chan;
 			chan.units.do { arg unit;
@@ -390,12 +554,91 @@ Mx : AbstractPlayerProxy {
 			})
 		};
 		// patch units in master
-		
+		if(addingCables.notEmpty,{
+			adding = adding.addAll(addingCables);
+		});	
 		^addingCables
 	}
 	
 	guiClass { ^MxGui }
+	
+	draw { arg pen,bounds,style;
+		master.draw(pen,bounds,style)
+	}	
 }
 
+
+MxIDDataSource {
+	
+	// utility class for use during Mx load
+	var inlets,outlets;
+	
+	*new { arg ioids;
+		^super.new.init(ioids)
+	}
+
+	getInletID { arg parentID,name;
+		inlets[parentID].do { arg keyuid;
+			if(keyuid.key == name,{
+				^keyuid.value
+			})
+		};
+		^nil
+	}
+	getOutletID { arg parentID,name;
+		outlets[parentID].do { arg keyuid;
+			if(keyuid.key == name,{
+				^keyuid.value
+			})
+		};
+		^nil
+	}
+
+	init { arg ioids;
+		inlets = Dictionary.new;
+		outlets = Dictionary.new;
+		ioids.do { arg uidio;
+			inlets.put(uidio.key,uidio.value[0]);
+			outlets.put(uidio.key,uidio.value[1]);
+		};
+	}	
+	*saveIOlets { arg register,mx;
+		/* [
+			unitid -> [ [ \freq -> inletid, ...], [ \out -> inletid, ... ] ],
+			unitid -> [ [ \amp -> outletid, ...], [ \out -> outletid, ... ] ],
+			..
+		]
+		the constructor loads from this data 
+		*/	
+		var data,ret;
+		data = Dictionary.new;
+		register.gui;
+		register.keysValuesDo { arg uid,object;
+			var slot,unitid;
+			if(object.isKindOf(MxInlet),{
+				// some have nils
+				if(object.unit.source.isKindOf(MxChannel),{
+					unitid = mx.findID(object.unit.source)
+				},{
+					unitid = mx.findID(object.unit);
+				});
+				data[unitid] ?? { data[unitid] = [ [],[] ] };
+				slot = if(object.isKindOf(MxOutlet),1,0);
+				data[unitid][slot] = data[unitid][slot].add( object.name -> uid );
+			},{
+				// channel, whose unit was not registered
+				object.insp("not iolet");
+				//if(object.isKindOf(MxChannel),{
+					
+				//})
+			})
+		};
+		ret = Array(data.size);
+		data.keysValuesDo { arg uid,dd;
+			ret.add( uid -> dd )
+		};
+		^ret
+	}
+}
 
 

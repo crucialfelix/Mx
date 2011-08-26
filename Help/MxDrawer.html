@@ -7,22 +7,30 @@
 <meta name="Generator" content="Cocoa HTML Writer">
 <meta name="CocoaVersion" content="949.54">
 <style type="text/css">
-p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco; color: #001076}
-p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco; min-height: 12.0px}
-p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco}
-p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco; color: #4d4d4d}
-span.s1 {color: #001076}
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Helvetica; color: #000e61}
+p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #3b3b3b}
+p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000e61}
+span.s1 {color: #000e61}
 span.s2 {color: #000000}
-span.s3 {color: #1d1d1d}
+span.s3 {color: #121212}
 span.Apple-tab-span {white-space:pre}
 </style>
 </head>
 <body>
-<p class="p1">MxDrawer</p>
+<p class="p1"><b>MxDrawer</b></p>
 <p class="p2"><br></p>
 <p class="p2"><br></p>
 <p class="p3">The drawer is a repository of items that are possible to insert into an Mx.</p>
-<p class="p3">Its a pallette</p>
+<p class="p2"><br></p>
+<p class="p3">in standard application terminology its a pallette</p>
+<p class="p3">(rename? it doesn't slide in and out. but it is a drawer of things)</p>
+<p class="p2"><br></p>
+<p class="p3">an MxDrawer contains MxDrawerItem, MxDrawerItemGroup</p>
+<p class="p2"><br></p>
+<p class="p3">MxDrawer(onSelect)</p>
+<p class="p3"><span class="Apple-tab-span">	</span>the onSelect function is passed to the MxDrawerItem's make function</p>
 <p class="p2"><br></p>
 <p class="p2"><br></p>
 <p class="p3">// if you have not yet loaded all Instr into memory then do so</p>
@@ -42,7 +50,7 @@ span.Apple-tab-span {white-space:pre}
 <p class="p2"><br></p>
 <p class="p3">Simplest is to add an item with a string and a function that will create the item:</p>
 <p class="p2"><br></p>
-<p class="p1">MxDrawer<span class="s2">.add(</span><span class="s3">"Slider"</span><span class="s2">,{ </span>NumberEditor<span class="s2">.new });</span></p>
+<p class="p5">MxDrawer<span class="s2">.add(</span><span class="s3">"Slider"</span><span class="s2">,{ </span>NumberEditor<span class="s2">.new });</span></p>
 <p class="p2"><br></p>
 <p class="p3">A group is represented by a top level item which can be double-clicked on to drill down to its items.</p>
 <p class="p3">Instr</p>

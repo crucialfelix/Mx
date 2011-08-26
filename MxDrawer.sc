@@ -16,7 +16,6 @@ MxDrawer {
 		this.registery[title] = MxDrawerItemGroup(title,itemsFunc,buildItemFunc)
 	}
 
-
 	*registery {
 		^registery ?? {
 			registery = Dictionary.new;
