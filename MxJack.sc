@@ -34,7 +34,7 @@ MxJack {
 
 MxKrJack : MxJack {
 
-	var <value,<patchOut,<>spec;
+	var <value,<patchOut,<>spec,<>lag=0.1;
 	
 	*new { arg v;
 		^super.new.value_(v)
@@ -59,7 +59,11 @@ MxKrJack : MxJack {
 		synthDef.addKr(name,value);
 	}
 	instrArgFromControl { arg control;
-		^control
+		if(lag.notNil and: {spec.isKindOf(NoLagControlSpec).not},{
+			^Lag.kr(control,lag)
+		},{
+			^control
+		})
 	}
 	makePatchOut {
 		patchOut = UpdatingScalarPatchOut(this,enabled: false);
@@ -115,6 +119,10 @@ MxIrJack : MxKrJack {
 
 
 MxTrJack : MxKrJack {
+
+	instrArgFromControl { arg control;
+		^control
+	}
 	
 }
 
