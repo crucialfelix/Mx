@@ -13,15 +13,29 @@ gotoPatternID
 MxUnit.register('TotalTracker',
 (
 	make: { arg player;
-		var inlets,outlets,sips;
+		var inlets,outlets,sips,patter,switcher;
 		
 		sips = [1,2,3,4].collect { arg i; 
-				MxInlet(i.asString,i-1,\unipolar, 
+				MxInlet(i.asString,i,\unipolar, 
 					MxSetter({ arg v; player.app.setSongControl(i,v)},{player.server},{player.group}) 
 				)
 			};
+
+		switcher = TrPatternSwitcher(player);
+		~switcher = switcher;
+		// ok for midi note where you can choose
+		// but how to do a float that wanders over them ?
+		patter = MxInlet("pattern",0,ControlSpec(0,127,step:1),
+					MxSetter({ arg v;
+						var p;
+						p = switcher.patterns[v.asInteger];
+						if(p.notNil,{
+							player.app.selectPatternByID(p)
+						})
+					}));
+		sips = sips.insert(0,patter);
 		inlets  = sips;
-		outlets = [ MxOutlet(player.name, 0, player.spec ,MxPlaysOnBus({player.bus}) ) ];
+		outlets = [ MxOutlet(player.name, 0, player.spec, MxPlaysOnBus({player.bus}) ) ];
 		MxUnit(player,inlets,outlets);
 	},
 	prepareToBundle:  { arg agroup, bundle, private, bus;
@@ -34,7 +48,12 @@ MxUnit.register('TotalTracker',
 		~source.stopToBundle(bundle)
 	},
 	freeToBundle: { arg bundle;
-		~source.freeToBundle(bundle)
+		var sw;
+		~source.freeToBundle(bundle);
+		sw = ~switcher;
+		bundle.addFunction({
+			sw.free;
+		});
 	},	
 
 	play: { arg group, atTime, bus;
@@ -64,7 +83,18 @@ MxUnit.register('TotalTracker',
 	},
 	name: { ~source.name },
 	gui: {
-		InfiniteGesture(gui:false).total_(~source).gui
+		var patternSelectGui,layout,env;
+		patternSelectGui = SongPatternSelectGui(~source);
+		patternSelectGui.total_(~source);
+		layout = PageLayout(~source.name,Rect(100,100,600,300));
+		env = currentEnvironment; 
+		ActionButton(layout,"Full GUI ^",{
+			env.use {
+				~source.app.publish.mount;
+				InfiniteGesture(gui:false).total_(~source).gui
+			}
+		});
+		patternSelectGui.gui(layout);
 	}
 	
 ));
