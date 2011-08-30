@@ -3,6 +3,9 @@
 MxJack {
 	
 	*forSpec { arg spec,defArg;
+		if(defArg.isKindOf(MxJack),{
+			^defArg
+		});
 		if(spec.isKindOf(AudioSpec),{
 			^MxArJack.new.value_(defArg ? 127)
 		});

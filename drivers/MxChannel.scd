@@ -21,5 +21,8 @@ MxUnit.register('MxChannel',
 		outlets = [ MxOutlet("MxChanOut", 0, AudioSpec(chan.numChannels),MxPlaysOnBus({chan.source.bus}) ) ];
 
 		MxUnit(chan,inlets,outlets);
-	}
+	},
+	draw: { arg pen,bounds,style;
+		~source.fader.draw(pen,bounds,style)
+	}	
 ));

@@ -25,7 +25,11 @@ MxCable {
 	stopToBundle { arg bundle;
 		this.strategy.disconnect(this,bundle)
 	}
+	freeToBundle { arg bundle;
+		^this.stopToBundle(bundle)
+	}
 	map { arg v;
+		// map an input value coming from the outlet to the range needed for the inlet
 		if(mapping.notNil,{
 			^mapping.value(v)
 		},{
@@ -103,7 +107,7 @@ MxCable {
 				action = { arg val;
 					setter.value( cable.map( val ) )
 				};
-				cable.outlet.adapter.value(setter);
+				cable.outlet.adapter.value(action);
 			},{ arg cable,bundle;
 				cable.outlet.adapter.value(nil);
 			})

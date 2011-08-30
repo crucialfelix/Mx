@@ -157,9 +157,6 @@ MxChannel : AbstractPlayerProxy {
 	solo_ { arg boo;
 		fader.solo = boo
 	}
-	draw { arg pen,bounds,style;
-		fader.draw(pen,bounds,style)
-	}	
 }
 
 

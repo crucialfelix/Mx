@@ -7,10 +7,10 @@ MxUnit.register('NumberEditor',
 (
 	make: { arg num;
 		var inlets,outlets,sips,ne;
-		ne = NumberEditor(num,\unipolar);
+		ne = NumberEditor(num.value,\unipolar);
 		~source = ne;
 		inlets  = [];
-		outlets = [ MxOutlet(ne.asString, 0, ne.spec ,
+		outlets = [ MxOutlet("action", 0, ne.spec ,
 						MxHasAction({arg action; ne.action = action  }) ) 
 				];
 		MxUnit(ne,inlets,outlets);

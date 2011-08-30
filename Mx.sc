@@ -62,6 +62,7 @@ Mx : AbstractPlayerProxy {
 					unitData = uass.value;
 					unit = MxUnit.loadData(unitData);
 					this.registerUnit(unit,unitid,ds);
+					unit
 				});
 			};
 			
@@ -104,7 +105,7 @@ Mx : AbstractPlayerProxy {
 			var oid,iid,mapping,active;
 			# oid,iid,mapping,active = cableData;
 			// iid is nil
-			cables.add( MxCable(this.atID(oid).insp(oid),this.atID(iid).insp(iid),mapping,active) );
+			cables.add( MxCable(this.atID(oid),this.atID(iid),mapping,active) );
 		};
 	}
 	nextID {
@@ -159,7 +160,6 @@ Mx : AbstractPlayerProxy {
 		};
 	}
 	registerChannel { arg chan,uid,ds;
-		chan.insp("r"+uid);
 		uid = this.register(chan,uid);
 		// channel and its unit have same id ?
 		// fuck
@@ -194,10 +194,11 @@ Mx : AbstractPlayerProxy {
 		var chan,units,nuchan,prior;
 		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj)}});
 		units.do { arg unit;
-			this.registerUnit(unit)
+			if(unit.notNil,{
+				this.registerUnit(unit)
+			});
 		};
 		// leaving space 1 for the master
-		channels.insp("channels");
 
 		prior = index - 1;
 		if(prior > -1,{
@@ -210,7 +211,6 @@ Mx : AbstractPlayerProxy {
 				this.registerChannel(nuchan);
 				adding = adding.add(nuchan);
 				nuchan.pending = true;
-				channels.insp("made one");
 			};
 		});
 
@@ -283,12 +283,16 @@ Mx : AbstractPlayerProxy {
 	}
 	put { arg chan,index,object;
 		var channel,unit,old;
-		// how do you insert into master then ??
+		// TODO how do you insert into master then ??
 		if(channels[chan].isNil or: {channels[chan] === master},{
 			this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
 			^this
 		});
+		channel = channels[chan];
 		unit = MxUnit.make(object);
+		if(unit.notNil,{ // nil object is nil unit which is legal
+			this.registerUnit(unit);
+		});
 		old = channel.at(index);
 		if(old.notNil,{
 			// cut or take any cables
@@ -625,12 +629,11 @@ MxIDDataSource {
 				data[unitid] ?? { data[unitid] = [ [],[] ] };
 				slot = if(object.isKindOf(MxOutlet),1,0);
 				data[unitid][slot] = data[unitid][slot].add( object.name -> uid );
-			},{
-				// channel, whose unit was not registered
-				object.insp("not iolet");
-				//if(object.isKindOf(MxChannel),{
-					
-				//})
+			//},{
+				// only the Mx itself does not save its id, its always 1
+				// channels are known by the fader strip data array
+				// units are known by the channel unit array
+
 			})
 		};
 		ret = Array(data.size);

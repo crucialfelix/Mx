@@ -238,9 +238,14 @@ MxMatrixGui : SCViewHolder {
 		targetPoint = this.boxPoint(x,y);
 		target = this.getByCoord(x,y);
 		if(target.notNil,{
-			if(dragging.isKindOf(MxOutlet) and: {target.isKindOf(MxInlet)},{
+			if(dragging.isKindOf(MxOutlet) and: {target.isKindOf(MxInlet)} and: {dragging !== target},{
 				mx.connect(nil,dragging,nil,target);
-				mx.update
+				mx.update;
+				currentDragPoint = nil;
+				this.transferFocus(targetPoint);
+				dragging = nil;
+				
+				^this
 			})
 		});
 		// to a unit
@@ -255,14 +260,16 @@ MxMatrixGui : SCViewHolder {
 			mx.update;
 		},{
 			// dragging an outlet to a fader
-			fi = this.detectFader(x@y);
-			if(fi.notNil,{
-				if(fi >= mx.channels.size,{
-					mx.insertChannel(fi)
+			if(dragging.isKindOf(MxOutlet),{
+				fi = this.detectFader(x@y);
+				if(fi.notNil,{
+					if(fi >= mx.channels.size,{
+						mx.insertChannel(fi)
+					});
+					mx.connect(nil,dragging,nil,mx.channels[fi].myUnit.inlets.first);
+					mx.update;
 				});
-				mx.connect(nil,dragging,nil,mx.channels[fi].myUnit.inlets.first);
-				mx.update;
-			});
+			})
 		});
 		currentDragPoint = nil;
 		this.transferFocus(targetPoint);
@@ -319,10 +326,13 @@ MxMatrixGui : SCViewHolder {
 		points[mx.master.myUnit] = (lastCol)@(lastRow)
 	}
 	calcBoxBounds {
+		var n;
 		boxBounds = Rect(bounds.left,
 						bounds.top + ioHeight,
 						view.bounds.width,
 						view.bounds.height - faderHeight - ioHeight - ioHeight);
+		n = boxBounds.width div: 100;
+		boxWidth = boxBounds.width / n;
 	}
 	fadersBounds {
 		^Rect(0,boxBounds.bottom,boxBounds.width, faderHeight)
@@ -564,6 +574,59 @@ MxMatrixGui : SCViewHolder {
 			d.value(this.getBounds(this.focusedPoint),mx.at(this.focusedPoint.x,this.focusedPoint.y),style, this.focusedPoint );
 		});
 
+		// inlets that can accept
+		// hovering
+		
+		fb = this.fadersBounds;
+		mx.cables.do { arg cable,i;
+			var f,t,c,chan,ci;
+			f = this.outletArea(cable.outlet);
+	
+			// if its to a MxChannel then draw to fader top
+			chan = cable.inlet.unit.source;
+			if(chan.class === MxChannel,{
+
+				// vertical: in same channel
+				if(chan.units.includes(cable.outlet.unit),{
+					t = Rect(f.left,fb.top, boxWidth,0)
+				},{
+					if(chan === mx.master,{
+						t = Rect(boxBounds.right - boxWidth,boxBounds.top,boxWidth,0)
+					},{
+						// channel doesn't know its number
+						// this is slow
+						ci = mx.channels.indexOf(chan);
+						t = Rect(ci * boxWidth,boxBounds.top,boxWidth,0)
+					})
+				})
+			},{
+				t = this.inletArea(cable.inlet);
+			});
+			
+			if(f.notNil and: t.notNil,{
+				c = cable.outlet.spec.color;
+				if(cable.active.not,{
+					c = Color(c.red,c.green,c.blue,0.2)
+				},{
+					if(cable.inlet.unit.source === mx.master,{
+						c = Color(c.red,c.green,c.blue,0.4)
+					},{
+						c = Color(c.red,c.green,c.blue,0.6)
+					})
+				});
+				pen.color = Color(alpha:0.5);
+				pen.width = 3;
+				pen.moveTo(f.center);
+				pen.lineTo(t.center);
+				pen.stroke;
+				pen.color = c;
+				pen.width = 1;
+				pen.moveTo(f.center);
+				pen.lineTo(t.center);
+				pen.stroke;
+			})
+		};
+
 		if(dragging.notNil,{
 			if(dragging.isKindOf(MxUnit),{
 				d.value(
@@ -582,48 +645,7 @@ MxMatrixGui : SCViewHolder {
 				pen.color = Color.blue;
 				pen.strokeOval( r );
 			});
-		});
-
-		// inlets that can accept
-		// hovering
-
-		fb = this.fadersBounds;
-		mx.cables.do { arg cable,i;
-			var f,t,c,chan,ci;
-			f = this.outletArea(cable.outlet);
-
-			// if its to a MxChannel then draw to fader top
-			chan = cable.inlet.unit.source;
-			if(chan.class === MxChannel,{
-				// channel doesn't know its number
-				if(chan === mx.master,{
-					t = Rect(fb.right - boxWidth,fb.top,boxWidth,0)
-				},{
-					// this is slow
-					ci = mx.channels.indexOf(chan);
-					t = Rect(ci * boxWidth,fb.top,boxWidth,0)
-				})
-			},{
-				t = this.inletArea(cable.inlet);
-			});
-			
-			if(f.notNil and: t.notNil,{
-				c = cable.outlet.spec.color;
-				if(cable.active.not,{
-					c = Color(c.red,c.green,c.blue,0.3)
-				});
-				pen.color = Color.black;
-				pen.width = 3;
-				pen.moveTo(f.center);
-				pen.lineTo(t.center);
-				pen.stroke;
-				pen.color = c;
-				pen.width = 1;
-				pen.moveTo(f.center);
-				pen.lineTo(t.center);
-				pen.stroke;
-			})
-		};
+		});		
 	}
 	makeDefaultStyles { arg skin;
 		background = skin.background;
