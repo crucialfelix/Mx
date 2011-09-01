@@ -30,10 +30,11 @@ MxCable {
 	}
 	map { arg v;
 		// map an input value coming from the outlet to the range needed for the inlet
+		// or map a ugen
 		if(mapping.notNil,{
 			^mapping.value(v)
 		},{
-			if(outlet.spec.isKindOf(ControlSpec) and: {inlet.spec.isKindOf(ControlSpec)},{
+			if(outlet.spec.isKindOf(ControlSpec) and: {inlet.spec.isKindOf(ControlSpec)} and: {outlet.spec != inlet.spec},{
 				^inlet.spec.map( outlet.spec.unmap(v) )
 			},{
 				^v
@@ -133,7 +134,9 @@ MxCableStrategy {
 	}
 	connect { arg cable,bundle;
 		try({
-			connectf.value(cable,bundle)
+			cable.state.use {
+				connectf.value(cable,bundle)
+			}
 		},{ arg exc;
 			"MxCableStrategy failed".error;
 			(cable.outlet.adapter.class.asString + "->" + cable.inlet.adapter.class ).postln;
@@ -144,7 +147,9 @@ MxCableStrategy {
 		})
 	}
 	disconnect { arg cable,bundle;
-		disconnectf.value(cable,bundle)
+		cable.state.use {
+			disconnectf.value(cable,bundle)
+		}
 	}
 }
 	
