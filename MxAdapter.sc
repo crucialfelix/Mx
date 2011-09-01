@@ -19,12 +19,14 @@ AbsMxAdapter {}
 
 AbsMxFuncAdapter : AbsMxAdapter {
 	
-	var <>func,<>getServer,<>getGroup;
+	var <>func,>getServer,>getGroup;
 
 	*new { arg thingGetter,getServer,getGroup;
 		^super.new.func_(thingGetter).getServer_(getServer).getGroup_(getGroup)
 	}	
 	value { ^func.value }	
+	server { ^getServer.value }
+	group { ^getGroup.value }
 }
 
 MxHasBus : AbsMxFuncAdapter {}

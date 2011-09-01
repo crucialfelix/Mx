@@ -150,9 +150,9 @@ MxUnit  {
 			spawnToBundle: { arg bundle; ~source.spawnToBundle(bundle) },
 			stopToBundle: { arg bundle; ~source.stopToBundle(bundle) },
 			freeToBundle: { arg bundle; ~source.freeToBundle(bundle) },
-
 			play: { arg group, atTime, bus;},
-			stop: { arg atTime,andFreeResources = true;},
+			stop: { arg atTime,andFreeResources = true; },
+			
 			numChannels: { ~source.numChannels ? 2 },
 			spec: { ~source.spec ?? {'audio'.asSpec} },
 			gui: { arg layout,bounds; 

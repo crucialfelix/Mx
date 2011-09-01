@@ -73,7 +73,7 @@ MxCable {
 				// what if a new connection is in the same bundle ?
 				// then order is important
 				// disconnects are first
-				jack.setValueToBundle( 126, bundle )
+				jack.setValueToBundle( cable.inlet.adapter.server.options.numAudioBusChannels-2, bundle )
 			}));
 
 		this.register(\MxPlaysOnKrBus,\MxHasKrJack,
@@ -84,25 +84,28 @@ MxCable {
 				// launch synth wire with cable mapping
 				
 				~cableKr = Patch({ arg in;
-							cable.map(in).poll
-						  },[ 
-						  	bus
-						  ]);
-				~cableKr.prepareToBundle(cable.inlet.unit.group,bundle);
+							cable.map(in)
+						},[
+							bus
+						]);
+				~cableGroup = Group.basicNew(cable.inlet.adapter.server);
+				bundle.add( ~cableGroup.addToHeadMsg(cable.inlet.adapter.group) );
+				~cableKr.prepareToBundle(~cableGroup,bundle);
 				~cableKr.spawnToBundle(bundle);
-				jack.setValueToBundle( ~cableKr.bus.index, bundle )
+				
+				jack.readFromBusToBundle(~cableKr.bus,bundle);
 				
 			},{ arg cable,bundle;
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
 				jack = cable.inlet.adapter.value;
 				~cableKr.freeToBundle(bundle);
-				~cableKr = nil;
-				// temp: set it to silence
-				// what if a new connection is in the same bundle ?
-				// then order is important
-				// disconnects are first
-				jack.setValueToBundle( 4095, bundle )
+				bundle.add( ~cableGroup.freeMsg );
+				bundle.addFunction({
+					~cableKr = nil;
+					~cableGroup = nil;
+				});
+				jack.stopReadFromBusToBundle(bundle);
 			}));
 						
 		this.register(\MxPlaysOnBus,\MxListensToBus,
@@ -121,7 +124,7 @@ MxCable {
 							 ]);
 					InstrSynthDef.loadDefFileToBundle(def,bundle,inbus.server);
 							
-					group = cable.inlet.adapter.getGroup.value;
+					group = cable.inlet.adapter.group;
 					~synth = Synth.basicNew(def.name,group.server);
 					bundle.add( ~synth.addToHeadMsg(group,[inbus.index,outbus.index]) );
 				}

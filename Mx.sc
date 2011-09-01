@@ -161,12 +161,6 @@ Mx : AbstractPlayerProxy {
 	}
 	registerChannel { arg chan,uid,ds;
 		uid = this.register(chan,uid);
-		// channel and its unit have same id ?
-		// fuck
-		// this.register(chan,ds);
-		// the ds has stored them as inlets/outlets of the channel itself
-		// might be an issue decideing which the cuid refers to
-		
 		chan.myUnit.inlets.do { arg inlet;
 			var iid;
 			if(ds.isNil,{
@@ -488,7 +482,7 @@ Mx : AbstractPlayerProxy {
 	}
 	
 	children {
-		^super.children ++ channels
+		^super.children ++ channels // ++ cables
 	}
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
@@ -508,28 +502,11 @@ Mx : AbstractPlayerProxy {
 			})
 		};
 		master.prepareToBundle(group,bundle,false,this.bus);
+		// cables: it just spawns them
 	}
 
 	spawnCablesToBundle { arg bundle;
 		cables.do(_.spawnToBundle(bundle));
-		//this.autoCablesToBundle(bundle);
-	}
-	autoCablesToBundle { arg bundle;
-		/* updates autoCables, adding and removing to get to current patch state.
-			BUT do not use this if you use .update
-			
-			probably remove this method
-		 */
-		var adds,rms;
-		adds = this.updateAutoCables;
-		adds.do { arg a;
-			a.spawnToBundle(bundle)
-		};
-		
-		/*rms.do { arg r;
-			r.stopToBundle(bundle)
-			//r.freeToBundle(bundle)
-		}*/
 	}
 	updateAutoCables {
 
@@ -616,7 +593,6 @@ MxIDDataSource {
 		*/	
 		var data,ret;
 		data = Dictionary.new;
-		register.gui;
 		register.keysValuesDo { arg uid,object;
 			var slot,unitid;
 			if(object.isKindOf(MxInlet),{

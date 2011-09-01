@@ -14,10 +14,10 @@ MxUnit.register('Instr',(
 		patch = Patch(instr,inps );
 		connectors = patch.inputs.collect({ arg inp,i; 
 			if(inp.isKindOf(MxArJack),{
-				MxHasJack({inp})
+				MxHasJack({inp},{patch.server},{patch.group})
 			},{
 				if(inp.isKindOf(MxKrJack),{
-					MxHasKrJack({inp})
+					MxHasKrJack({inp},{patch.server},{patch.group})
 				},{
 					// many things it could be
 					nil
@@ -28,9 +28,9 @@ MxUnit.register('Instr',(
 			.collect({ arg spec,i; MxInlet(instr.argNameAt(i),i,spec,connectors[i] ) });
 
 		if(instr.outSpec  == 'control',{
-			conn = MxPlaysOnKrBus({patch.bus})
+			conn = MxPlaysOnKrBus({patch.bus},{patch.server},{patch.group})
 		},{
-			conn = MxPlaysOnBus({patch.bus})
+			conn = MxPlaysOnBus({patch.bus},{patch.server},{patch.group})
 		});
 		outlets = [ MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
 		

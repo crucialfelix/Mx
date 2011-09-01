@@ -54,11 +54,28 @@ MxKrJack : MxJack {
 			bundle.add( patchIn.nodeControl.setMsg(v) );
 		}
 	}
+	
+	getIndex { arg patchIn;
+		^patchIn.instVarAt('index')
+	}
+	readFromBusToBundle { arg bus, bundle;
+		patchOut.connectedTo.do { arg patchIn;
+			bundle.add( patchIn.nodeControl.node.mapMsg(patchIn.nodeControl.name,bus) );
+		}
+	}
+	stopReadFromBusToBundle { arg bundle;
+		patchOut.connectedTo.do { arg patchIn;
+			bundle.add( patchIn.nodeControl.node.mapMsg(patchIn.nodeControl.name,-1) );
+		}
+	}		
 		
 	addToSynthDef {  arg synthDef,name;
 		synthDef.addKr(name,value);
 	}
 	instrArgFromControl { arg control;
+		// actually if its patched up to a kr on the server
+		// then you don't want Lag
+		// this assumes you are sending values from client
 		if(lag.notNil and: {spec.isKindOf(NoLagControlSpec).not},{
 			^Lag.kr(control,lag)
 		},{
