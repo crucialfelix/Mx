@@ -82,11 +82,11 @@ MxUnit.register('TotalTracker',
 		t
 	},
 	name: { ~source.name },
-	gui: {
-		var patternSelectGui,layout,env;
+	gui: { arg layout;
+		var patternSelectGui,env;
 		patternSelectGui = SongPatternSelectGui(~source);
 		patternSelectGui.total_(~source);
-		layout = PageLayout(~source.name,Rect(100,100,600,300));
+		layout = layout ?? {PageLayout(~source.name,Rect(100,100,600,300))};
 		env = currentEnvironment; 
 		ActionButton(layout,"Full GUI ^",{
 			env.use {

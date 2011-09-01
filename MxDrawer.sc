@@ -106,6 +106,7 @@ MxDrawerGui : ObjectGui {
 	   		var item;
 	        if(clickCount == 2,{
 	   			item = items[lv.value];
+	   			item.debug("loading...");
 	   			if(item.isKindOf(MxDrawerItemGroup).not,{
 		   			item.make(lv.value,model.onSelect)
 	   			},{
