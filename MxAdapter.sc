@@ -30,8 +30,10 @@ AbsMxFuncAdapter : AbsMxAdapter {
 MxHasBus : AbsMxFuncAdapter {}
 
 MxHasJack : AbsMxFuncAdapter {}
+MxHasKrJack : AbsMxFuncAdapter {}
 
 MxPlaysOnBus : AbsMxFuncAdapter {}
+MxPlaysOnKrBus : AbsMxFuncAdapter {} 
 MxListensToBus : MxPlaysOnBus {}
 
 MxSetter : AbsMxFuncAdapter {}

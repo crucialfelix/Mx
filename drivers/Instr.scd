@@ -13,17 +13,24 @@ MxUnit.register('Instr',(
 		});
 		patch = Patch(instr,inps );
 		connectors = patch.inputs.collect({ arg inp,i; 
-			if(inp.isKindOf(MxJack),{
+			if(inp.isKindOf(MxArJack),{
 				MxHasJack({inp})
 			},{
-				// many things it could be
-				nil
+				if(inp.isKindOf(MxKrJack),{
+					MxHasKrJack({inp})
+				},{
+					// many things it could be
+					nil
+				})
 			})
 		});
 		inlets = instr.specs
 			.collect({ arg spec,i; MxInlet(instr.argNameAt(i),i,spec,connectors[i] ) });
-		if(instr.outSpec.isKindOf(AudioSpec) or: {instr.outSpec.isKindOf(ControlSpec)},{
-			conn = MxPlaysOnBus({patch.bus});
+
+		if(instr.outSpec  == 'control',{
+			conn = MxPlaysOnKrBus({patch.bus})
+		},{
+			conn = MxPlaysOnBus({patch.bus})
 		});
 		outlets = [ MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
 		

@@ -1,28 +1,23 @@
 
 /*
 
-no inlets assumed, write a drive for specific subclasses
+no inlets assumed, write a driver for specific subclasses
 	
 */
 
 MxUnit.register('AbstractPlayer',
 (
 	make: { arg player;
-		var inlets,outlets;
+		var inlets,outlets,pob;
 		inlets  = [];
-		outlets = [ MxOutlet(player.name, 0, player.spec ,MxPlaysOnBus({player.bus}) ) ];
+		if(player.rate  == 'control',{
+			pob = MxPlaysOnKrBus({player.bus})
+		},{
+			pob = MxPlaysOnBus({player.bus})
+		});			
+		outlets = [ MxOutlet(player.name, 0, player.spec ,pob ) ];
 		MxUnit(player,inlets,outlets);
 	},
-	/*
-	prepareToBundle:  { arg agroup, bundle, private, bus;
-		~source.prepareToBundle(agroup,bundle,private,bus)
-	},
-	spawnToBundle: { arg bundle; 
-		~source.spawnToBundle(bundle)
-	},
-	stopToBundle: { arg bundle; 
-		~source.stopToBundle(bundle)
-	},*/
 
 	play: { arg group, atTime, bus;
 		~source.play(group,atTime,bus)

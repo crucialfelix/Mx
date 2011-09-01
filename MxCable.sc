@@ -75,7 +75,36 @@ MxCable {
 				// disconnects are first
 				jack.setValueToBundle( 126, bundle )
 			}));
-			
+
+		this.register(\MxPlaysOnKrBus,\MxHasKrJack,
+			MxCableStrategy({ arg cable,bundle;
+				var bus, jack;
+				bus = cable.outlet.adapter.value;
+				jack = cable.inlet.adapter.value;
+				// launch synth wire with cable mapping
+				
+				~cableKr = Patch({ arg in;
+							cable.map(in).poll
+						  },[ 
+						  	bus
+						  ]);
+				~cableKr.prepareToBundle(cable.inlet.unit.group,bundle);
+				~cableKr.spawnToBundle(bundle);
+				jack.setValueToBundle( ~cableKr.bus.index, bundle )
+				
+			},{ arg cable,bundle;
+				var bus, jack;
+				bus = cable.outlet.adapter.value;
+				jack = cable.inlet.adapter.value;
+				~cableKr.freeToBundle(bundle);
+				~cableKr = nil;
+				// temp: set it to silence
+				// what if a new connection is in the same bundle ?
+				// then order is important
+				// disconnects are first
+				jack.setValueToBundle( 4095, bundle )
+			}));
+						
 		this.register(\MxPlaysOnBus,\MxListensToBus,
 			// depends on being on the same server
 			MxCableStrategy({ arg cable,bundle;
@@ -112,6 +141,21 @@ MxCable {
 				action = { arg val;
 					setter.value( cable.map( val ) )
 				};
+				cable.outlet.adapter.value(action);
+			},{ arg cable,bundle;
+				cable.outlet.adapter.value(nil);
+			})
+		);
+
+		this.register(\MxHasAction,\MxHasJack,
+			// always active, doesn't wait for play
+			MxCableStrategy({ arg cable,bundle;
+				var jack,action;
+				jack = cable.inlet.adapter.value; 
+				action = { arg val;
+					jack.value = cable.map( val )
+				};
+				// wait, this hogs the slider for only one target
 				cable.outlet.adapter.value(action);
 			},{ arg cable,bundle;
 				cable.outlet.adapter.value(nil);
