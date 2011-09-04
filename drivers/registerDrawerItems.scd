@@ -15,4 +15,6 @@ MxDrawer.add("Slider",{ arg i,onMake; onMake.value(NumberEditor(1.0)) });
 
 MxDrawer.add("CC",{ arg i,onMake; onMake.value(CCResponder.new) });
 
-MxDrawer.add("Spline.kr",{ arg i,onMake; onMake.value(KrSplinePlayer.new) });
+MxDrawer.add("SplineKr",{ arg i,onMake; onMake.value(KrSplinePlayer.new) });
+
+MxDrawer.add("SplineFr",{ arg i,onMake; onMake.value(SplineFr.new) });

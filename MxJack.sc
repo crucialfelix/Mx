@@ -55,17 +55,17 @@ MxKrJack : MxJack {
 		}
 	}
 	
-	getIndex { arg patchIn;
+	getNodeControlIndex { arg patchIn;
 		^patchIn.instVarAt('index')
 	}
 	readFromBusToBundle { arg bus, bundle;
 		patchOut.connectedTo.do { arg patchIn;
-			bundle.add( patchIn.nodeControl.node.mapMsg(patchIn.nodeControl.name,bus) );
+			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),bus) );
 		}
 	}
 	stopReadFromBusToBundle { arg bundle;
 		patchOut.connectedTo.do { arg patchIn;
-			bundle.add( patchIn.nodeControl.node.mapMsg(patchIn.nodeControl.name,-1) );
+			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),-1) );
 		}
 	}		
 		
@@ -88,6 +88,7 @@ MxKrJack : MxJack {
 	connectToPatchIn { arg patchIn,needsValueSetNow = true;
 		patchOut.connectTo(patchIn,needsValueSetNow);
 	}
+	rate { ^\control }
 	guiClass { ^MxKrJackGui }
 }
 
@@ -116,6 +117,8 @@ MxArJack : MxKrJack {
 	instrArgFromControl { arg control;
 		^In.ar(control,numChannels)
 	}
+	rate { ^\audio }
+	
 	guiClass { ^MxArJackGui }
 }
 

@@ -40,3 +40,5 @@ MxListensToBus : MxPlaysOnBus {}
 
 MxSetter : AbsMxFuncAdapter {}
 MxHasAction : AbsMxFuncAdapter {}
+MxSendsValueOnChanged : AbsMxFuncAdapter {}
+

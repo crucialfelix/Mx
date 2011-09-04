@@ -164,7 +164,19 @@ MxCable {
 				cable.outlet.adapter.value(nil);
 			})
 		);
-				
+		
+		this.register(\MxSendsValueOnChanged,\MxHasKrJack,
+			MxCableStrategy({ arg cable,bundle;
+				var model;
+				model = cable.outlet.adapter.value();
+				~updater = Updater(model,{ arg frd,value;
+					value = cable.map(value);
+					cable.inlet.adapter.value().value = value;
+				})
+			},{ arg cable,bundle;
+				~updater.remove
+			})
+		);		
 	}
 }
 

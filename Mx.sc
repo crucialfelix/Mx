@@ -2,22 +2,26 @@
 
 Mx : AbstractPlayerProxy {
 	
-	var <channels,<cables;
-	var <myUnit,<inlets,<outlets;
+	classvar <>defaultFrameRate=24;
+	
+	var <channels, <cables;
+	var <myUnit, <inlets, <outlets;
 	
 	var <>autoCable=true;
 	
-	var allocator,register,unitGroups,busses;
+	var allocator, register, unitGroups, busses;
 	var <master;
-	var removing,adding, cableEndpoints;
+	var removing, adding, cableEndpoints;
+	var <>frameRate=24, ticker, frameRateDevices, preFrameRateDevices;
 	
-	*new { arg channels, cables,inlets,outlets;
+	*new { arg channels, cables, inlets, outlets;
 		^super.new.init(channels,cables,inlets,outlets)
 	}
 	storeArgs { 
 		^[
 			channels.collect({ arg channel;
-				this.findID(channel) -> channel.units.collect({ arg unit; unit !? {this.findID(unit) -> unit.saveData} })
+				this.findID(channel) -> channel.units
+					.collect({ arg unit; unit !? {this.findID(unit) -> unit.saveData} })
 			}), 
 			channels.collect({ arg channel;
 				this.findID(channel) -> channel.fader.storeArgs
@@ -158,6 +162,11 @@ Mx : AbstractPlayerProxy {
 			});
 			this.register(outlet,iid);
 		};
+		unit.handlers.use {
+			~frameRateDevices.value.do { arg dev;
+				this.addFrameRateDevice(dev)
+			}
+		};
 	}
 	registerChannel { arg chan,uid,ds;
 		uid = this.register(chan,uid);
@@ -207,7 +216,6 @@ Mx : AbstractPlayerProxy {
 				nuchan.pending = true;
 			};
 		});
-
 
 		// now inserting it 
 		chan = this.prMakeChannel(units);
@@ -342,7 +350,42 @@ Mx : AbstractPlayerProxy {
 			}
 		}
 	}
-
+	addFrameRateDevice { arg func;
+		frameRateDevices = frameRateDevices.add( MxFrameRateDevice(func) );
+		if(this.isPlaying and: {ticker.isNil},{
+			this.startTicker
+		});
+	}
+	startTicker { arg bundle;
+		var clock;
+		clock = BeatSched.new;
+		ticker = Task({
+					loop {
+						frameRateDevices.do { arg frd;
+							frd.tick(clock.beat);
+						};
+						frameRate.reciprocal.wait;
+					}
+				},clock.tempoClock);
+		if(bundle.notNil,{
+			bundle.addFunction({
+				ticker.play
+			})
+		},{
+			ticker.play
+		});
+	}
+	stopTicker { arg bundle;
+		if(bundle.notNil,{
+			bundle.addFunction({
+				ticker.stop;
+				ticker = nil;
+			});
+		},{
+			ticker.stop;
+			ticker = nil;
+		})
+	}
 
 	// API
 	getInlet { arg point,index;
@@ -487,14 +530,6 @@ Mx : AbstractPlayerProxy {
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
 	}		
-	spawnToBundle { arg bundle;
-		channels.do(_.spawnToBundle(bundle));
-		super.spawnToBundle(bundle);
-		this.spawnCablesToBundle(bundle);
-		bundle.addFunction({
-			adding = removing = nil;
-		});
-	}
 	prepareChildrenToBundle { arg bundle;
 		channels.do { arg c;
 			if(c !== master,{
@@ -503,6 +538,20 @@ Mx : AbstractPlayerProxy {
 		};
 		master.prepareToBundle(group,bundle,false,this.bus);
 		// cables: it just spawns them
+	}
+	spawnToBundle { arg bundle;
+		channels.do(_.spawnToBundle(bundle));
+		super.spawnToBundle(bundle);
+		this.spawnCablesToBundle(bundle);
+		bundle.addFunction({
+			adding = removing = nil;
+		});
+		if(frameRateDevices.notNil,{
+			frameRateDevices.do { arg frd;
+				frd.tick(0); // node don't exist yet
+			};
+			this.startTicker(bundle)
+		})
 	}
 
 	spawnCablesToBundle { arg bundle;
@@ -540,7 +589,12 @@ Mx : AbstractPlayerProxy {
 		});	
 		^addingCables
 	}
-	
+	stopToBundle { arg bundle;
+		super.stopToBundle(bundle);
+		if(ticker.notNil,{
+			this.stopTicker(bundle)
+		})
+	}
 	guiClass { ^MxGui }
 	
 	draw { arg pen,bounds,style;
