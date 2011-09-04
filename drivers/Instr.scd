@@ -80,7 +80,17 @@ MxUnit.register('Instr',(
 		[instr,inps]
 	},
 	copy: { ~source.instr },
-	name: { ~source.instr.dotNotation }
+	name: { ~source.instr.dotNotation },
+	
+	gui: { arg layout;
+		var l;
+		l = layout ?? {PageLayout(~source.instr.dotNotation,Rect(0,0,500,600))};
+		~source.gui(l);
+		InstrGui(~source.instr).sourceGui(l,500);
+		if(layout.isNil,{
+			l.resizeToFit
+		})
+	}
 
 ));
 
