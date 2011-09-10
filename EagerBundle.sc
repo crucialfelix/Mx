@@ -1,7 +1,10 @@
 
 
 EagerBundle : MixedBundle {
-	
+
+	*ifNil { arg bundle;
+		^bundle ?? {this.new}
+	}
 	onSend { arg func;
 		func.value
 	}

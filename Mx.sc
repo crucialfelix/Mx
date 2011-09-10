@@ -1,52 +1,52 @@
 
 
 Mx : AbstractPlayerProxy {
-	
+
 	classvar <>defaultFrameRate=24;
-	
+
 	var <channels, <cables;
 	var <myUnit, <inlets, <outlets;
-	
+
 	var <>autoCable=true;
-	
+
 	var allocator, register, unitGroups, busses;
 	var <master;
 	var removing, adding, cableEndpoints;
 	var <>frameRate=24, ticker, frameRateDevices, preFrameRateDevices;
-	
+
 	*new { arg channels, cables, inlets, outlets;
 		^super.new.init(channels,cables,inlets,outlets)
 	}
-	storeArgs { 
+	storeArgs {
 		^[
 			channels.collect({ arg channel;
 				this.findID(channel) -> channel.units
 					.collect({ arg unit; unit !? {this.findID(unit) -> unit.saveData} })
-			}), 
+			}),
 			channels.collect({ arg channel;
 				this.findID(channel) -> channel.fader.storeArgs
 			}),
-			MxIDDataSource.saveIOlets(register,this), 
+			MxIDDataSource.saveIOlets(register,this),
 			cables.collect({ arg cable;
 					[this.findID(cable.outlet),this.findID(cable.inlet),cable.mapping,cable.active]
 				}),
 			inlets.collect({ arg out;
-					[this.findID(out), out.name,out.spec ] // , spec, name, 
+					[this.findID(out), out.name,out.spec ] // , spec, name,
 				}),
 			outlets.collect({ arg out;
-					[this.findID(out), out.name,out.spec ] // , spec, name, 
+					[this.findID(out), out.name,out.spec ] // , spec, name,
 				})
 		]
 	}
 	init { arg argChannels,faderData,ioids,argCables,ins,outs;
 		var faderMap,ds,uid;
-		
+
 		register = IdentityDictionary.new;
 		allocator = NodeIDAllocator(0,0);
 
 		ds = MxIDDataSource(ioids);
-		
-		uid = this.register(this);		
+
+		uid = this.register(this);
 
 		faderMap = Dictionary.new;
 		faderData.do { arg ass;
@@ -69,10 +69,10 @@ Mx : AbstractPlayerProxy {
 					unit
 				});
 			};
-			
+
 			chan = MxChannel(units,faderMap[cuid]);
 			this.registerChannel(chan,cuid,ds);
-			
+
 			channels = channels.add(chan)
 		};
 		master = channels.last ?? {
@@ -82,7 +82,7 @@ Mx : AbstractPlayerProxy {
 			master
 		};
 		source = master;
-		
+
 		inlets = [];
 		(ins ? []).do { arg inletData,i;
 			var in;
@@ -102,8 +102,8 @@ Mx : AbstractPlayerProxy {
 			}
 		},{
 			this.addOutput;
-		});				
-		
+		});
+
 		cables = MxCableCollection.new;
 		argCables.do { arg cableData;
 			var oid,iid,mapping,active;
@@ -188,10 +188,27 @@ Mx : AbstractPlayerProxy {
 			});
 			this.register(outlet,iid);
 		};
-	}		
-		
+	}
+
 	add { arg ... objects;
 		^this.insertChannel(channels.size,objects)
+	}
+	extendChannels { arg forIndex;
+		// create more channels if needed
+		// such that there is a channel at forIndex
+		// and there is still the master channel after that
+		var prior,nuchan,start,stop;
+		start = channels.size - 1;
+		stop = forIndex;
+		if(stop >= start,{
+			for(stop,start,{ arg i;
+				nuchan = this.prMakeChannel;
+				channels = channels.insert(i,nuchan);
+				this.registerChannel(nuchan);
+				adding = adding.add(nuchan);
+				nuchan.pending = true;
+			});
+		});
 	}
 	insertChannel { arg index, objects;
 		var chan,units,nuchan,prior;
@@ -201,23 +218,9 @@ Mx : AbstractPlayerProxy {
 				this.registerUnit(unit)
 			});
 		};
-		// leaving space 1 for the master
+		this.extendChannels(index);
 
-		prior = index - 1;
-		if(prior > -1,{
-			// fill in spaces
-			while {
-				channels[prior].isNil or: {(channels[prior] === master)}
-			} {
-				nuchan = this.prMakeChannel;
-				channels = channels.insert(channels.size-1,nuchan);
-				this.registerChannel(nuchan);
-				adding = adding.add(nuchan);
-				nuchan.pending = true;
-			};
-		});
-
-		// now inserting it 
+		// now inserting it
 		chan = this.prMakeChannel(units);
 		this.registerChannel(chan);
 		channels = channels.insert(index,chan);
@@ -256,7 +259,7 @@ Mx : AbstractPlayerProxy {
 	addOutput { arg rate='audio',numChannels=2;
 		// not finished
 		// just creates a default out for now, coming from the master
-		
+
 		// change this to keep the master as just a normal channel on grid
 		// created by .mixer
 		// the MxOutlet can specify how to find that
@@ -264,7 +267,7 @@ Mx : AbstractPlayerProxy {
 		// only trick then is to make addChannel insert before the output channels
 		// add audio output
 		var chan,out;
-		
+
 		// master output
 		if(outlets.isNil or: {outlets.isEmpty},{
 			// do not like. this is not in anything and should be created in the same way
@@ -277,7 +280,7 @@ Mx : AbstractPlayerProxy {
 			outlets = outlets.add(out);
 			this.register(out);
 		});
-		
+
 		^chan
 	}
 	at { arg chan,index;
@@ -305,17 +308,24 @@ Mx : AbstractPlayerProxy {
 		^unit
 	}
 	move { arg chan,index,toChan,toIndex;
-		var moving,unit;
+		var moving,unit,unitg;
 		moving = this.at(chan,index) ?? {^this};
 		if(chan != toChan) {
-			unit = channels[chan].removeAt(index);
+
+			# unit,unitg = channels[chan].extractAt(index);
+			
 			// could keep them connected, depends on order of execution
 			cables.fromUnit(moving).do { arg cable;
 				if(cable.inlet.unit.source.isKindOf(MxChannel),{
 					this.disconnectCable(cable);
 				})
 			};
-			this.put(toChan,toIndex, moving);
+			
+			// make channel if needed
+			this.extendChannels(toChan);
+			
+			channels[toChan].insertAt(toIndex,unit,unitg);
+			
 			if(autoCable,{
 				this.updateAutoCables;
 			})
@@ -398,14 +408,14 @@ Mx : AbstractPlayerProxy {
 		unit = channels[point.x].units[point.y] ?? {Error("no unit at" + point).throw};
 		^unit.getOutlet(index)
 	}
-	
+
 	connect { arg fromUnit,outlet, toUnit, inlet, mapping=nil;
 		/*
 			unit: channelNumber@slotNumber
-			outlet/inlet: 
-				\outletName 
-				integer Index 
-				nil meaning first 
+			outlet/inlet:
+				\outletName
+				integer Index
+				nil meaning first
 				outlet/inlet object
 		*/
 		var cable;
@@ -413,18 +423,18 @@ Mx : AbstractPlayerProxy {
 		if(outlet.isKindOf(MxOutlet).not,{
 			outlet = this.getOutlet(fromUnit,outlet);
 		});
-		if(inlet.isKindOf(MxInlet).not,{	
+		if(inlet.isKindOf(MxInlet).not,{
 			inlet = this.getInlet(toUnit,inlet);
 		});
-		
+
 		// actual connection here
 		// remove any that goes to this inlet
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not
-		
+
 		cables.toUnit(inlet.unit).do { arg oldcable;
-			if(oldcable.inlet === inlet 
-					and: {oldcable.inlet.unit.source.isKindOf(MxChannel).not} 
+			if(oldcable.inlet === inlet
+					and: {oldcable.inlet.unit.source.isKindOf(MxChannel).not}
 					and: {oldcable.active},{
 				this.disconnectCable(oldcable);
 			})
@@ -441,7 +451,7 @@ Mx : AbstractPlayerProxy {
 		if(outlet.isKindOf(MxOutlet).not,{
 			outlet = this.getOutlet(fromUnit,outlet);
 		});
-		if(inlet.isKindOf(MxInlet).not,{	
+		if(inlet.isKindOf(MxInlet).not,{
 			inlet = this.getInlet(toUnit,inlet);
 		});
 		cables.do { arg cab;
@@ -467,7 +477,7 @@ Mx : AbstractPlayerProxy {
 		cables.fromOutlet(outlet).do { arg cable;
 			this.disconnectCable(cable)
 		}
-	}		
+	}
 	mute { arg channel,boo=true;
 		channels[channel].mute = boo
 	}
@@ -477,8 +487,8 @@ Mx : AbstractPlayerProxy {
 		var b;
 		if(this.isPlaying,{
 			b = bundle ?? { MixedBundle.new };
-			removing.do { arg r; 
-				r.freeToBundle(b); 
+			removing.do { arg r;
+				r.freeToBundle(b);
 			};
 			// new channels
 			adding.do { arg a;
@@ -492,22 +502,19 @@ Mx : AbstractPlayerProxy {
 					},{
 						b.add( g.addToHeadMsg( group ) )
 					});
-					a.prepareToBundle(group,b,true,groupToUse: g); 
+					a.prepareToBundle(group,b,true,groupToUse: g);
 				},{
 					a.prepareToBundle(group,b,true);
-				}); 
-				a.spawnToBundle(b) 
+				});
+				a.spawnToBundle(b)
 			};
 			channels.do { arg chan; chan.update(b); };
 			b.addFunction({
 				removing.do { arg r;
-					this.unregister(r); 
+					this.unregister(r);
 				};
 				removing = adding = nil
 			});
-			//if(autoCable,{
-			//	this.autoCablesToBundle(b);
-			//}); 
 			if(bundle.isNil,{
 				b.send(this.server)
 			});
@@ -523,13 +530,13 @@ Mx : AbstractPlayerProxy {
 		});
 		cables.remove(cable);
 	}
-	
+
 	children {
 		^super.children ++ channels // ++ cables
 	}
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
-	}		
+	}
 	prepareChildrenToBundle { arg bundle;
 		channels.do { arg c;
 			if(c !== master,{
@@ -537,7 +544,6 @@ Mx : AbstractPlayerProxy {
 			})
 		};
 		master.prepareToBundle(group,bundle,false,this.bus);
-		// cables: it just spawns them
 	}
 	spawnToBundle { arg bundle;
 		channels.do(_.spawnToBundle(bundle));
@@ -561,7 +567,7 @@ Mx : AbstractPlayerProxy {
 
 		var patched,autoCabled,ac,changed=false;
 		var addingCables=[],removingCables;
-		
+
 		channels.do { arg chan;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
@@ -586,7 +592,7 @@ Mx : AbstractPlayerProxy {
 		// patch units in master
 		if(addingCables.notEmpty,{
 			adding = adding.addAll(addingCables);
-		});	
+		});
 		^addingCables
 	}
 	stopToBundle { arg bundle;
@@ -596,18 +602,18 @@ Mx : AbstractPlayerProxy {
 		})
 	}
 	guiClass { ^MxGui }
-	
+
 	draw { arg pen,bounds,style;
 		master.draw(pen,bounds,style)
-	}	
+	}
 }
 
 
 MxIDDataSource {
-	
+
 	// utility class for use during Mx load
 	var inlets,outlets;
-	
+
 	*new { arg ioids;
 		^super.new.init(ioids)
 	}
@@ -636,15 +642,15 @@ MxIDDataSource {
 			inlets.put(uidio.key,uidio.value[0]);
 			outlets.put(uidio.key,uidio.value[1]);
 		};
-	}	
+	}
 	*saveIOlets { arg register,mx;
 		/* [
 			unitid -> [ [ \freq -> inletid, ...], [ \out -> inletid, ... ] ],
 			unitid -> [ [ \amp -> outletid, ...], [ \out -> outletid, ... ] ],
 			..
 		]
-		the constructor loads from this data 
-		*/	
+		the constructor loads from this data
+		*/
 		var data,ret;
 		data = Dictionary.new;
 		register.keysValuesDo { arg uid,object;

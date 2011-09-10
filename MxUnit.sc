@@ -49,7 +49,8 @@ MxUnit  {
 			var match,path;
 			match = registery[class.name];
 			if(match.isNil,{
-				path = PathName(MxUnit.class.filenameSymbol.asString).parentPath +/+ "drivers" +/+ class.name.asString ++ ".scd";
+				path = PathName(MxUnit.class.filenameSymbol.asString).parentPath 
+								+/+ "drivers" +/+ class.name.asString ++ ".scd";
 				if(File.exists(path),{
 					path.load;
 					match = registery[class.name]
@@ -109,11 +110,19 @@ MxUnit  {
 	freeToBundle { arg bundle;
 		^handlers.use { ~freeToBundle.value(bundle) }
 	}	
+	moveToHead { arg aGroup,bundle;
+		^handlers.use {
+			~moveToHead.value(aGroup,bundle,group)
+		}
+	}
 	play { arg group,atTime,bus;
 		^handlers.use { ~play.value(group,atTime,bus) }
 	}
 	stop { arg atTime,andFreeResources=true;
 		^handlers.use { ~stop.value(atTime,andFreeResources) }
+	}
+	isPlaying {
+		^handlers.use { ~isPlaying.value }
 	}
 	numChannels {
 		^handlers.use { ~numChannels.value }
@@ -150,8 +159,16 @@ MxUnit  {
 			spawnToBundle: { arg bundle; ~source.spawnToBundle(bundle) },
 			stopToBundle: { arg bundle; ~source.stopToBundle(bundle) },
 			freeToBundle: { arg bundle; ~source.freeToBundle(bundle) },
+			moveToHead: { arg aGroup,bundle,currentGroup; 
+				// default is to stop it and fully restart it
+				// objects that can move themselves can implement this cleaner
+				~stopToBundle.value(bundle);
+				~prepareToBundle.value(aGroup,bundle);
+				~spawnToBundle.value(bundle);
+			},
 			play: { arg group, atTime, bus;},
 			stop: { arg atTime,andFreeResources = true; },
+			isPlaying: { ~source.isPlaying },
 			
 			numChannels: { ~source.numChannels ? 2 },
 			spec: { ~source.spec ?? {'audio'.asSpec} },

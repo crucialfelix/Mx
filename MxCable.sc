@@ -90,6 +90,7 @@ MxCable {
 						]);
 				~cableGroup = Group.basicNew(cable.inlet.adapter.server);
 				bundle.add( ~cableGroup.addToHeadMsg(cable.inlet.adapter.group) );
+
 				~cableKr.prepareToBundle(~cableGroup,bundle);
 				~cableKr.spawnToBundle(bundle);
 				
@@ -115,13 +116,14 @@ MxCable {
 					var inbus,outbus,def,group;
 					outbus = cable.inlet.adapter.value;
 					inbus = cable.outlet.adapter.value;
-					// cache these
+
 					def = Instr("MxCable.cableAr").asSynthDef([
 								inbus.index,
 								outbus.index,
 								inbus.numChannels,
 								outbus.numChannels
 							 ]);
+					// loads if needed
 					InstrSynthDef.loadDefFileToBundle(def,bundle,inbus.server);
 							
 					group = cable.inlet.adapter.group;
@@ -172,7 +174,7 @@ MxCable {
 				~updater = Updater(model,{ arg frd,value;
 					value = cable.map(value);
 					cable.inlet.adapter.value().value = value;
-				})
+				});
 			},{ arg cable,bundle;
 				~updater.remove
 			})

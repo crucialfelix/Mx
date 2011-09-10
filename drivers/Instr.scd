@@ -27,11 +27,8 @@ MxUnit.register('Instr',(
 		inlets = instr.specs
 			.collect({ arg spec,i; MxInlet(instr.argNameAt(i),i,spec,connectors[i] ) });
 
-		if(instr.outSpec  == 'control',{
-			conn = MxPlaysOnKrBus({patch.bus},{patch.server},{patch.group})
-		},{
-			conn = MxPlaysOnBus({patch.bus},{patch.server},{patch.group})
-		});
+		conn = if(instr.outSpec.rate  === 'control',{MxPlaysOnKrBus},{MxPlaysOnBus}).new({patch.bus},{patch.server},{patch.group});
+		
 		outlets = [ MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
 		
 		~source = patch;
@@ -50,6 +47,10 @@ MxUnit.register('Instr',(
 	freeToBundle: { arg bundle; 
 		~source.freeToBundle(bundle)
 		},
+	moveToHead: { arg aGroup,bundle,currentGroup; 
+		bundle.add( ~source.synth.moveToHeadMsg(aGroup) );
+	},
+		
 	numChannels: { 
 		~source.numChannels
 		},
@@ -60,6 +61,9 @@ MxUnit.register('Instr',(
 	stop: { arg atTime,andFreeResources = true;
 		~source.stop(atTime,andFreeResources)
 		},
+	isPlaying: {
+		~source.isPlaying
+	},
 	save: { 
 		var inps;
 		inps = ~source.inputs.collect { arg inp;

@@ -27,6 +27,7 @@ MxChannel : AbstractPlayerProxy {
 	init { arg argto,argunits,argfader;
 		cableTo = argto;
 		units = argunits;
+		unitGroups = Array.newClear(units.size);
 		fader = argfader;
 		source = fader; // 2 proxy layers
 		myUnit = MxUnit.make(this);
@@ -36,11 +37,18 @@ MxChannel : AbstractPlayerProxy {
 	}
 	put { arg index,unit;
 		this.removeAt(index);
-		if(units.size < (index+1), {
-			units = units.extend(index+1,nil)
-		});
+		this.extendUnits(index);
 		units[index] = unit;
 		adding = adding.add(unit);
+	}
+	extendUnits { arg index;
+		var ip = index + 1;
+		if(units.size < ip, {
+			units = units.extend(ip,nil)
+		});
+		if(unitGroups.size < ip,{
+			unitGroups = unitGroups.extend(ip,nil)
+		});
 	}
 	removeAt { arg index;
 		var old;
@@ -53,12 +61,64 @@ MxChannel : AbstractPlayerProxy {
 		})
 		^old
 	}
+	extractAt { arg index;
+		// extract unit + group from this channel
+		var old,oldg;
+		if(units.size > index,{
+			old = units.at(index);
+			oldg = unitGroups.at(index);
+			units.put(index,nil);
+			unitGroups.put(index,nil);
+		})
+		^[old,oldg]
+	}
+	insertAt { arg index,unit,unitGroup;
+		// insert unit + group to this channel
+		if(units[index].notNil,{
+			removing = removing.add(units[index]);
+			if(this.isPlaying,{
+				removing = removing.add(unitGroups[index].freeMsg);
+			});
+		});
+		this.extendUnits(index);
+		units[index] = unit;
+		unitGroups[index] = unitGroup;
+		if(this.isPlaying,{
+			adding = adding.add( this.moveUnitGroupMsg(index,unitGroup) );
+		});
+	}
+		
 	move { arg fromIndex,toIndex;
-		var old;
-		// on the update this removes then adds
-		old = this.removeAt(fromIndex);
-		if(old.notNil,{
-			this.put(toIndex,old)
+		var moving,g,oldg,old;
+
+		moving = units[fromIndex];
+		if(moving.notNil,{
+			units.put(fromIndex,nil);
+			
+			old = this.removeAt(toIndex);
+			
+			// freeing the group now
+			oldg = unitGroups[toIndex];
+			if(oldg.notNil,{
+				removing = removing.add( oldg );
+			});
+			
+			g = unitGroups[fromIndex];
+			if(g.notNil,{
+				unitGroups[fromIndex] = nil;
+				// just move the whole group with its contents
+				if(this.isPlaying,{
+					adding = adding.add( this.moveUnitGroupMsg(toIndex,g) );
+				});
+			},{
+				g = Group.basicNew(this.server);
+				if(this.isPlaying,{
+					adding = adding.add( this.addUnitGroupMsg(toIndex,g) );
+				});
+			});
+			this.extendUnits(toIndex);
+			unitGroups[toIndex] = g;
+			units[toIndex] = moving;
 		})
 	}
 	children {
@@ -74,28 +134,42 @@ MxChannel : AbstractPlayerProxy {
 			group
 		};
 		
-		unitGroups = units.collect { arg u,i;
-			var g;
+		units.do { arg u,i;
 			if(u.notNil,{
-				g = Group.basicNew(this.server);
-				bundle.add( g.addToTailMsg(group) );
+				this.groupForIndex(i,bundle);
 			});
-			g
 		};
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
 		// prepares the children
 		source.prepareToBundle(mixGroup,bundle,cableTo.notNil,bus);
 		units.do { arg unit,i;
-			unit.prepareToBundle(unitGroups[i],bundle,true)
+			//if(unit.isPrepared.not,{
+				unit.prepareToBundle(unitGroups[i],bundle,true)
+			//})
 		};
+		adding = removing = nil; // all taken care of
 	}
 	prepareChildrenToBundle { arg bundle;}	
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
 	}	
 	spawnToBundle { arg bundle;
-		units.do(_.spawnToBundle(bundle));
+		units.do { arg u,i;
+			var g;
+			// unit isn't playing ?
+			if(u.isPlaying.not,{
+				u.spawnToBundle(bundle);
+			},{
+				g = this.groupForIndex(i,bundle);
+				if(u.group !== g,{ // not sure about this
+					u.moveToHead(g,bundle)
+				});
+				// but is that group inside my group ?
+				// cheapest to assume its not and issue a move command
+				bundle.add( this.moveUnitGroupMsg(i,g) );
+			});
+		};
 		super.spawnToBundle(bundle);
 		adding = removing = nil;
 	}
@@ -111,20 +185,27 @@ MxChannel : AbstractPlayerProxy {
 		};
 		bundle.addFunction({
 			mixGroup = unitGroups = nil;
+			adding = removing = nil;
 		});
 	}
 	update { arg bundle;
 		removing.do { arg unit;
-			// leaves groups running
-			// they are likely to get refilled
-			unit.freeToBundle(bundle);
+			if(unit.isArray,{
+				bundle.add(unit)
+			},{
+				unit.freeToBundle(bundle);
+			})
 		};
 		adding.do { arg unit;
 			var ui,ug;
-			ui = units.indexOf(unit);
-			ug = this.groupForIndex(ui,bundle);
-			unit.prepareToBundle(ug,bundle,true);
-			unit.spawnToBundle(bundle);
+			if(unit.isArray,{
+				bundle.add(unit)
+			},{
+				ui = units.indexOf(unit);
+				ug = this.groupForIndex(ui,bundle);
+				unit.prepareToBundle(ug,bundle,true);
+				unit.spawnToBundle(bundle);
+			});
 		};
 		bundle.addFunction({
 			removing = adding = nil;
@@ -135,18 +216,44 @@ MxChannel : AbstractPlayerProxy {
 	}
 	groupForIndex { arg index,bundle;
 		// make a group on demand if needed
-		var g,prev;
+		var g;
 		^unitGroups.at(index) ?? {
 			g = Group.basicNew(this.server);
-			prev = unitGroups.copyRange(0,index).reverse.detect(_.notNil);
-			if(prev.notNil,{
-				bundle.add( g.addAfterMsg(prev) )
-			},{
-				bundle.add( g.addToHeadMsg(group) )
+			bundle.add( this.addUnitGroupMsg(index,g) );
+			if(unitGroups.size < index,{
+				unitGroups = unitGroups.extend(index,nil);
 			});
+			unitGroups.put(index,g);
 			g
 		}
 	}
+	addUnitGroupMsg { arg index,g;
+		var prev;
+		prev = unitGroups.copyRange(0,index).reverse.detect(_.notNil);
+		if(prev.notNil,{
+			^g.addAfterMsg(prev)
+		},{
+			^g.addToHeadMsg(this.group)
+		});
+	}
+	moveUnitGroupMsg { arg index,g;
+		var prev;
+		prev = this.findGroupPreviousTo(index);
+		if(prev.notNil,{
+			^g.moveAfterMsg(prev)
+		},{
+			^g.moveToHeadMsg(this.group)
+		});
+	}
+	findGroupPreviousTo { arg index;
+		if(index > 0,{
+			for(index-1,0,{ arg i;
+				unitGroups[i] !? { ^unitGroups[i] }
+			});
+		});
+		^nil
+	}
+	
 	
 	db_ { arg d;
 		fader.db = d;
