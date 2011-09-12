@@ -532,7 +532,8 @@ Mx : AbstractPlayerProxy {
 	}
 
 	children {
-		^super.children ++ channels // ++ cables
+		// master is source : one of the channels
+		^channels // ++ cables
 	}
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))

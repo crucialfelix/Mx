@@ -152,7 +152,8 @@ MxChannel : AbstractPlayerProxy {
 	}
 	prepareChildrenToBundle { arg bundle;}	
 	loadDefFileToBundle { arg b,server;
-		this.children.do(_.loadDefFileToBundle(b,server))
+		// units would load during prepare
+		fader.loadDefFileToBundle(b,server)
 	}	
 	spawnToBundle { arg bundle;
 		units.do { arg u,i;
@@ -184,7 +185,8 @@ MxChannel : AbstractPlayerProxy {
 			});
 		};
 		bundle.addFunction({
-			mixGroup = unitGroups = nil;
+			mixGroup = nil;
+			unitGroups = Array.newClear(units.size);
 			adding = removing = nil;
 		});
 	}
