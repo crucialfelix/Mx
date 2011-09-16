@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title></title>
+<meta name="Generator" content="Cocoa HTML Writer">
+<meta name="CocoaVersion" content="949.54">
+<style type="text/css">
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Helvetica; color: #000000}
+p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial; color: #000000; min-height: 14.0px}
+p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial; color: #000000}
+p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco; min-height: 12.0px}
+p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco}
+span.s1 {color: #000000}
+span.Apple-tab-span {white-space:pre}
+</style>
+</head>
+<body>
+<p class="p1"><b>MxFrameRateDevice</b></p>
+<p class="p2"><br></p>
+<p class="p3">MxFrameRateDevice is used by Mx to hold a continuously differentiable time function. <span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p3">That function (or object) is here referred to as a frame rate device.</p>
+<p class="p2"><br></p>
+<p class="p3">A frame rate device is a function/object that responds to .value(beat) by returning a value [usually a float]</p>
+<p class="p2"><br></p>
+<p class="p3">Examples are SplineFr which evaluates a Spline along the time domain [x] and returns the y value for that point in time.<span class="Apple-converted-space">  </span>ie. splines for automation curves</p>
+<p class="p2"><br></p>
+<p class="p3">Any continuously <span class="s1">differentiable</span> function can be a frame rate device.</p>
+<p class="p2"><br></p>
+<p class="p3">A device is registered with the Mx using addFrameRateDevice</p>
+<p class="p2"><br></p>
+<p class="p3">An MxUnit driver file can specify frame rate devices to be added by implementing a handler method:</p>
+<p class="p4"><br></p>
+<p class="p5">frameRateDevices: {</p>
+<p class="p5"><span class="Apple-tab-span">	</span>[ funcOrObject ]</p>
+<p class="p5">}</p>
+<p class="p2"><br></p>
+<p class="p3">see drivers/SplineFr.scd</p>
+<p class="p2"><br></p>
+<p class="p3">Mx calls tick(time) on all of its registered devices at whatever frame rate the Mx is set to.</p>
+<p class="p2"><br></p>
+<p class="p3">the object/function then gets .changed(value) called on it<span class="Apple-converted-space"> </span></p>
+<p class="p3">[maybe this is an unclear design. the object didn't really change at all and it doesn't store its own value. maybe use notification system instead]</p>
+<p class="p2"><br></p>
+<p class="p3">frame rate devices like SplineFr have an output type of:</p>
+<p class="p3"><span class="Apple-tab-span">	</span>MxSendsValueOnChanged</p>
+<p class="p2"><br></p>
+<p class="p3">so attached inputs will respond to the changed/update notification and set value on the synth or do whatever it is that they want to do with the new value.</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+</body>
+</html>
