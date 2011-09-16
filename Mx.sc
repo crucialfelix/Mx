@@ -201,10 +201,10 @@ Mx : AbstractPlayerProxy {
 		// such that there is a channel at forIndex
 		// and there is still the master channel after that
 		var prior,nuchan,start,stop;
-		start = channels.size - 1;
-		stop = forIndex;
+		start = channels.size - 1;// last non-master channel
+		stop = forIndex; // where we want to insert
 		if(stop >= start,{
-			for(stop,start,{ arg i;
+			for(start,stop,{ arg i;
 				nuchan = this.prMakeChannel;
 				channels = channels.insert(i,nuchan);
 				this.registerChannel(nuchan);
