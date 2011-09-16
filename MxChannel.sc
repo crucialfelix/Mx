@@ -141,16 +141,18 @@ MxChannel : AbstractPlayerProxy {
 		};
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
-		// prepares the children
+		// fader
 		source.prepareToBundle(mixGroup,bundle,cableTo.notNil,bus);
 		units.do { arg unit,i;
-			//if(unit.isPrepared.not,{
+			if(unit.notNil and: {unit.isPrepared.not},{
 				unit.prepareToBundle(unitGroups[i],bundle,true)
-			//})
+			})
 		};
 		adding = removing = nil; // all taken care of
 	}
-	prepareChildrenToBundle { arg bundle;}	
+	prepareChildrenToBundle { arg bundle;
+		// fader is prepared during prepare
+	}	
 	loadDefFileToBundle { arg b,server;
 		// units would load during prepare
 		fader.loadDefFileToBundle(b,server)
@@ -158,8 +160,10 @@ MxChannel : AbstractPlayerProxy {
 	spawnToBundle { arg bundle;
 		units.do { arg u,i;
 			var g;
-			// unit isn't playing ?
 			if(u.isPlaying.not,{
+				if(u.notNil and: {u.isPrepared.not},{
+					u.prepareToBundle(this.groupForIndex(i,bundle),bundle,true)
+				});
 				u.spawnToBundle(bundle);
 			},{
 				g = this.groupForIndex(i,bundle);
