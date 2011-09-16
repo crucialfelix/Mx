@@ -69,6 +69,9 @@ MxKrJack : MxJack {
 		}
 	}		
 		
+	synthArg {
+		^value
+	}
 	addToSynthDef {  arg synthDef,name;
 		synthDef.addKr(name,value);
 	}
