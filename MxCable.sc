@@ -74,7 +74,8 @@ MxCable {
 				// then order is important
 				// disconnects are first
 				jack.setValueToBundle( cable.inlet.adapter.server.options.numAudioBusChannels-2, bundle )
-			}));
+			})
+		);
 
 		this.register(\MxPlaysOnKrBus,\MxHasKrJack,
 			MxCableStrategy({ arg cable,bundle;
@@ -107,7 +108,8 @@ MxCable {
 					~cableGroup = nil;
 				});
 				jack.stopReadFromBusToBundle(bundle);
-			}));
+			})
+		);
 						
 		this.register(\MxPlaysOnBus,\MxListensToBus,
 			// depends on being on the same server
@@ -136,34 +138,58 @@ MxCable {
 				if(synth.notNil,{
 					bundle.add( synth.freeMsg )
 				})
-			}));	
+			})
+		);	
 
+		this.register(\MxHasAction,\MxHasKrJack,
+			// always active, doesn't wait for play
+			MxCableStrategy({ arg cable,bundle;
+				var jack,action;
+				jack = cable.inlet.adapter.value;
+				// listener
+				~nr = NotificationCenter.register( cable.outlet, \didAction, cable.inlet, 
+							{ arg value;
+								jack.value = cable.map(value)
+							});
+
+				// sender
+				// this always takes over the action, assuming that a has-action is there to be taken over
+				// and all strategies will set up to listen for the same notification.
+				// adding more out cables means reinstalling an identical action, no harm done
+				action = { arg val;
+					NotificationCenter.notify(cable.outlet, \didAction, [ val ])
+				};
+				cable.outlet.adapter.value(action);
+			},{ arg cable,bundle;
+				~nr.remove;
+				
+				// action is harmless if nobody is listening
+				// and currently not tracking number of listeners
+				// cable.outlet.adapter.value(nil);
+			})
+		);
+		
 		this.register(\MxHasAction,\MxSetter,
 			// always active, doesn't wait for play
 			MxCableStrategy({ arg cable,bundle;
 				var setter,action;
-				setter = cable.inlet.adapter; 
+				setter = cable.inlet.adapter;
+				// listener
+				~nr = NotificationCenter.register( cable.outlet, \didAction, cable.inlet, 
+							{ arg value;
+								setter.value( cable.map(value) )
+							});
+				
 				action = { arg val;
-					setter.value( cable.map( val ) )
+					NotificationCenter.notify(cable.outlet, \didAction, [ val ])
 				};
 				cable.outlet.adapter.value(action);
 			},{ arg cable,bundle;
-				cable.outlet.adapter.value(nil);
-			})
-		);
-
-		this.register(\MxHasAction,\MxHasJack,
-			// always active, doesn't wait for play
-			MxCableStrategy({ arg cable,bundle;
-				var jack,action;
-				jack = cable.inlet.adapter.value; 
-				action = { arg val;
-					jack.value = cable.map( val )
-				};
-				// wait, this hogs the slider for only one target
-				cable.outlet.adapter.value(action);
-			},{ arg cable,bundle;
-				cable.outlet.adapter.value(nil);
+				~nr.remove;
+				
+				// action is harmless if nobody is listening
+				// and currently not tracking number of listeners
+				// cable.outlet.adapter.value(nil);
 			})
 		);
 		
@@ -174,6 +200,18 @@ MxCable {
 				~updater = Updater(model,{ arg frd,value;
 					value = cable.map(value);
 					cable.inlet.adapter.value().value = value;
+				});
+			},{ arg cable,bundle;
+				~updater.remove
+			})
+		);
+		
+		this.register(\MxSendsValueOnChanged,\MxSetter,
+			MxCableStrategy({ arg cable,bundle;
+				var model;
+				model = cable.outlet.adapter.value();
+				~updater = Updater(model,{ arg frd,value;
+					cable.inlet.adapter.value(cable.map(value))
 				});
 			},{ arg cable,bundle;
 				~updater.remove
