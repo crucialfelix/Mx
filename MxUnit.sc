@@ -5,7 +5,7 @@ MxUnit  {
 	classvar registery,<protoHandler;
 
 	var <>source,<inlets,<outlets,<>handlers;
-	var <>group;
+	var <>group,status;
 	
 	*make { arg source,class;
 		var handlers;
@@ -97,18 +97,33 @@ MxUnit  {
 		registery.put(classname.asSymbol, handlers)
 	}
 
+	isPrepared {
+		^['isPrepared','isPlaying','isStopped'].includes(status)
+	}
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
-		^handlers.use { ~prepareToBundle.value(agroup,bundle,true,bus) }
+		^handlers.use { 
+			~prepareToBundle.value(agroup,bundle,true,bus); 
+			bundle.addFunction({status='isPrepared'})
+		}
 	}
 	spawnToBundle { arg bundle;
-		^handlers.use { ~spawnToBundle.value(bundle) }
+		^handlers.use { 
+			~spawnToBundle.value(bundle);
+			bundle.addFunction({ status = 'isPlaying' })
+		}
 	}
 	stopToBundle { arg bundle;
-		^handlers.use { ~stopToBundle.value(bundle) }
+		^handlers.use { 
+			~stopToBundle.value(bundle);
+			bundle.addFunction({ status = 'isStopped' })
+		}
 	}
 	freeToBundle { arg bundle;
-		^handlers.use { ~freeToBundle.value(bundle) }
+		^handlers.use { 
+			~freeToBundle.value(bundle);
+			bundle.addFunction({status='isFreed'})
+		}
 	}	
 	moveToHead { arg aGroup,bundle;
 		^handlers.use {
