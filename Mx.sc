@@ -12,7 +12,7 @@ Mx : AbstractPlayerProxy {
 	var allocator, register, unitGroups, busses;
 	var <master;
 	var removing, adding, cableEndpoints;
-	var <>frameRate=24, ticker, frameRateDevices, preFrameRateDevices;
+	var <>frameRate=24, clock, ticker, frameRateDevices, preFrameRateDevices;
 
 	*new { arg channels, cables, inlets, outlets;
 		^super.new.init(channels,cables,inlets,outlets)
@@ -111,6 +111,9 @@ Mx : AbstractPlayerProxy {
 			// iid is nil
 			cables.add( MxCable(this.atID(oid),this.atID(iid),mapping,active) );
 		};
+
+		clock = BeatSched.new;
+		
 	}
 	nextID {
 		^allocator.alloc
@@ -367,8 +370,6 @@ Mx : AbstractPlayerProxy {
 		});
 	}
 	startTicker { arg bundle;
-		var clock;
-		clock = BeatSched.new;
 		ticker = Task({
 					loop {
 						frameRateDevices.do { arg frd;
@@ -552,11 +553,16 @@ Mx : AbstractPlayerProxy {
 		this.spawnCablesToBundle(bundle);
 		bundle.addFunction({
 			adding = removing = nil;
+			// starting from the start
+			clock.time = 0.0;
+			clock.beat = 0.0;
 		});
 		if(frameRateDevices.notNil,{
-			frameRateDevices.do { arg frd;
-				frd.tick(0); // node don't exist yet
-			};
+			// need some way to send initial value
+			// but the inlets are only connected by a changed notification
+			//frameRateDevices.do { arg frd;
+			//	frd.tick(0); // node don't exist yet
+			//};
 			this.startTicker(bundle)
 		})
 	}
