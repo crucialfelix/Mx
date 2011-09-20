@@ -542,14 +542,22 @@ Mx : AbstractPlayerProxy {
 	prepareChildrenToBundle { arg bundle;
 		channels.do { arg c;
 			if(c !== master,{
-				c.prepareToBundle(group,bundle,true)
+				//if(c.isPrepared.not.debug("chan prepared"),{
+					c.prepareToBundle(group,bundle,true)
+				//})
 			})
 		};
 		master.prepareToBundle(group,bundle,false,this.bus);
 	}
 	spawnToBundle { arg bundle;
+		// never sure that all defs havent been added, children prepared
+		// some could have been added while play is stopped
+		// cant prepare since dont have group yet
+		
+		// this.prepareChildrenToBundle(bundle);
 		channels.do(_.spawnToBundle(bundle));
 		super.spawnToBundle(bundle);
+		
 		this.spawnCablesToBundle(bundle);
 		bundle.addFunction({
 			adding = removing = nil;
@@ -606,7 +614,7 @@ Mx : AbstractPlayerProxy {
 		super.stopToBundle(bundle);
 		if(ticker.notNil,{
 			this.stopTicker(bundle)
-		})
+		});
 	}
 	guiClass { ^MxGui }
 
