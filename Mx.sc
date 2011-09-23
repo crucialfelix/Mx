@@ -194,7 +194,7 @@ Mx : AbstractPlayerProxy {
 	}
 
 	add { arg ... objects;
-		^this.insertChannel(channels.size,objects)
+		^this.insertChannel(channels.size-1,objects)
 	}
 	extendChannels { arg forIndex;
 		// create more channels if needed
@@ -213,20 +213,23 @@ Mx : AbstractPlayerProxy {
 			});
 		});
 	}
+	
 	insertChannel { arg index, objects;
-		var chan,units,nuchan,prior;
+		// make sure at least that many channels
+		var chan,units;
+		if( (channels[index].isNil or: {channels[index] === master}).not,{ // not creating a new channel
+			this.extendChannels(index-1);
+		});
 		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj)}});
 		units.do { arg unit;
 			if(unit.notNil,{
 				this.registerUnit(unit)
 			});
 		};
-		this.extendChannels(index);
-
-		// now inserting it
 		chan = this.prMakeChannel(units);
 		this.registerChannel(chan);
 		channels = channels.insert(index,chan);
+
 		chan.pending = true;
 		adding = adding.add(chan);
 		if(autoCable,{
@@ -235,7 +238,20 @@ Mx : AbstractPlayerProxy {
 		this.changed('grid');
 		^chan
 	}
+			
+	putChannel { arg index,objects;
+		var prev,chan;
+		prev = channels[index];
+		if(prev.notNil,{
+			this.prRemoveChannel(index);
+		});	
+		^this.insertChannel(index,objects)
+	}
 	removeChannel { arg index;
+		this.prRemoveChannel(index);
+		this.changed('grid'); // this is why app should be separate
+	}
+	prRemoveChannel { arg index;
 		var chan;
 		chan = channels.removeAt(index);
 		chan.pending = true;
@@ -245,17 +261,10 @@ Mx : AbstractPlayerProxy {
 			cables.fromUnit.do(this.disconnectCable(_));
 			cables.toUnit.do(this.disconnectCable(_));
 		};
-		//if(autoCable,{
-		//	this.updateAutoCables
-		//});
-		this.changed('grid');
 	}
 	prMakeChannel { arg units;
-		var chan,cableTo;
-		if(master.notNil,{
-			cableTo = this.findID(master.myUnit)
-		});
-		chan = MxChannel(units ? [],cableTo:cableTo);
+		var chan;
+		chan = MxChannel(units ? []);
 		^chan
 	}
 
@@ -479,9 +488,38 @@ Mx : AbstractPlayerProxy {
 			this.disconnectCable(cable)
 		}
 	}
-	mute { arg channel,boo=true;
-		channels[channel].mute = boo
+	mute { arg channel,boo;
+		var chan;
+		chan = this.channels.at(channel);
+		if(chan.notNil,{
+			boo = boo ? chan.fader.mute.not;
+			chan.fader.mute = boo;
+		});
 	}
+	solo { arg channel,boo;
+		var chan;
+		chan = this.channels.at(channel);
+		if(chan.notNil,{
+			boo = boo ? chan.fader.solo.not;
+			if(boo,{
+				chan.fader.setSolo;
+				this.channels.do { arg ch;
+					if(ch !== chan and: {ch !== master},{
+						ch.fader.muteForSoloist;
+					})
+				};
+			},{
+				chan.fader.unsetSolo;
+				this.channels.do { arg ch;
+					if(ch !== chan and: {ch !== master},{
+						ch.fader.mute = false;
+					})
+				};
+			});
+		});
+	}
+	
+	
 	// enact all changes on the server after things have been added/removed dis/connected
 	// syncChanges
 	update { arg bundle=nil;
@@ -555,7 +593,11 @@ Mx : AbstractPlayerProxy {
 		// cant prepare since dont have group yet
 		
 		// this.prepareChildrenToBundle(bundle);
-		channels.do(_.spawnToBundle(bundle));
+		channels.do({ arg chan;
+			if(chan !== master,{
+				chan.spawnToBundle(bundle);
+			});
+		});
 		super.spawnToBundle(bundle);
 		
 		this.spawnCablesToBundle(bundle);

@@ -26,9 +26,9 @@ MxChannelFader : AbstractPlayerProxy {
 		breakOnBadValues = argbreakOnBadValues;
 		breakOnDbOver = argbreakOnDbOver;
 		numChannels = argnumChannels ? 2;
-		// change these to MxKrJack
-		busJack = NumberEditor(126,StaticIntegerSpec(1, 128, 1, ""));
-		dbJack = KrNumberEditor(db,\db);
+
+		busJack = MxKrJack(126).spec_(ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"));
+		dbJack = MxKrJack(db).spec_(ControlSpec(-1000,24,'db',0.0,0.0,\db));
 
  		source = Patch(MxChannelFader.channelInstr,[
 					numChannels,
@@ -37,7 +37,11 @@ MxChannelFader : AbstractPlayerProxy {
 					limit ? 0,
 					breakOnBadValues.binaryValue,
 					breakOnDbOver
-				]);
+				],ReplaceOut);
+	}
+	prepareToBundle { arg agroup,bundle,private = false, argbus;
+		super.prepareToBundle(agroup,bundle,private , argbus);
+		busJack.value = this.bus.index;
 	}
 	db_ { arg d;
 		db = d;
@@ -46,6 +50,7 @@ MxChannelFader : AbstractPlayerProxy {
 	}
 	mute_ { arg boo;
 		mute = boo;
+		solo = false;
 		if(mute,{
 			dbJack.value = -300.0;
 			dbJack.changed;
@@ -54,15 +59,23 @@ MxChannelFader : AbstractPlayerProxy {
 			dbJack.changed;
 		})
 	}
-	solo_ { arg boo;
-		solo = boo;
-		if(solo,{
-			dbJack.value = db;
-			dbJack.changed;
-		},{
-			dbJack.value = -300.0;
-			dbJack.changed;
-		})
+	setSolo {
+		solo = true;
+		mute = false;
+		dbJack.value = db;
+		dbJack.changed;
+	}
+	unsetSolo {
+		solo = false;
+		mute = false;
+		dbJack.value = db;
+		dbJack.changed;
+	}
+	muteForSoloist {
+		solo = false;
+		mute = true;
+		dbJack.value = -300;
+		dbJack.changed;
 	}
 	
 	draw { arg pen,bounds,style;
@@ -70,10 +83,6 @@ MxChannelFader : AbstractPlayerProxy {
 		pen.font = style['font'];
 		if(mute,{
 			^pen.stringCenteredIn("muted",bounds);
-		},{
-			if(solo,{
-				^pen.stringCenteredIn("solo",bounds)
-			})
 		});
 		pen.stringCenteredIn(db.round(0.1).asString ++ "dB",bounds);
 	}
@@ -115,9 +124,9 @@ MxChannelFader : AbstractPlayerProxy {
 						});
 						NumChannels.ar(in,numChannels)
 				    },[
-						StaticIntegerSpec(1,128),
-						StaticIntegerSpec(1,128),
-						\db,
+						StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
+						ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"),
+						ControlSpec(-1000,24,'db',0.0,0.0,\db),
 						StaticSpec(0,1.0),
 						StaticSpec(0,1),
 						StaticSpec(0,100)

@@ -162,7 +162,8 @@ MxMatrixGui : SCViewHolder {
 	}
 	keyDownResponder {
 		// probably move to MxGui
-		var k;
+		var k,default;
+		default = 0@0;
 		k = UnicodeResponder.new;
 		//  127 delete
 		k.register( 127, false, false, false, false, {
@@ -174,7 +175,9 @@ MxMatrixGui : SCViewHolder {
 					if(obj.class === MxInlet,{
 						mx.disconnectInlet(obj)
 					},{
-						mx.removeUnit(obj)
+						if(obj.class === MxUnit,{
+							mx.removeUnit(obj)
+						});
 					})
 				})
 			};
@@ -184,31 +187,76 @@ MxMatrixGui : SCViewHolder {
 		//  63232 up
 		k.register(   63232  ,   false, false, false, false, {
 			var p;
-			p = (focusedPoint ? 0@0);
+			p = (focusedPoint ? default);
 			focusedPoint = (p.x)@(p.y - 1).clip(0,inf);
 			this.refresh;
 		});
 		//  63233 down
 		k.register(   63233  ,   false, false, false, false, {
 			var p;
-			p = (focusedPoint ? 0@0);
+			p = (focusedPoint ? default);
 			focusedPoint = (p.x)@(p.y + 1).clip(0,inf);
 			this.refresh;
 		});
 		//  63234 left
 		k.register(   63234  ,   false, false, false, false, {
 			var p;
-			p = (focusedPoint ? 0@0);
+			p = (focusedPoint ? default);
 			focusedPoint = (p.x - 1).clip(0,inf)@(p.y);
 			this.refresh;
 		});
 		//  63235 right
 		k.register(   63235  ,   false, false, false, false, {
 			var p;
-			p = (focusedPoint ? 0@0);
+			p = (focusedPoint ? default);
 			focusedPoint = (p.x + 1).clip(0,inf)@(p.y);
 			this.refresh;
 		});
+
+		// VOLUMES
+		//  63232 shift up
+		k.register(   63232  ,   true, false, false, false, {
+			var chans,chan;
+			//selected.do { arg thing;
+			//	// what channel are you in ?
+			//	MxUnit
+			//};
+			if(focusedPoint.notNil,{
+				chan = mx.channels.at(focusedPoint.x)	;
+				if(chan.notNil,{
+					chan.fader.db = chan.fader.db + 1.0;
+					this.refresh;
+				});
+			});
+		});
+		//  63233 shift down
+		k.register(   63233  ,   true, false, false, false, {
+			var p,chan;
+			if(focusedPoint.notNil,{
+				chan = mx.channels.at(focusedPoint.x)	;
+				if(chan.notNil,{
+					chan.fader.db = chan.fader.db - 1.0;
+					this.refresh;
+				});
+			});
+		});
+		//  m
+		k.register(   109  ,   false, false, false, false, {
+			var chan;
+			if(focusedPoint.notNil,{
+				mx.mute(focusedPoint.x);
+				this.refresh;
+			});
+		});
+		//  s
+		k.register(   115  ,   false, false, false, false, {
+			var chan;
+			if(focusedPoint.notNil,{
+				mx.solo(focusedPoint.x);
+				this.refresh;
+			})
+		});		
+
 
 		// drawer drill up / down
 		//  control 63232
@@ -264,7 +312,7 @@ MxMatrixGui : SCViewHolder {
 				fi = this.detectFader(x@y);
 				if(fi.notNil,{
 					if(fi >= mx.channels.size,{
-						mx.insertChannel(fi)
+						mx.extendChannels(fi)
 					});
 					mx.connect(nil,dragging,nil,mx.channels[fi].myUnit.inlets.first);
 					mx.update;
@@ -389,14 +437,14 @@ MxMatrixGui : SCViewHolder {
 				^nil
 			});
 			b = this.getBounds(bp);
-			//outlet hit
+			// outlet hit
 			if(unit.outlets.size > 0,{
 				ioArea = this.outletsArea(b);
 				if(ioArea.containsPoint(p),{
 					^this.findIOlet(unit.outlets,ioArea,p)
 				})
 			});
-			//inlet hit
+			// inlet hit
 			if(unit.inlets.size > 0,{
 				ioArea = this.inletsArea(b);
 				if(ioArea.containsPoint(p),{
@@ -405,11 +453,11 @@ MxMatrixGui : SCViewHolder {
 			});
 			^unit
 		},{
-			// fader
+			// fader. returns the channel
 			fi = this.detectFader(p);
-			// not doing anything yet
-			// could select it and use arrows to change the levels
-			//fi.debug("detected fader in getByCoord");
+			if(fi.notNil,{
+				^mx.channels.at(fi)
+			});
 		});	
 			
 		// top level inlets
@@ -499,9 +547,10 @@ MxMatrixGui : SCViewHolder {
 			if(selected.includes(outlet),{
 				pen.color = styles['selected']['borderColor']
 			},{
-				pen.color = Color.grey(alpha: 0.4);
+				pen.color = Color.grey(alpha: 0.5);
 			});
 			pen.strokeRect(or);
+			pen.color = Color.black;
 			pen.stringLeftJustIn(outlet.name.asString,or.insetBy(1,1))
 		}
 	}
@@ -528,17 +577,22 @@ MxMatrixGui : SCViewHolder {
 
 			pen.color = style['boxColor'];
 			pen.fillRect( rect );
-			if(selected.includes(unit),{
-				pen.color = styles['selected']['borderColor'];
-			},{
-				pen.color = style['borderColor'];
-			});				
+
+			// or is the fader in selected
+			pen.color = style['borderColor'];
+			selected.any { arg thing;
+				var sel;
+				sel = (thing === unit or: {thing.isKindOf(MxChannel) and: {thing.myUnit === unit}});
+				if(sel,{
+					pen.color = styles['selected']['borderColor'];
+				});
+				sel
+			};
 			pen.strokeRect( rect );
 
 			if(unit.notNil,{
 				// central box draw writes the name
 				unit.draw(pen,rect,style);
-				// 
 				
 				// outlets
 				if(unit.outlets.size > 0,{
@@ -632,9 +686,9 @@ MxMatrixGui : SCViewHolder {
 				d.value(
 					Rect(draggingXY.x,draggingXY.y + boxBounds.top,boxWidth,boxHeight)
 						.moveBy((boxWidth / 2).neg,(boxHeight / 2).neg),
-				  dragging,
-				  'dragging',
-				  draggingXY
+					  dragging,
+					  'dragging',
+					  draggingXY
 				  )
 			},{
 				// outlet
@@ -667,6 +721,9 @@ MxMatrixGui : SCViewHolder {
 			);
 		styles['over'] = (
 			boxColor: { |c| c.saturationBlend(Color.black,0.3) }
+			);
+		styles['loading'] = (
+			boxColor: { |c| Color.yellow }
 			);
 		styles['down'] = (
 			boxColor: Color(0.093116507017153, 0.25799716055499, 0.28358208955224, 0.86567164179104),

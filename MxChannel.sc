@@ -2,7 +2,6 @@
 
 MxChannel : AbstractPlayerProxy {
 
-	var <>cableTo=nil;
 	var <>units,<fader;
 	
 	var <numChannels=2,<>pending=false;
@@ -10,7 +9,7 @@ MxChannel : AbstractPlayerProxy {
 	var <myUnit,unitGroups,<mixGroup;
 	var adding,removing;
 
-	*new { arg units, faderArgs, cableTo;
+	*new { arg units, faderArgs;
 		var fader;
 		units = units ? [];
 		if(faderArgs.isNil,{
@@ -18,14 +17,13 @@ MxChannel : AbstractPlayerProxy {
 		},{
 			fader = MxChannelFader(*faderArgs)
 		});
-		^super.new.init(cableTo,units,fader)
+		^super.new.init(units,fader)
 	}
 	storeArgs { 
-		^[units.collect({|u| u !? {u.saveData}}),fader.storeArgs, cableTo] 
+		^[units.collect({|u| u !? {u.saveData}}),fader.storeArgs] 
 	}
 
-	init { arg argto,argunits,argfader;
-		cableTo = argto;
+	init { arg argunits,argfader;
 		units = argunits;
 		unitGroups = Array.newClear(units.size);
 		fader = argfader;
@@ -141,8 +139,9 @@ MxChannel : AbstractPlayerProxy {
 		};
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
+
 		// fader
-		source.prepareToBundle(mixGroup,bundle,cableTo.notNil,bus);
+		source.prepareToBundle(mixGroup,bundle,true,bus);
 		units.do { arg unit,i;
 			if(unit.notNil and: {unit.isPrepared.not},{
 				unit.prepareToBundle(unitGroups[i],bundle,true)
@@ -258,17 +257,6 @@ MxChannel : AbstractPlayerProxy {
 			});
 		});
 		^nil
-	}
-	
-	
-	db_ { arg d;
-		fader.db = d;
-	}
-	mute_ { arg boo;
-		fader.mute = boo
-	}
-	solo_ { arg boo;
-		fader.solo = boo
 	}
 }
 
