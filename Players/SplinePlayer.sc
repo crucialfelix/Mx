@@ -34,10 +34,10 @@ KrSplinePlayer : AbstractPlayer {
 
 SplineFr { 
 	
-	var <>spline,<>dimension,<>loop=false,<>spec;
+	var <>spline,<>dimension,<>loop=false,<>spec,<>frameRate;
 	var table;
 	
-	*new { arg spline, dimension=0,loop=false,spec;
+	*new { arg spline, dimension=0,loop=false,spec,frameRate;
 		^super.newCopyArgs(spline ?? {
 			spec = spec ?? {'unipolar'.asSpec};
 			BezierSpline(
@@ -46,7 +46,7 @@ SplineFr {
 				120@1,
 				  [],
 				false
-			)},dimension,loop,spec).init
+			)},dimension,loop,spec,frameRate ?? {Mx.defaultFrameRate}).init
 	}
 	storeArgs { ^[spline,dimension,loop] }
 
@@ -55,7 +55,9 @@ SplineFr {
 		spline.addDependant(this);
 	}
 	initTable {
-		table = spline.bilinearInterpolate(Mx.defaultFrameRate * spline.points.last[dimension],dimension,true);
+		// kind of excessive. calculates a value for every exact expected time point along the spline
+		// even though the output is interpolated anyway
+		table = spline.bilinearInterpolate(frameRate * spline.points.last[dimension],dimension,true);
 	}
 	update {
 		this.initTable
@@ -64,7 +66,13 @@ SplineFr {
 		spline.removeDependant(this)
 	}
 	value { arg time;
-		^table.intAt(time)
+		var t = (time * frameRate);
+		var vals;
+		vals = table.clipAt(t.floor + [0,1]);
+		^vals[0].blend(vals[1],t.frac)
+	}
+	gui { arg layout,bounds,maxTime;
+		^spline.gui(layout,bounds,spec,ControlSpec(0,maxTime))
 	}
 }	
 

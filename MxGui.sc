@@ -4,7 +4,13 @@ MxGui : AbstractPlayerGui {
 	
 	var boxes;
 
-	writeName {}	
+	writeName {}
+	saveConsole { arg layout;
+		super.saveConsole(layout);
+		ActionButton(layout,"Timeline",{
+			MxTimeGui(model).gui(nil,1000@1000);
+		});
+	}
 
 	guiBody { arg layout,bounds;
 		var bb;

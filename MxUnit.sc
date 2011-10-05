@@ -20,6 +20,7 @@ MxUnit  {
 				~source = source;
 			});
 			unit.handlers = handlers;
+			~unit = unit;
 			unit
 		}
 	}
@@ -130,6 +131,13 @@ MxUnit  {
 			~moveToHead.value(aGroup,bundle,group)
 		}
 	}
+	
+	callHandler { arg method ... args;
+		^handlers.use {
+			handlers[method].valueArray(args)
+		}
+	}
+	
 	play { arg group,atTime,bus;
 		^handlers.use { ~play.value(group,atTime,bus) }
 	}
@@ -158,9 +166,15 @@ MxUnit  {
 	draw { arg pen,bounds,style;
 		^handlers.use { ~draw.value(pen,bounds,style) }
 	}
-	// timeGui
-
-
+	timeGui { arg layout,bounds,maxTime;
+		^handlers.use { ~timeGui.value(layout,bounds,maxTime) }
+	}
+	zoomTime { arg fromTime,toTime;
+		^handlers.use { ~zoomTime.value(fromTime,toTime) }
+	}
+	gotoBeat { arg beat,atTime,bundle;
+		^handlers.use { ~gotoBeat.value(beat,atTime,bundle) }
+	}
 	*initClass {
 		registery = IdentityDictionary.new;
 		
@@ -206,6 +220,7 @@ MxUnit  {
 			// timeGui
 			// zoomTimeGui
 			// asCompileString
+			// 
 		);
 	}
 }

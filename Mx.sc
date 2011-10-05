@@ -12,7 +12,7 @@ Mx : AbstractPlayerProxy {
 	var allocator, register, unitGroups, busses;
 	var <master;
 	var removing, adding, cableEndpoints;
-	var <>frameRate=24, clock, ticker, frameRateDevices, preFrameRateDevices;
+	var <>frameRate=24, clock, ticker, <position, frameRateDevices, preFrameRateDevices;
 
 	*new { arg channels, cables, inlets, outlets;
 		^super.new.init(channels,cables,inlets,outlets)
@@ -113,6 +113,7 @@ Mx : AbstractPlayerProxy {
 		};
 
 		clock = BeatSched.new;
+		position = Position.new;
 		
 	}
 	nextID {
@@ -384,6 +385,7 @@ Mx : AbstractPlayerProxy {
 						frameRateDevices.do { arg frd;
 							frd.tick(clock.beat);
 						};
+						position.value = clock.beat;
 						frameRate.reciprocal.wait;
 					}
 				},clock.tempoClock);
@@ -518,8 +520,26 @@ Mx : AbstractPlayerProxy {
 			});
 		});
 	}
-	
-	
+	gotoBeat { arg beat,atTime,bundle;
+		var b;
+		b = bundle ?? {MixedBundle.new};
+		b.addFunction({ 
+			clock.beat = beat; 
+			position.value = beat;
+		});
+		channels.do { arg chan;
+			chan.units.do { arg unit;
+				if(unit.notNil,{
+					unit.gotoBeat(beat,atTime,bundle)
+				})
+			}
+		};
+		if(this.isPlaying,{
+			atTime.schedBundle(b,this.server);
+		},{
+			b.doFunctions.doSendFunctions
+		})
+	}
 	// enact all changes on the server after things have been added/removed dis/connected
 	// syncChanges
 	update { arg bundle=nil;
