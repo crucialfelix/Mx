@@ -28,10 +28,7 @@ MxUnit.register('TotalTracker',
 		patter = MxInlet("pattern",0,ControlSpec(0,127,step:1),
 					MxSetter({ arg v;
 						var p;
-						p = switcher.patterns[v.asInteger];
-						if(p.notNil,{
-							player.app.selectPatternByID(p)
-						})
+						switcher.wrapSelect(v.asInteger);
 					}));
 		sips = sips.insert(0,patter);
 		inlets  = sips;
