@@ -6,17 +6,13 @@ MxUnit.register('CCResponder',
 (
 	make: { arg ccr;
 		var inlets,outlets,sips;
-		ccr.function = {  |src,chan,num,value|
+		ccr.function = {  |port,chan,num,value|
 			~value = value;
-			~source.changed
+			~source.changed(value)
 		}.inEnvir;
 				
 		inlets  = [];
-		outlets = [ MxOutlet("CC", 0, cs ,
-						MxSendsValueOnChanged({ccr})
-						// MxHasAction({arg action; ccr.function = action  }) 
-						) 
-				];
+		outlets = [ MxOutlet("CC", 0, cs ,MxSendsValueOnChanged({ccr})) ];
 		MxUnit(ccr,inlets,outlets);
 	},
 	spec: {
@@ -41,7 +37,7 @@ MxUnit.register('CCResponder',
 	},
 
 	save: {
-		[~source.src,~source.chan,~source.num]
+		[~source.matchEvent.port,~source.matchEvent.chan,~source.matchEvent.ctlnum]
 	},
 	load: { arg data;
 		CCResponder(nil,data[0],data[1],data[2],true)
@@ -52,8 +48,8 @@ MxUnit.register('CCResponder',
 		var source = ~source;
 		l = layout ?? {PageLayout("CC",Rect(0,0,500,600))};
 		tb = ToggleButton(l,"Learn",{
-			oneShot = CCResponder({ |src,chan,num,value|
-						source.matchEvent = MIDIEvent(nil,src,chan,num,nil);
+			oneShot = CCResponder({ |port,chan,num,value|
+						source.matchEvent = MIDIEvent(nil,port,chan,num,nil);
 						oneShot.remove;
 						{
 							tb.toggle(false,false);
@@ -69,7 +65,7 @@ MxUnit.register('CCResponder',
 		CXLabel(l,"CC");
 		ne = NumberEditor((~source.matchEvent.b ? 1).asInteger,ControlSpec(1,128,\lin,1));
 		ne.action = {
-			source.matchEvent = MIDIEvent(nil,source.matchEvent.src,source.matchEvent.chan,ne.value.asInteger,nil);
+			source.matchEvent = MIDIEvent(nil,source.matchEvent.port,source.matchEvent.chan,ne.value.asInteger,nil);
 		};
 		ne.smallGui(l);
 
