@@ -197,9 +197,8 @@ MxCable {
 			MxCableStrategy({ arg cable,bundle;
 				var model;
 				model = cable.outlet.adapter.value();
-				~updater = Updater(model,{ arg frd,value;
-					value = cable.map(value);
-					cable.inlet.adapter.value().value = value;
+				~updater = Updater(model,{ arg sender,value;
+					cable.inlet.adapter.value().value = cable.map(value);
 				});
 			},{ arg cable,bundle;
 				~updater.remove
@@ -210,7 +209,7 @@ MxCable {
 			MxCableStrategy({ arg cable,bundle;
 				var model;
 				model = cable.outlet.adapter.value();
-				~updater = Updater(model,{ arg frd,value;
+				~updater = Updater(model,{ arg sender,value;
 					cable.inlet.adapter.value(cable.map(value))
 				});
 			},{ arg cable,bundle;
