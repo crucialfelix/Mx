@@ -48,7 +48,7 @@ MxUnit.register('SFP',(
 		[~source.soundFilePath]
 	},
 	load: { arg path;
-		SFP(path)
+		SFP(*path)
 	},
 	copy: { ~source.soundFilePath },
 	name: { PathName(~source.soundFilePath).fileNameWithoutExtension },
