@@ -80,18 +80,22 @@ MxUnit.register('TotalTracker',
 	},
 	name: { ~source.name },
 	gui: { arg layout;
-		var patternSelectGui,env;
-		patternSelectGui = SongPatternSelectGui(~source);
-		patternSelectGui.total_(~source);
 		layout = layout ?? {PageLayout(~source.name,Rect(100,100,600,300))};
-		env = currentEnvironment; 
-		ActionButton(layout,"Full GUI ^",{
-			env.use {
-				~source.app.publish.mount;
-				InfiniteGesture(gui:false).total_(~source).gui
-			}
-		});
-		patternSelectGui.gui(layout);
+		TrMxSongController(~source).gui(layout);
+	},
+
+	timeGui: { arg layout, bounds, maxTime;
+		~tg = TrMxSongTimeGui(~source);
+		~tg.gui(layout,bounds,maxTime);
+	},
+	zoomTime: { arg from,to;
+		~tg.setZoom(from,to).update;
+	},
+	
+	gotoBeat: { arg beat,atTime,bundle;
+		bundle.onSend({
+			~source.app.gotoBeatAtTime(beat,16)
+		}.inEnvir)
 	}
 	
 ));
