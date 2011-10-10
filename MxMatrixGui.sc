@@ -556,6 +556,10 @@ MxMatrixGui : SCViewHolder {
 	}
 	drawGrid {
 		var d,box,style,r,fb;
+
+		Pen.capStyle = 1;
+		Pen.joinStyle = 1;
+		
 		d = { arg rect,unit,styleName,boxPoint;
 			var style,styleNames,name,ioarea,iowidth;
 			// cascade styles: defaultStyle + box style + box's set styles (playing, selected) + temp style (down, focused)

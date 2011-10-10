@@ -6,11 +6,11 @@ ZoomCalc {
 	var displaySpec,zoomedSpec;
 	
 	*new { arg modelRange,displayRange;
-		^super.newCopyArgs(modelRange,displayRange).setZoom(modelRange)
+		^super.newCopyArgs(modelRange,displayRange).setZoom(*modelRange)
 	}
 	
-	setZoom { arg fromTo;
-		zoomedRange = fromTo;
+	setZoom { arg from,to;
+		zoomedRange = [from,to];
 		this.init;
 	}
 	init {
@@ -22,6 +22,7 @@ ZoomCalc {
 		var clipped,v,u;
 		v = value.clip(*zoomedRange);
 		clipped = v != value;
+		if(clipped,{ ^nil });
 		u = zoomedSpec.unmap(v);
 		^displaySpec.map(u)
 	}

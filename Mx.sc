@@ -530,7 +530,7 @@ Mx : AbstractPlayerProxy {
 		channels.do { arg chan;
 			chan.units.do { arg unit;
 				if(unit.notNil,{
-					unit.gotoBeat(beat,atTime,bundle)
+					unit.gotoBeat(beat,atTime,b)
 				})
 			}
 		};
@@ -627,14 +627,15 @@ Mx : AbstractPlayerProxy {
 			clock.time = 0.0;
 			clock.beat = 0.0;
 		});
-		if(frameRateDevices.notNil,{
+		this.startTicker(bundle);
+		
+		//if(frameRateDevices.notNil,{
 			// need some way to send initial value
 			// but the inlets are only connected by a changed notification
 			//frameRateDevices.do { arg frd;
 			//	frd.tick(0); // node don't exist yet
 			//};
-			this.startTicker(bundle)
-		})
+		//})
 	}
 
 	spawnCablesToBundle { arg bundle;
