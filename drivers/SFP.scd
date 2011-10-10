@@ -60,7 +60,27 @@ MxUnit.register('SFP',(
 		if(layout.isNil,{
 			l.resizeToFit
 		})
+	},
+	timeGui: { arg layout,bounds,maxTime;
+		~fbeats = Tempo.secs2beats( ~source.timeDuration );
+		~fratio = ~fbeats / maxTime;// if > 1 maxTime should have been higher
+		~maxTime = maxTime;
+		
+		bounds.insp("given to timeGui");
+		~view = SoundFileView(layout, Rect(0,0, bounds.width, 60));
+		~view.soundfile = ~source.file;
+		~view.gridOn = false;
+		~view.timeCursorOn = false;
+		~view.readWithTask(0,min(~source.numFrames,Tempo.beats2secs(maxTime) * ~source.sampleRate),64,{
+			// zoom it
+		}.inEnvir,true);
+	},
+	zoomTime: { arg from,to;
+		var ratio;
+		ratio = (to-from) / ~maxTime;
+		~view.zoomToFrac( ratio );
+		// where is from in ratio of soundfile
+		~view.scrollTo( from / ~fbeats );
 	}
-
 ));
 
