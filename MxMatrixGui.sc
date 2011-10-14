@@ -721,7 +721,7 @@ MxMatrixGui : SCViewHolder {
 
 		styles = IdentityDictionary.new;
 		styles['focused'] = (
-			borderColor: Color(0.2499443083092, 0.55516802266236, 0.76119402985075)
+			borderColor: Color(0.37100213219616, 0.68900395979287, 0.86567164179104, 0.87313432835821)
 			);
 		styles['over'] = (
 			boxColor: { |c| c.saturationBlend(Color.black,0.3) }
@@ -730,7 +730,7 @@ MxMatrixGui : SCViewHolder {
 			boxColor: { |c| Color.yellow }
 			);
 		styles['down'] = (
-			boxColor: Color(0.093116507017153, 0.25799716055499, 0.28358208955224, 0.86567164179104),
+			boxColor: Color(0.37100213219616, 0.68900395979287, 0.86567164179104, 0.37313432835821),
 			borderColor: skin.foreground
 			);
 		styles['dragging'] = (
@@ -744,11 +744,11 @@ MxMatrixGui : SCViewHolder {
 			borderColor: { |c| c.alpha_(0.2) }
 			);
 		styles['selected'] = (
-			borderColor: Color.blue
+			borderColor: Color(0.37100213219616, 0.68900395979287, 0.86567164179104, 0.97313432835821)
 			);
 		styles['unit'] = (
 			boxColor: { arg c; c.darken(Color(0.2202380952381, 0.40008503401361, 0.5)) },
-			borderColor: Color(0.2202380952381, 0.40008503401361, 0.5)
+			borderColor: Color(0.2202380952381, 0.40008503401361, 0.3)
 			);
 	}
 

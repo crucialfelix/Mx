@@ -4,17 +4,46 @@ MxTimeGui : ObjectGui {
 	
 	var <from,<to,maxTime,zoomCalc,playZoomCalc;
 	var xScale;
-	var <>laneHeight=300.0;
+	var <>laneHeight=150;
 	var zoom,playHead,timeRuler,updater,units;
 	
 	writeName {}
 	guiBody { arg layout;
-		var i = 0,width, focusColor,kdr;
+		var i = 0,width, focusColor,kdr,makeSidebar;
+		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight;
+		
 		layout.startRow;
 		width = layout.indentedRemaining.width;
-		focusColor = Color.blue(alpha:0.4);
+		focusColor = GUI.skin.focusColor ?? {Color.blue(alpha:0.4)};
 		
 		kdr = this.keyDownResponder;
+
+		makeSidebar = { arg side,main;
+			var s,m,minHeight,b;
+			var lane;
+			
+			lane = layout.comp({ arg l;
+				s = l.vert({ arg s;
+						side.value(s)
+				},Rect(0,0,sidebarSize,laneHeight));
+				
+				m = FlowView(l,Rect(sidebarSize,0,width - sidebarSize,laneHeight),0@0,0@0);
+				main.value(m);
+			},Rect(0,0,width,laneHeight));
+			
+			m.resizeToFit(true);
+			m.resizeToFit(true);
+			minHeight = s.bounds.height;
+			
+			b = m.bounds;
+			if(b.height < s.bounds.height,{
+				minHeight = b.height;
+			});
+			
+			s.bounds = s.bounds.height_(minHeight);
+			lane.bounds = lane.bounds.height_(minHeight);
+			
+		};
 
 		maxTime = 60 * 5;
 		CXLabel(layout,"MaxBeat:");
@@ -28,45 +57,65 @@ MxTimeGui : ObjectGui {
 
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
-		timeRuler = TimeRuler(layout,Rect(0,0,width,25),maxTime);
+		makeSidebar.value(nil,
+			{ arg m;
+				timeRuler = TimeRuler(m,Rect(0,0,m.bounds.width,buttonHeight * 2),maxTime);
+			});
 		timeRuler.keyDownAction = kdr;
 		
 		this.prSetFromTo(0.0,maxTime);
 		
 		// zoom controls
-		zoom = SCRangeSlider(layout,width@20);
+		makeSidebar.value({ arg s;
+			ActionButton(s,"<-zoom->",{this.zoom(0,maxTime,true)})
+		},{ arg m;
+			zoom = SCRangeSlider(m,m.bounds.width@buttonHeight);
+		});
 		zoom.lo = 0.0;
 		zoom.hi = 1.0;
-		zoom.action = {this.zoom((zoom.lo * maxTime).round, (zoom.hi * maxTime).round,false)};
+		zoom.action = {this.zoom((zoom.lo * maxTime).round(4), (zoom.hi * maxTime).round(4),false)};
 		zoom.knobColor = Color.black;
 		zoom.keyDownAction = kdr;
 		zoom.focusColor = focusColor;
 
-		playHead = SCSlider(layout,width@10);
+		makeSidebar.value({ arg s;
+			// goto start
+				ActionButton(s,"|<",{model.gotoBeat(0,4)})
+			},{ arg m;
+				playHead = SCSlider(m,m.bounds.width@buttonHeight);
+			});
 		playHead.background = Color(0.36241707801819, 0.55301971435547, 0.60233759880066, 1);
 		playHead.knobColor = Color.black;
-		playHead.thumbSize = 18;
+		playHead.thumbSize = buttonHeight / 3.0;
 		playHead.action = { arg mg;
-			model.gotoBeat( playZoomCalc.displayToModel(mg.value) )
+			model.gotoBeat( playZoomCalc.displayToModel(mg.value).round(4) )
 		};
 		playHead.keyDownAction = kdr;
 		playHead.focusColor = focusColor;
 		updater = Updater(model.position,{ arg pos;
 			{
-				playHead.value = playZoomCalc.modelToDisplay(pos.current) ? 0;
+				if(playHead.isClosed.not,{// in case closed while deferring
+					playHead.value = playZoomCalc.modelToDisplay(pos.current.debug("play pos")).debug("modelToDisplay") ? 0;
+				})
 			}.defer
 		}).removeOnClose(layout);
 		
 		units = [];
 		model.channels.do { arg chan,ci;
 			chan.units.do { arg unit;
-				var v,b;
 				if(unit.notNil and: {unit.handlers.at('timeGui').notNil},{
-					b = Rect(0,0,width,laneHeight);
-					v = FlowView(layout,b,0@0,0@0);
-					unit.timeGui(v,b,maxTime);
-					v.resizeToFit;
-					units = units.add(v);
+					makeSidebar.value({ arg s;
+						// hide/show
+						// record enable
+						// gui
+						// ActionButton(s,"gui",{unit.gui});
+						if(unit.canRecord,{
+							ToggleButton(s,"(*)",{unit.record(true)},{unit.record(false)},false);
+						});
+					},{ arg v;
+						unit.timeGui(v,v.bounds,maxTime);
+						units = units.add(v);
+					})
 				})
 			}
 		};
