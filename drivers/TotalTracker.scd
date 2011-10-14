@@ -96,6 +96,8 @@ MxUnit.register('TotalTracker',
 		bundle.onSend({
 			~source.app.gotoBeatAtTime(beat,16)
 		}.inEnvir)
+	record: { arg boo,atTime;
+		~source.app.recordSong(boo)	
 	}
 	
 ));
