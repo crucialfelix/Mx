@@ -34,7 +34,8 @@ KrSplinePlayer : AbstractPlayer {
 
 SplineFr { 
 	
-	var <>spline,<>dimension,<>loop=false,<>spec,<>frameRate;
+	var <>spline,<>dimension=0,<>loop=false,<>spec,<>frameRate,<>interpolationDensity=0.5;
+	var valueToSetOnTick;
 	var table;
 	
 	*new { arg spline, dimension=0,loop=false,spec,frameRate;
@@ -57,7 +58,7 @@ SplineFr {
 	initTable {
 		// kind of excessive. calculates a value for every exact expected time point along the spline
 		// even though the output is interpolated anyway
-		table = spline.bilinearInterpolate(frameRate * spline.points.last[dimension],dimension,true);
+		table = spline.bilinearInterpolate((frameRate*interpolationDensity) * spline.points.last[dimension],dimension,true);
 	}
 	update {
 		this.initTable
@@ -66,10 +67,50 @@ SplineFr {
 		spline.removeDependant(this)
 	}
 	value { arg time;
-		var t = (time * frameRate);
+		var t = (time * frameRate * interpolationDensity);
 		var vals;
+		if(valueToSetOnTick.notNil,{
+			this.setValue(valueToSetOnTick,time);
+			vals = valueToSetOnTick;
+			valueToSetOnTick = nil;
+			// note: table is not yet recalculated
+			// so it will probably glitch to previous spline until you recalc
+			// can only do that with an intelligent interpolator
+			// probably better to keep returning last valueToSetOnTick
+			// until turn off record at which point initTable
+			// and/or blank till end or do a loop record
+			^vals
+		});
 		vals = table.clipAt(t.floor + [0,1]);
 		^vals[0].blend(vals[1],t.frac)
+	}
+	setValueOnNextTick { arg value;
+		valueToSetOnTick = value;
+	}
+	setValue { arg value,time;
+		// assuming it was sorted when created
+		var i, point;
+		# i , point = this.findInsertIndex(time);
+		if(point.notNil,{
+			point[dimension+1] = value
+		},{
+			spline.createPoint([time,value],i+1)
+		})
+	}
+	findInsertIndex { arg time;
+		var prev;
+		spline.points.do {|elem, i|
+			if (elem[dimension] < time) {
+				prev = i;
+			} {
+				if(elem[dimension] == time) {
+					^[prev,elem]
+				} {
+					^[prev,nil]
+				}
+			}
+		};
+		^[prev,nil]
 	}
 	gui { arg layout,bounds,maxTime;
 		^spline.gui(layout,bounds,spec,ControlSpec(0,maxTime))

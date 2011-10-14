@@ -175,6 +175,12 @@ MxUnit  {
 	gotoBeat { arg beat,atTime,bundle;
 		^handlers.use { ~gotoBeat.value(beat,atTime,bundle) }
 	}
+	canRecord {
+		^handlers['record'].notNil
+	}
+	record { arg boo=true,atTime;
+		^handlers.use { ~record.value(boo,atTime) }
+	}
 	*initClass {
 		registery = IdentityDictionary.new;
 		

@@ -3,9 +3,13 @@
 MxUnit.register('SplineFr',
 (
 	make: { arg sfr;
-		var inlets,outlets;
+		var inlets,outlets,rec;
 		~source = sfr;
-		inlets  = [];
+		~recording = false;
+		rec = MxSetter({ arg v; 
+			if(~recording,{ sfr.setValueOnNextTick(v) }) 
+		}.inEnvir);
+		inlets  = [ MxInlet("setValueNow",0,sfr.spec,rec) ];
 		outlets = [ MxOutlet("out", 0, sfr.spec, MxSendsValueOnChanged({sfr}) ) ];
 		MxUnit(sfr,inlets,outlets);
 	},
@@ -33,5 +37,11 @@ MxUnit.register('SplineFr',
 	},
 	zoomTime: { arg from,to;
 		~splineGui.setZoom(from,to).update;
+	},
+	record: { arg boo,atTime;
+		~recording = boo;
+		if(boo.not,{
+			~splineGui.update
+		})
 	}
 ));
