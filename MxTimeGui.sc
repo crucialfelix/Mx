@@ -80,7 +80,7 @@ MxTimeGui : ObjectGui {
 
 		makeSidebar.value({ arg s;
 			// goto start
-				ActionButton(s,"|<",{model.gotoBeat(0,4)})
+				ActionButton(s,"|<",{model.gotoBeat(0,1)})
 			},{ arg m;
 				playHead = SCSlider(m,m.bounds.width@buttonHeight);
 			});
@@ -88,14 +88,14 @@ MxTimeGui : ObjectGui {
 		playHead.knobColor = Color.black;
 		playHead.thumbSize = buttonHeight / 3.0;
 		playHead.action = { arg mg;
-			model.gotoBeat( playZoomCalc.displayToModel(mg.value).round(4) )
+			model.gotoBeat( playZoomCalc.displayToModel(mg.value).trunc(4)  )
 		};
 		playHead.keyDownAction = kdr;
 		playHead.focusColor = focusColor;
 		updater = Updater(model.position,{ arg pos;
 			{
 				if(playHead.isClosed.not,{// in case closed while deferring
-					playHead.value = playZoomCalc.modelToDisplay(pos.current.debug("play pos")).debug("modelToDisplay") ? 0;
+					playHead.value = playZoomCalc.modelToDisplay(pos.current) ? 0;
 				})
 			}.defer
 		}).removeOnClose(layout);
