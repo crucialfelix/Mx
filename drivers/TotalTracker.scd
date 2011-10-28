@@ -92,10 +92,9 @@ MxUnit.register('TotalTracker',
 		~tg.setZoom(from,to).update;
 	},
 	
-	gotoBeat: { arg beat,atTime,bundle;
-		bundle.onSend({
-			~source.app.gotoBeatAtTime(beat,16)
-		}.inEnvir)
+	gotoBeat: { arg beat,atBeat,bundle;
+		~source.app.gotoBeatAtBeat(beat,atBeat)
+	},
 	record: { arg boo,atTime;
 		~source.app.recordSong(boo)	
 	}
