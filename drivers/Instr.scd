@@ -8,7 +8,9 @@ MxUnit.register('Instr',(
 		// accept either an instr or [instr, inputs]
 		if(instr.isSequenceableCollection,{
 			# instr,inps = instr;
+			instr = instr.asInstr;
 		},{
+			instr = instr.asInstr;
 			inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,instr.defArgAt(i) ) });
 		});
 		patch = Patch(instr,inps );
@@ -31,49 +33,51 @@ MxUnit.register('Instr',(
 		
 		outlets = [ MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
 		
-		~source = patch;
+		~patch = patch;
 		
 		MxUnit(instr,inlets,outlets);
 	},
 	prepareToBundle: { arg agroup, bundle, private, bus;
-		~source.prepareToBundle(agroup,bundle,private,bus);
+		~patch.prepareToBundle(agroup,bundle,private,bus);
 		},
 	spawnToBundle: { arg bundle; 
-		~source.spawnToBundle(bundle)
+		~patch.spawnToBundle(bundle)
 		},
 	stopToBundle: { arg bundle; 
-		~source.stopToBundle(bundle)
+		~patch.stopToBundle(bundle)
 		},
 	freeToBundle: { arg bundle; 
-		~source.freeToBundle(bundle)
+		~patch.freeToBundle(bundle)
 		},
 	moveToHead: { arg aGroup,bundle,currentGroup; 
-		bundle.add( ~source.synth.moveToHeadMsg(aGroup) );
+		bundle.add( ~patch.synth.moveToHeadMsg(aGroup) );
 	},
 		
 	numChannels: { 
-		~source.numChannels
+		~patch.numChannels
 		},
-
+	spec: {
+		~patch.spec
+	},
 	play: { arg group, atTime, bus;
-		~source.play(group,atTime,bus) 
+		~patch.play(group,atTime,bus) 
 		},
 	stop: { arg atTime,andFreeResources = true;
-		~source.stop(atTime,andFreeResources)
+		~patch.stop(atTime,andFreeResources)
 		},
 	isPlaying: {
-		~source.isPlaying
+		~patch.isPlaying
 	},
 	save: { 
 		var inps;
-		inps = ~source.inputs.collect { arg inp;
+		inps = ~patch.inputs.collect { arg inp;
 			if(inp.isKindOf(MxKrJack) and: {inp.isKindOf(MxArJack).not},{
 				inp.value
 			},{
 				inp
 			})
 		};
-		[~source.instr.dotNotation, inps ] 
+		[~patch.instr.dotNotation, inps ] 
 	},
 	load: { arg nameinp;
 		var inps,instr;
@@ -83,14 +87,14 @@ MxUnit.register('Instr',(
 
 		[instr,inps]
 	},
-	copy: { ~source.instr },
-	name: { ~source.instr.dotNotation },
+	copy: { ~save.value },
+	name: { ~patch.instr.dotNotation },
 	
 	gui: { arg layout;
 		var l;
-		l = layout ?? {PageLayout(~source.instr.dotNotation,Rect(0,0,500,600))};
-		~source.gui(l);
-		InstrGui(~source.instr).sourceGui(l,500);
+		l = layout ?? {PageLayout(~patch.instr.dotNotation,Rect(0,0,500,600))};
+		~patch.gui(l);
+		InstrGui(~patch.instr).sourceGui(l,500);
 		if(layout.isNil,{
 			l.resizeToFit
 		})
