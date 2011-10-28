@@ -258,6 +258,9 @@ MxChannel : AbstractPlayerProxy {
 		});
 		^nil
 	}
+	
+	inlets { ^myUnit.inlets }
+	outlets { ^myUnit.outlets }
 }
 
 

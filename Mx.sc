@@ -9,119 +9,59 @@ Mx : AbstractPlayerProxy {
 
 	var <>autoCable=true;
 
-	var allocator, register, unitGroups, busses;
+	var allocator=0, register, unitGroups, busses;
 	var <master;
 	var removing, adding, cableEndpoints;
-	var <>frameRate=24, clock, ticker, <position, frameRateDevices, preFrameRateDevices;
+	var <>frameRate=24, sched, ticker, <position, frameRateDevices, preFrameRateDevices;
 
-	*new { arg channels, cables, inlets, outlets;
-		^super.new.init(channels,cables,inlets,outlets)
+	*new { arg data;
+		^super.new.init(data)
 	}
 	storeArgs {
-		^[
-			channels.collect({ arg channel;
-				this.findID(channel) -> channel.units
-					.collect({ arg unit; unit !? {this.findID(unit) -> unit.saveData} })
-			}),
-			channels.collect({ arg channel;
-				this.findID(channel) -> channel.fader.storeArgs
-			}),
-			MxIDDataSource.saveIOlets(register,this),
-			cables.collect({ arg cable;
-					[this.findID(cable.outlet),this.findID(cable.inlet),cable.mapping,cable.active]
-				}),
-			inlets.collect({ arg out;
-					[this.findID(out), out.name,out.spec ] // , spec, name,
-				}),
-			outlets.collect({ arg out;
-					[this.findID(out), out.name,out.spec ] // , spec, name,
-				})
-		]
+		^[MxLoader.saveData(this,register)];
 	}
-	init { arg argChannels,faderData,ioids,argCables,ins,outs;
-		var faderMap,ds,uid;
-
+	init { arg data;
+		var loader;
+		
 		register = IdentityDictionary.new;
-		allocator = NodeIDAllocator(0,0);
-
-		ds = MxIDDataSource(ioids);
-
-		uid = this.register(this);
-
-		faderMap = Dictionary.new;
-		faderData.do { arg ass;
-			faderMap[ass.key] = ass.value
-		};
-		channels = [];
-		argChannels.do { arg ass;
-			var cuid,unitsData,chan,units;
-			cuid = ass.key;
-			unitsData = ass.value;
-			units = unitsData.collect { arg uass;
-				var unitid,unitData, unit;
-				if(uass.isNil,{
-					nil
-				},{
-					unitid = uass.key;
-					unitData = uass.value;
-					unit = MxUnit.loadData(unitData);
-					this.registerUnit(unit,unitid,ds);
-					unit
-				});
-			};
-
-			chan = MxChannel(units,faderMap[cuid]);
-			this.registerChannel(chan,cuid,ds);
-
-			channels = channels.add(chan)
-		};
-		master = channels.last ?? {
+		cables = MxCableCollection.new;
+		
+		if(data.isNil,{
+			this.register(this,0);
 			master = this.prMakeChannel;
 			this.registerChannel(master);
-			channels = channels.add(master);
-			master
-		};
-		source = master;
-
-		inlets = [];
-		(ins ? []).do { arg inletData,i;
-			var in;
-			// no adapter yet
-			in =  MxInlet(inletData[1],i,inletData[2],nil);
-			inlets = inlets.add(in);
-			this.register(in,ds.getInletID(uid,in.name) ?? {this.nextID});
-		};
-		outlets = [];
-		if(outs.notNil,{
-			outs.do { arg outletData,i;
-				var in;
-				// no adapter yet
-				in =  MxOutlet(outletData[1],i,outletData[2],nil);
-				outlets = outlets.add(in);
-				this.register(in,ds.getOutletID(uid,in.name) ?? {this.nextID});
-			}
-		},{
+			channels = [master];
+			inlets = [];
 			this.addOutput;
+		},{
+			loader = MxLoader(register);
+			loader.loadData(data);
+			this.register(this,0);
+			allocator = loader.maxID + 1;
+			channels = loader.channels;
+			master = loader.master;
+			loader.cables.do(cables.add(_));
+
+			inlets = loader.inlets;
+			outlets = loader.outlets;
+			
+			this.allUnits.do { arg unit;
+				this.unitAddFrameRateDevices(unit)
+			};
 		});
 
-		cables = MxCableCollection.new;
-		argCables.do { arg cableData;
-			var oid,iid,mapping,active;
-			# oid,iid,mapping,active = cableData;
-			// iid is nil
-			cables.add( MxCable(this.atID(oid),this.atID(iid),mapping,active) );
-		};
-
-		clock = BeatSched.new;
+		source = master;
+		sched = OSCSched.new;
 		position = Position.new;
-		
 	}
+			
 	nextID {
-		^allocator.alloc
+		^allocator = allocator + 1;
 	}
-	// registerIOlet
 	register { arg object,uid;
-		uid = uid ?? { this.nextID };
+		if(uid.isNil,{
+			uid = this.nextID;
+		});
 		register[uid] = object;
 		^uid
 	}
@@ -129,7 +69,7 @@ Mx : AbstractPlayerProxy {
 		^register[uid]
 	}
 	findID { arg object;
-		^register.findKeyForValue(object)
+		^register.findKeyForValue(object) ?? { Error("ID not found in registery for:"+object).throw }
 	}
 	unregister { arg uid;
 		var item;
@@ -146,51 +86,30 @@ Mx : AbstractPlayerProxy {
 			})
 		})
 	}
-	registerUnit { arg unit,uid,ds;
+	registerUnit { arg unit,uid;
 		uid = this.register(unit,uid);
 		unit.inlets.do { arg inlet;
-			var iid;
-			if(ds.notNil,{
-				iid = ds.getInletID(uid,inlet.name) ?? {this.nextID};
-			},{
-				iid = this.nextID
-			});
-			this.register(inlet,iid);
+			this.register(inlet); // already registered ?
 		};
 		unit.outlets.do { arg outlet;
-			var iid;
-			if(ds.notNil,{
-				iid = ds.getOutletID(uid,outlet.name) ?? {this.nextID};
-			},{
-				iid  = this.nextID
-			});
-			this.register(outlet,iid);
+			this.register(outlet); // already registered ?
 		};
+		this.unitAddFrameRateDevices(unit)
+	}
+	unitAddFrameRateDevices { arg unit;
 		unit.handlers.use {
 			~frameRateDevices.value.do { arg dev;
 				this.addFrameRateDevice(dev)
 			}
 		};
 	}
-	registerChannel { arg chan,uid,ds;
+	registerChannel { arg chan,uid;
 		uid = this.register(chan,uid);
 		chan.myUnit.inlets.do { arg inlet;
-			var iid;
-			if(ds.isNil,{
-				iid = this.nextID
-			},{
-				iid = ds.getInletID(uid,inlet.name) ?? {this.nextID};
-			});
-			this.register(inlet,iid);
+			this.register(inlet);
 		};
 		chan.myUnit.outlets.do { arg outlet;
-			var iid;
-			if(ds.isNil,{
-				iid = this.nextID
-			},{
-				iid = ds.getOutletID(uid,outlet.name) ?? {this.nextID};
-			});
-			this.register(outlet,iid);
+			this.register(outlet);
 		};
 	}
 
@@ -315,8 +234,9 @@ Mx : AbstractPlayerProxy {
 		if(old.notNil,{
 			// cut or take any cables
 			this.disconnectUnit(old);
+			this.unregister(this.findID(old));
 		});
-		channel.put(index,unit);
+		channel.put(index, unit);
 		this.changed('grid');
 		^unit
 	}
@@ -383,12 +303,12 @@ Mx : AbstractPlayerProxy {
 		ticker = Task({
 					loop {
 						frameRateDevices.do { arg frd;
-							frd.tick(clock.beat);
+							frd.tick(sched.beat);
 						};
-						position.value = clock.beat;
+						position.value = sched.beat;
 						frameRate.reciprocal.wait;
 					}
-				},clock.tempoClock);
+				},sched.tempoClock);
 		if(bundle.notNil,{
 			bundle.addFunction({
 				ticker.play
@@ -520,22 +440,28 @@ Mx : AbstractPlayerProxy {
 			});
 		});
 	}
-	gotoBeat { arg beat,atTime,bundle;
-		var b;
+	gotoBeat { arg beat,q=4,bundle;
+		var b,beats,atBeat;
+		beat = beat.trunc(q);
+		atBeat = sched.beat.roundUp(q);
+		
 		b = bundle ?? {MixedBundle.new};
 		b.addFunction({ 
-			clock.beat = beat; 
+			sched.beat = beat;
 			position.value = beat;
 		});
 		channels.do { arg chan;
 			chan.units.do { arg unit;
 				if(unit.notNil,{
-					unit.gotoBeat(beat,atTime,b)
+					unit.gotoBeat(beat,atBeat,b)
 				})
 			}
 		};
 		if(this.isPlaying,{
-			atTime.schedBundle(b,this.server);
+			sched.schedAbs(atBeat,this.server,b.messages,{
+				b.doSendFunctions;// should be before !
+				b.doFunctions;
+			});
 		},{
 			b.doFunctions.doSendFunctions
 		})
@@ -594,15 +520,25 @@ Mx : AbstractPlayerProxy {
 		// master is source : one of the channels
 		^channels // ++ cables
 	}
+	allUnits {
+		^Routine({
+			channels.do({ arg c;
+				c.myUnit.yield;
+				c.units.do({ arg u;
+					if(u.notNil,{
+						u.yield
+					})
+				})
+			})
+		});
+	}
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
 	}
 	prepareChildrenToBundle { arg bundle;
 		channels.do { arg c;
 			if(c !== master,{
-				//if(c.isPrepared.not.debug("chan prepared"),{
-					c.prepareToBundle(group,bundle,true)
-				//})
+				c.prepareToBundle(group,bundle,true)
 			})
 		};
 		master.prepareToBundle(group,bundle,false,this.bus);
@@ -624,8 +560,8 @@ Mx : AbstractPlayerProxy {
 		bundle.addFunction({
 			adding = removing = nil;
 			// starting from the start
-			clock.time = 0.0;
-			clock.beat = 0.0;
+			sched.time = 0.0;
+			sched.beat = 0.0;
 		});
 		this.startTicker(bundle);
 		
@@ -687,75 +623,5 @@ Mx : AbstractPlayerProxy {
 }
 
 
-MxIDDataSource {
-
-	// utility class for use during Mx load
-	var inlets,outlets;
-
-	*new { arg ioids;
-		^super.new.init(ioids)
-	}
-
-	getInletID { arg parentID,name;
-		inlets[parentID].do { arg keyuid;
-			if(keyuid.key == name,{
-				^keyuid.value
-			})
-		};
-		^nil
-	}
-	getOutletID { arg parentID,name;
-		outlets[parentID].do { arg keyuid;
-			if(keyuid.key == name,{
-				^keyuid.value
-			})
-		};
-		^nil
-	}
-
-	init { arg ioids;
-		inlets = Dictionary.new;
-		outlets = Dictionary.new;
-		ioids.do { arg uidio;
-			inlets.put(uidio.key,uidio.value[0]);
-			outlets.put(uidio.key,uidio.value[1]);
-		};
-	}
-	*saveIOlets { arg register,mx;
-		/* [
-			unitid -> [ [ \freq -> inletid, ...], [ \out -> inletid, ... ] ],
-			unitid -> [ [ \amp -> outletid, ...], [ \out -> outletid, ... ] ],
-			..
-		]
-		the constructor loads from this data
-		*/
-		var data,ret;
-		data = Dictionary.new;
-		register.keysValuesDo { arg uid,object;
-			var slot,unitid;
-			if(object.isKindOf(MxInlet),{
-				// some have nils
-				if(object.unit.source.isKindOf(MxChannel),{
-					unitid = mx.findID(object.unit.source)
-				},{
-					unitid = mx.findID(object.unit);
-				});
-				data[unitid] ?? { data[unitid] = [ [],[] ] };
-				slot = if(object.isKindOf(MxOutlet),1,0);
-				data[unitid][slot] = data[unitid][slot].add( object.name -> uid );
-			//},{
-				// only the Mx itself does not save its id, its always 1
-				// channels are known by the fader strip data array
-				// units are known by the channel unit array
-
-			})
-		};
-		ret = Array(data.size);
-		data.keysValuesDo { arg uid,dd;
-			ret.add( uid -> dd )
-		};
-		^ret
-	}
-}
-
+			
 
