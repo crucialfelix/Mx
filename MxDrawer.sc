@@ -47,7 +47,9 @@ MxDrawerItem {
         ^super.newCopyArgs(title,buildItemFunc)
     }
     make { arg i,onMake;
-        buildItemFunc.value(i,onMake)
+	    {
+	         onMake.value(buildItemFunc.value)
+	    }.fork(AppClock)
     }
 }
 
@@ -75,7 +77,9 @@ MxDrawerSubItem {
         ^super.newCopyArgs(title,drawerItem,data)
     }
     make { arg i,onMake;
-        drawerItem.buildItemFunc.value(data,i,title,onMake)
+	    {
+	         onMake.value(drawerItem.buildItemFunc.value(data,title))
+	    }.fork(AppClock)
     }
 }
 
@@ -114,7 +118,7 @@ MxDrawerGui : ObjectGui {
             if(clickCount == 2,{
                 item = items[lv.value];
                 if(item.isKindOf(MxDrawerItemGroup).not,{
-                    item.title.debug("loading...");
+                    item.title.debug("Loading");
                     item.make(lv.value,model.onSelect)
                 },{
                     this.drillDown(item);
@@ -140,9 +144,9 @@ MxDrawerGui : ObjectGui {
             var item;
             item = items[lv.value];
             if(item.isKindOf(MxDrawerItemGroup),{
-            this.drillDown(item);
+	            this.drillDown(item);
             },{
-            item.make(lv.value,model.onSelect)
+            	item.make(lv.value,model.onSelect)
             });
             this.update;
         };
@@ -193,7 +197,6 @@ MxDrawerGui : ObjectGui {
                 lv.defaultKeyDownAction(char,modifier,unicode)
             };
     }
-
 }
 
 
