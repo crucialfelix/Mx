@@ -491,6 +491,7 @@ Mx : AbstractPlayerProxy {
 				},{
 					a.prepareToBundle(group,b,true);
 				});
+				// it should be atTime
 				a.spawnToBundle(b)
 			};
 			channels.do { arg chan; chan.update(b); };
@@ -506,20 +507,6 @@ Mx : AbstractPlayerProxy {
 		});
 		^b
 	}
-
-	//////////  private  ////////////
-	disconnectCable { arg cable;
-		if(this.isPlaying,{
-			removing = removing.add( cable );
-			cable.pending = true;
-		});
-		cables.remove(cable);
-	}
-
-	children {
-		// master is source : one of the channels
-		^channels // ++ cables
-	}
 	allUnits {
 		^Routine({
 			channels.do({ arg c;
@@ -532,6 +519,25 @@ Mx : AbstractPlayerProxy {
 			})
 		});
 	}
+	
+	//////////  private  ////////////
+	disconnectCable { arg cable;
+		if(this.isPlaying,{
+			removing = removing.add( cable );
+			cable.pending = true;
+		});
+		cables.remove(cable);
+	}
+	clearPending {
+		removing = [];
+		adding = [];
+	}
+
+	children {
+		// master is source : one of the channels
+		^channels // ++ cables
+	}
+
 	loadDefFileToBundle { arg b,server;
 		this.children.do(_.loadDefFileToBundle(b,server))
 	}
