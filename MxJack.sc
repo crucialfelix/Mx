@@ -24,23 +24,24 @@ MxJack {
 		if(spec.isKindOf(NamedIntegersSpec),{
 			^spec.defaultControl(defArg)
 		});
+		if(spec.isKindOf(NoLagControlSpec),{
+			^MxKrJack(defArg ? spec.default,spec,nil)
+		});
 		if(spec.isKindOf(ControlSpec),{
-			^MxKrJack.new.value_(defArg ? spec.default).spec_(spec)
+			^MxKrJack(defArg ? spec.default,spec)
 		});
 		^defArg
 	}
 }
 
 
-MxKrJack : MxJack {
+MxControlJack : MxJack { // abstract
 
-	var <value,<patchOut,<>spec,<>lag=0.1;
+	var <value,<>spec;
+	var <patchOut;
 	
-	*new { arg v;
-		^super.new.value_(v)
-	}
 	storeArgs {
-		^[value]
+		^[value,spec]
 	}
 	value_ { arg v;
 		value = v;
@@ -67,13 +68,39 @@ MxKrJack : MxJack {
 		patchOut.connectedTo.do { arg patchIn;
 			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),-1) );
 		}
-	}		
-		
+	}
+	stopToBundle { arg bundle;
+		bundle.addFunction({ patchOut.free; patchOut = nil; })
+	}
+
 	synthArg {
 		^value
 	}
 	addToSynthDef {  arg synthDef,name;
 		synthDef.addKr(name,value);
+	}
+	instrArgFromControl { arg control;
+		^control
+	}
+	makePatchOut {
+		patchOut = UpdatingScalarPatchOut(this,enabled: false);
+	}
+	connectToPatchIn { arg patchIn,needsValueSetNow = true;
+		patchOut.connectTo(patchIn,needsValueSetNow);
+	}
+	rate { ^\control }
+}
+
+
+MxKrJack : MxControlJack {
+	
+	var <>lag=0.1;
+	
+	*new { arg value,spec,lag=0.1;
+		^super.newCopyArgs(value,spec,lag)
+	}
+	storeArgs {
+		^[value,spec,lag]
 	}
 	instrArgFromControl { arg control;
 		// actually if its patched up to a kr on the server
@@ -84,19 +111,16 @@ MxKrJack : MxJack {
 		},{
 			^control
 		})
-	}
-	makePatchOut {
-		patchOut = UpdatingScalarPatchOut(this,enabled: false);
-	}
-	connectToPatchIn { arg patchIn,needsValueSetNow = true;
-		patchOut.connectTo(patchIn,needsValueSetNow);
-	}
-	rate { ^\control }
-	guiClass { ^MxKrJackGui }
+	}	
+	guiClass { ^MxKrJackGui }	
 }
 
 
-MxArJack : MxKrJack {
+MxArJack : MxControlJack {
+	
+	/*
+		value is the bus
+	*/
 	
 	var <>numChannels=2;
 	
@@ -126,13 +150,10 @@ MxArJack : MxKrJack {
 }
 
 
-MxIrJack : MxKrJack {
+MxIrJack : MxControlJack {
 
 	addToSynthDef {  arg synthDef,name;
 		synthDef.addIr(name,value);
-	}
-	instrArgFromControl { arg control;
-		^control
 	}
 	makePatchOut {
 		patchOut = ScalarPatchOut(this);
@@ -141,13 +162,10 @@ MxIrJack : MxKrJack {
 }
 
 
-MxTrJack : MxKrJack {
+MxTrJack : MxControlJack {
 
-	instrArgFromControl { arg control;
-		^control
-	}
-	
 }
+
 
 
 // not yet
