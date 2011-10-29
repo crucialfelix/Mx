@@ -125,6 +125,10 @@ MxUnit  {
 			~freeToBundle.value(bundle);
 			bundle.addFunction({status='isFreed'})
 		}
+	}
+	respawnToBundle { arg bundle;
+		this.stopToBundle(bundle);
+		this.spawnToBundle(bundle);
 	}	
 	moveToHead { arg aGroup,bundle;
 		^handlers.use {
@@ -144,6 +148,9 @@ MxUnit  {
 	stop { arg atTime,andFreeResources=true;
 		^handlers.use { ~stop.value(atTime,andFreeResources) }
 	}
+	respawn { arg atTime;
+		^handlers.use { ~respawn.value(atTime) }
+	}		
 	isPlaying {
 		^handlers.use { ~isPlaying.value }
 	}
@@ -172,8 +179,8 @@ MxUnit  {
 	zoomTime { arg fromTime,toTime;
 		^handlers.use { ~zoomTime.value(fromTime,toTime) }
 	}
-	gotoBeat { arg beat,atTime,bundle;
-		^handlers.use { ~gotoBeat.value(beat,atTime,bundle) }
+	gotoBeat { arg beat,atBeat,bundle;
+		^handlers.use { ~gotoBeat.value(beat,atBeat,bundle) }
 	}
 	canRecord {
 		^handlers['record'].notNil
@@ -203,6 +210,7 @@ MxUnit  {
 			},
 			play: { arg group, atTime, bus;},
 			stop: { arg atTime,andFreeResources = true; },
+			respawn: { arg atTime; },
 			isPlaying: { ~source.isPlaying },
 			
 			numChannels: { ~source.numChannels ? 2 },

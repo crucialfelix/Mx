@@ -65,6 +65,14 @@ MxUnit.register('Instr',(
 	stop: { arg atTime,andFreeResources = true;
 		~patch.stop(atTime,andFreeResources)
 		},
+	respawn: {
+		var group,bus;
+		group = ~patch.group;
+		bus = ~patch.bus;
+		~patch.stop;
+		~patch.play(group,1,bus)
+	},
+		
 	isPlaying: {
 		~patch.isPlaying
 	},

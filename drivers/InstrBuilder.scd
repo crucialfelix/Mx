@@ -21,7 +21,7 @@ MxUnit.register('InstrBuilder',(
 			inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,instr.defArgAt(i) ) });
 		});
 		
-		patch = Patch(instr,inps );
+		patch = Patch(instr, inps);
 		connectors = patch.inputs.collect({ arg inp,i; 
 			if(inp.isKindOf(MxArJack),{
 				MxHasJack({inp},{patch.server},{patch.group})
@@ -42,6 +42,14 @@ MxUnit.register('InstrBuilder',(
 		outlets = [ MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
 		
 		~patch = patch;
+
+		~source.onCompile = { arg stack,builder;
+			var playing=false;
+			~patch.instr = stack;
+			if(playing = ~patch.isPlaying,{
+				~respawn.value();
+			});
+		}.inEnvir;
 		
 		MxUnit(~source,inlets,outlets);
 	},
@@ -71,6 +79,15 @@ MxUnit.register('InstrBuilder',(
 	stop: { arg atTime,andFreeResources = true;
 		~patch.stop(atTime,andFreeResources)
 		},
+	respawn: {
+		var group,bus;
+		group = ~patch.group;
+		bus = ~patch.bus;
+		~patch.stop;
+		{
+			~patch.play(group,1,bus)
+		}.inEnvir.defer(1);
+	},
 	isPlaying: {
 		~patch.isPlaying
 	},

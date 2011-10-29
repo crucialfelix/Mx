@@ -25,6 +25,14 @@ MxUnit.register('AbstractPlayer',
 	stop: { arg atTime,andFreeResources = true;
 		~source.stop(atTime,andFreeResources)
 	},
+	respawn: {
+		var group,bus;
+		group = ~source.group;
+		bus = ~source.bus;
+		~source.stop;
+		~source.play(group,1,bus)
+	},
+	
 	save: {
 		if(~source.path.notNil,{
 			~source.enpath
