@@ -1,4 +1,7 @@
 
+/*
+	should be able to inherit from Instr
+*/
 
 MxUnit.register('InstrBuilder',(
 
@@ -72,6 +75,9 @@ MxUnit.register('InstrBuilder',(
 	numChannels: { 
 		~patch.numChannels
 		},
+	spec: {
+		~patch.spec
+	},
 
 	play: { arg group, atTime, bus;
 		~patch.play(group,atTime,bus) 
@@ -92,23 +98,41 @@ MxUnit.register('InstrBuilder',(
 		~patch.isPlaying
 	},
 	save: { 
-		[~source.path ? ~source,~patch.inputs]
+		var path;
+		if(~source.path.notNil,{
+			path = Document.abrevPath(~source.path)
+		},{
+			path = ~source
+		});
+		[path ? ~source,~patch.inputs]
 	},
 	load: { arg data;
 		var builder,inps;
 		# builder, inps = data;
 		if(builder.isString,{
-			builder = builder.loadPath
+			// load from docs if its a relative path
+			builder = Document.standardizePath(builder).loadPath
 		});
 		[builder,inps]
 	},
 	copy: { [~source,~patch.inputs.deepCopy] },
-	name: { ~source.path ? "InstrBuilder" },
+	name: { 
+		if(~source.path.notNil,{
+			PathName(~source.path).fileNameWithoutExtension
+		},{
+			"InstrBuilder" 
+		})
+	},
 	
 	gui: { arg layout;
 		var l;
 		l = layout ?? {PageLayout(~name.value,Rect(0,0,500,600))};
-		~patch.gui(l);
+		ActionButton(l,"EDIT" + (~name.value),{
+			~source.gui
+		}.inEnvir);
+		~patch.inputs.do { arg inp;
+			inp.gui(l.startRow);
+		};
 		if(layout.isNil,{
 			l.resizeToFit
 		})
