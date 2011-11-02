@@ -111,7 +111,7 @@ MxUnit.register('InstrBuilder',(
 		# builder, inps = data;
 		if(builder.isString,{
 			// load from docs if its a relative path
-			builder = Document.standardizePath(builder).loadPath
+			builder = InstrBuilder.load(builder)
 		});
 		[builder,inps]
 	},
