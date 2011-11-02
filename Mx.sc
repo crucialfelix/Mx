@@ -30,7 +30,7 @@ Mx : AbstractPlayerProxy {
 			this.register(this,0);
 			master = this.prMakeChannel;
 			this.registerChannel(master);
-			channels = [master];
+			channels = [];
 			inlets = [];
 			this.addOutput;
 		},{
@@ -116,13 +116,13 @@ Mx : AbstractPlayerProxy {
 	add { arg ... objects;
 		^this.insertChannel(channels.size-1,objects)
 	}
-	extendChannels { arg forIndex;
+	extendChannels { arg toSize;
 		// create more channels if needed
 		// such that there is a channel at forIndex
 		// and there is still the master channel after that
 		var prior,nuchan,start,stop;
-		start = channels.size - 1;// last non-master channel
-		stop = forIndex; // where we want to insert
+		start = channels.size;
+		stop = toSize;
 		if(stop >= start,{
 			for(start,stop,{ arg i;
 				nuchan = this.prMakeChannel;
@@ -137,7 +137,7 @@ Mx : AbstractPlayerProxy {
 	insertChannel { arg index, objects;
 		// make sure at least that many channels
 		var chan,units;
-		if( (channels[index].isNil or: {channels[index] === master}).not,{ // not creating a new channel
+		if(index > channels.size,{
 			this.extendChannels(index-1);
 		});
 		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj)}});
@@ -220,8 +220,7 @@ Mx : AbstractPlayerProxy {
 	}
 	put { arg chan,index,object;
 		var channel,unit,old;
-		// TODO how do you insert into master then ??
-		if(channels[chan].isNil or: {channels[chan] === master},{
+		if(channels[chan].isNil,{
 			this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
 			^this
 		});
@@ -239,6 +238,9 @@ Mx : AbstractPlayerProxy {
 		channel.put(index, unit);
 		this.changed('grid');
 		^unit
+	}
+	putMaster { arg index,object;
+		object.debug("put master not yet implemented")
 	}
 	move { arg chan,index,toChan,toIndex;
 		var moving,unit,unitg;
@@ -426,14 +428,14 @@ Mx : AbstractPlayerProxy {
 			if(boo,{
 				chan.fader.setSolo;
 				this.channels.do { arg ch;
-					if(ch !== chan and: {ch !== master},{
+					if(ch !== chan,{
 						ch.fader.muteForSoloist;
 					})
 				};
 			},{
 				chan.fader.unsetSolo;
 				this.channels.do { arg ch;
-					if(ch !== chan and: {ch !== master},{
+					if(ch !== chan,{
 						ch.fader.mute = false;
 					})
 				};
@@ -534,8 +536,7 @@ Mx : AbstractPlayerProxy {
 	}
 
 	children {
-		// master is source : one of the channels
-		^channels // ++ cables
+		^[master] ++ channels // ++ cables
 	}
 
 	loadDefFileToBundle { arg b,server;
@@ -543,9 +544,7 @@ Mx : AbstractPlayerProxy {
 	}
 	prepareChildrenToBundle { arg bundle;
 		channels.do { arg c;
-			if(c !== master,{
-				c.prepareToBundle(group,bundle,true)
-			})
+			c.prepareToBundle(group,bundle,true)
 		};
 		master.prepareToBundle(group,bundle,false,this.bus);
 	}
@@ -556,9 +555,7 @@ Mx : AbstractPlayerProxy {
 		
 		// this.prepareChildrenToBundle(bundle);
 		channels.do({ arg chan;
-			if(chan !== master,{
-				chan.spawnToBundle(bundle);
-			});
+			chan.spawnToBundle(bundle);
 		});
 		super.spawnToBundle(bundle);
 		
@@ -599,14 +596,12 @@ Mx : AbstractPlayerProxy {
 					})
 				})
 			};
-			if(chan !== master,{
-				// if the channel is not patched to anything then patch it to the master
-				if(cables.fromUnit(chan.myUnit).isEmpty,{
-					ac = MxCable( chan.myUnit.outlets.first, master.myUnit.inlets.first );
-					cables.add(ac);
-					addingCables = addingCables.add(ac);
-					changed = true;
-				})
+			// if the channel is not patched to anything then patch it to the master
+			if(cables.fromUnit(chan.myUnit).isEmpty,{
+				ac = MxCable( chan.myUnit.outlets.first, master.myUnit.inlets.first );
+				cables.add(ac);
+				addingCables = addingCables.add(ac);
+				changed = true;
 			})
 		};
 		// patch units in master
@@ -624,6 +619,7 @@ Mx : AbstractPlayerProxy {
 	guiClass { ^MxGui }
 
 	draw { arg pen,bounds,style;
+		// odd
 		master.draw(pen,bounds,style)
 	}
 }

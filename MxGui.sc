@@ -24,9 +24,9 @@ MxGui : AbstractPlayerGui {
 	drawer { arg layout,bounds;
 		var d;
 		d = MxDrawer({ arg obj;
-			var unit;
 			if(boxes.focusedPoint.notNil,{
-				unit = model.put(boxes.focusedPoint.x,boxes.focusedPoint.y,obj);
+				// which puts to master or channels
+				boxes.put(boxes.focusedPoint.x,boxes.focusedPoint.y,obj);
 				boxes.refresh;
 				if(model.isPlaying,{
 					model.update;

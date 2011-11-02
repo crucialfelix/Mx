@@ -36,7 +36,7 @@ MxLoader {
 				mx.inlets.collect({ arg i; [mx.findID(i),i.name,i.spec] }),
 				mx.outlets.collect({ arg o; [mx.findID(o),o.name,o.spec] }),
 				mx.channels.collect(mx.findID(_)),
-				mx.channels.indexOf(mx.master)
+				mx.findID(mx.master)
 			]
 		};
 		registerData = Array.new(register.size);
@@ -90,7 +90,7 @@ MxLoader {
 			var ins,outs,chans,mast;
 			# ins,outs,chans,mast = data;
 			channels = chans.collect({ arg cid; this.get(cid) });
-			master = channels[mast];
+			master = this.get(mast);
 			inlets = ins.collect({ arg d,i;
 						var id,name,spec,io;
 						# id, name, spec = d;

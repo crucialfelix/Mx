@@ -2,7 +2,7 @@
 
 MxMatrixGui : SCViewHolder {
 
-	var <numRows,<numCols;
+	var <numRows,<numCols,masterCol;
 	var <mx;
 	var bounds,<focusedPoint;
 	var <>currentDragPoint,draggingXY,draggingOutlet,mouseDownPoint,isDown=false;
@@ -115,7 +115,7 @@ MxMatrixGui : SCViewHolder {
 			// View.currentDrag
 		};
 		view.receiveDragHandler = { arg me;
-			mx.put( focusedPoint.x,focusedPoint.y,View.currentDrag );
+			this.put( focusedPoint.x,focusedPoint.y,View.currentDrag );
 			this.view.refresh;
 		};
 
@@ -300,7 +300,7 @@ MxMatrixGui : SCViewHolder {
 		if(dragging.isKindOf(MxUnit),{
 			// move it, copy it, replace it
 			if(modifiers.isAlt,{
-				mx.put(targetPoint.x,targetPoint.y, dragging.copySource );
+				this.put(targetPoint.x,targetPoint.y, dragging.copySource );
 			},{
 				dp = points[dragging];
 				mx.move(dp.x,dp.y,targetPoint.x,targetPoint.y)
@@ -350,11 +350,11 @@ MxMatrixGui : SCViewHolder {
 		numRows = max(numRows,mx.master.units.size) + 1;
 	}
 	updatePoints {
-		var lastRow,lastCol,bounds;
+		var lastRow,bounds;
 		points = IdentityDictionary.new;
 		bounds = view.bounds;
 		lastRow = (bounds.height / boxHeight).floor - 1;
-		lastCol = (bounds.width / boxWidth).floor - 1;
+		masterCol = (bounds.width / boxWidth).floor - 1;
 		mx.channels.do { arg ch,ci;
 			ch.units.do { arg un,ri;
 				if(un.notNil) {
@@ -367,11 +367,11 @@ MxMatrixGui : SCViewHolder {
 		// should be all outlets
 		mx.master.units.do { arg un,ri;
 			if(un.notNil) {
-				points[un] = (lastCol)@ri
+				points[un] = masterCol@ri
 			}
 		};
 		// or master fader
-		points[mx.master.myUnit] = (lastCol)@(lastRow)
+		points[mx.master.myUnit] = masterCol@lastRow
 	}
 	calcBoxBounds {
 		var n;
@@ -474,6 +474,13 @@ MxMatrixGui : SCViewHolder {
 		});
 		^nil
 	}
+	put { arg x,y,obj;
+		if(x == masterCol,{
+			mx.putMaster( y, obj );
+		},{
+			mx.put( x,y,obj );
+		});
+	}		
 	findIOlet { arg iolets,ioArea,screenPoint;
 		// inside an iolet area find which one the point is on
 		var oi;
