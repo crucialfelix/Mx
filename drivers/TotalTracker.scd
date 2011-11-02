@@ -66,16 +66,17 @@ MxUnit.register('TotalTracker',
 	},
 	load: { arg data;
 		var t;
-		t = TotalTracker(data[0],false);
-		if(data[1] == "song",{
-			t.app.setSongPlayMode
-		},{
-			t.app.setPatternPlayMode;
-			t.app.gotoPatternID(data[2])
+		t = TotalTracker(data[0],false,{ arg t;
+			if(data[1] == "song",{
+				t.app.setSongPlayMode
+			},{
+				t.app.setPatternPlayMode;
+				t.app.gotoPatternID(data[2])
+			});
+			data[3].do { arg v,i;
+				t.app.setSongControl(i+1,v)
+			};
 		});
-		data[3].do { arg v,i;
-			t.app.setSongControl(i+1,v)
-		};
 		t
 	},
 	name: { ~source.name },
