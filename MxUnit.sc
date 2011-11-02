@@ -26,7 +26,7 @@ MxUnit  {
 	}
 	saveData {
 		var data,ids;
-		data = handlers.use { ~save.value(source) };
+		data = this.use { ~save.value(source) };
 		^[source.class.name,data]
 	}
 	*loadData { arg data;
@@ -103,25 +103,25 @@ MxUnit  {
 	}
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
-		^handlers.use { 
+		^this.use({ 
 			~prepareToBundle.value(agroup,bundle,true,bus); 
 			bundle.addFunction({status='isPrepared'})
-		}
+		})
 	}
 	spawnToBundle { arg bundle;
-		^handlers.use { 
+		^this.use { 
 			~spawnToBundle.value(bundle);
 			bundle.addFunction({ status = 'isPlaying' })
 		}
 	}
 	stopToBundle { arg bundle;
-		^handlers.use { 
+		^this.use { 
 			~stopToBundle.value(bundle);
 			bundle.addFunction({ status = 'isStopped' })
 		}
 	}
 	freeToBundle { arg bundle;
-		^handlers.use { 
+		^this.use { 
 			~freeToBundle.value(bundle);
 			bundle.addFunction({status='isFreed'})
 		}
@@ -131,62 +131,89 @@ MxUnit  {
 		this.spawnToBundle(bundle);
 	}	
 	moveToHead { arg aGroup,bundle;
-		^handlers.use {
+		^this.use {
 			~moveToHead.value(aGroup,bundle,group)
 		}
 	}
 	
+	use { arg function;
+		var result, saveEnvir;
+
+		saveEnvir = currentEnvironment;
+		currentEnvironment = handlers;
+		protect {
+			result = function.value(handlers)
+		} { arg exception;
+			if(exception.notNil) {
+				("MxUnit" + this.source + this.source.class + "ERROR in:\n" + function.def + "\n" + function.def.sourceCode).postln;
+			};
+			currentEnvironment = saveEnvir;
+		};
+		^result		
+	}
+	//delegate
 	callHandler { arg method ... args;
-		^handlers.use {
-			handlers[method].valueArray(args)
-		}
+		var result, saveEnvir;
+
+		saveEnvir = currentEnvironment;
+		currentEnvironment = handlers;
+		protect {
+			result = handlers[method].valueArray(args)
+		} { arg exception;
+			if(exception.notNil) {
+				("MxUnit" + this.source + "ERROR in" + method + args).postln;
+				// can fetch the handler source code here
+			};
+			currentEnvironment = saveEnvir;
+		};
+		^result
 	}
 	
 	play { arg group,atTime,bus;
-		^handlers.use { ~play.value(group,atTime,bus) }
+		^this.use { ~play.value(group,atTime,bus) }
 	}
 	stop { arg atTime,andFreeResources=true;
-		^handlers.use { ~stop.value(atTime,andFreeResources) }
+		^this.use { ~stop.value(atTime,andFreeResources) }
 	}
 	respawn { arg atTime;
-		^handlers.use { ~respawn.value(atTime) }
+		^this.use { ~respawn.value(atTime) }
 	}		
 	isPlaying {
-		^handlers.use { ~isPlaying.value }
+		^this.use { ~isPlaying.value }
 	}
 	numChannels {
-		^handlers.use { ~numChannels.value }
+		^this.use { ~numChannels.value }
 	}
 	spec {
-		^handlers.use { ~spec.value }
+		^this.use { ~spec.value }
 	}
 	copySource {
-		^handlers.use { ~copy.value }
+		^this.use { ~copy.value }
 	}
 	// relocate  toBeat, atTime
 	name {
-		^handlers.use { ~name.value }
+		^this.use { ~name.value }
 	}
 	gui { arg layout,bounds;
-		^handlers.use { ~gui.value(layout,bounds) }
+		^this.use { ~gui.value(layout,bounds) }
 	}	
 	draw { arg pen,bounds,style;
-		^handlers.use { ~draw.value(pen,bounds,style) }
+		^this.use { ~draw.value(pen,bounds,style) }
 	}
 	timeGui { arg layout,bounds,maxTime;
-		^handlers.use { ~timeGui.value(layout,bounds,maxTime) }
+		^this.use { ~timeGui.value(layout,bounds,maxTime) }
 	}
 	zoomTime { arg fromTime,toTime;
-		^handlers.use { ~zoomTime.value(fromTime,toTime) }
+		^this.use { ~zoomTime.value(fromTime,toTime) }
 	}
 	gotoBeat { arg beat,atBeat,bundle;
-		^handlers.use { ~gotoBeat.value(beat,atBeat,bundle) }
+		^this.use { ~gotoBeat.value(beat,atBeat,bundle) }
 	}
 	canRecord {
 		^handlers['record'].notNil
 	}
 	record { arg boo=true,atTime;
-		^handlers.use { ~record.value(boo,atTime) }
+		^this.use { ~record.value(boo,atTime) }
 	}
 	*initClass {
 		registery = IdentityDictionary.new;
