@@ -550,15 +550,18 @@ MxMatrixGui : SCViewHolder {
 			var or;
 			or = this.ioArea(ioarea,i,iowidth);
 			pen.color = outlet.spec.color;
-			pen.fillRect(or);
+			pen.fillRect(or.insetBy(1,1));
 			if(selected.includes(outlet),{
 				pen.color = styles['selected']['borderColor']
 			},{
-				pen.color = Color.grey(alpha: 0.5);
+				pen.color = Color(0.64179104477612, 0.64179104477612, 0.64179104477612, 0.5134328358209);
 			});
 			pen.strokeRect(or);
 			pen.color = Color.black;
-			pen.stringLeftJustIn(outlet.name.asString,or.insetBy(1,1))
+			pen.use {
+				pen.font = Font( "Helvetica", 9 );
+				pen.stringLeftJustIn(outlet.name.asString,or.insetBy(1,1))
+			}
 		}
 	}
 	drawGrid {
@@ -644,7 +647,7 @@ MxMatrixGui : SCViewHolder {
 		
 		fb = this.fadersBounds;
 		mx.cables.do { arg cable,i;
-			var f,t,c,chan,ci;
+			var f,t,c,chan,ci,fcenter,tcenter;
 			f = this.outletArea(cable.outlet);
 	
 			// if its to a MxChannel then draw to fader top
@@ -679,10 +682,12 @@ MxMatrixGui : SCViewHolder {
 						c = Color(c.red,c.green,c.blue,0.6)
 					})
 				});
-				pen.color = Color(alpha:0.5);
+				pen.color = Color(alpha:0.1);
 				pen.width = 3;
-				pen.moveTo(f.center);
-				pen.lineTo(t.center);
+				fcenter = f.center;
+				tcenter = t.center;
+				pen.moveTo(fcenter);
+				pen.lineTo(tcenter);
 				pen.stroke;
 				pen.color = c;
 				pen.width = 1;
@@ -713,7 +718,7 @@ MxMatrixGui : SCViewHolder {
 		});		
 	}
 	makeDefaultStyles { arg skin;
-		background = skin.background;
+		background = Color(0.85236548378624, 0.86567164179104, 0.82691022499443); //skin.background;
 		/*
 			fontSpecs:		["Helvetica", 10],
 			fontColor:		Color.black,
@@ -755,7 +760,8 @@ MxMatrixGui : SCViewHolder {
 			);
 		styles['unit'] = (
 			boxColor: { arg c; c.darken(Color(0.2202380952381, 0.40008503401361, 0.5)) },
-			borderColor: Color(0.2202380952381, 0.40008503401361, 0.3)
+			borderColor: Color(0.64179104477612, 0.64179104477612, 0.64179104477612, 0.5134328358209)
+				//Color(0.40298507462687, 0.40298507462687, 0.40298507462687)
 			);
 	}
 
