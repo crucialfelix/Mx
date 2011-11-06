@@ -81,8 +81,12 @@ MxUnit.register('TotalTracker',
 	},
 	name: { ~source.name },
 	gui: { arg layout;
-		layout = layout ?? {PageLayout(~source.name,Rect(100,100,600,300))};
-		TrMxSongController(~source).gui(layout);
+		var l;
+		l = layout ?? {PageLayout(~source.name,Rect(100,100,800,600))};
+		TrMxSongController(~source).gui(l);
+		if(layout.isNil,{
+			l.resizeToFit
+		})
 	},
 
 	timeGui: { arg layout, bounds, maxTime;
