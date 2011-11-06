@@ -187,6 +187,9 @@ MxUnit  {
 	spec {
 		^this.use { ~spec.value }
 	}
+	numBeats {
+		^this.use { ~numBeats.value }
+	}
 	copySource {
 		^this.use { ~copy.value }
 	}
@@ -242,6 +245,7 @@ MxUnit  {
 			
 			numChannels: { ~source.numChannels ? 2 },
 			spec: { ~source.spec ?? {'audio'.asSpec} },
+			numBeats: { nil }, // meaning unknownable or unending
 			gui: { arg layout,bounds; 
 				~source.gui(layout ?? {Window(~name.value,bounds).front},bounds) 
 			},

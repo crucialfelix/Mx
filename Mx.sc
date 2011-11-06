@@ -330,6 +330,21 @@ Mx : AbstractPlayerProxy {
 			ticker = nil;
 		})
 	}
+	numBeats {
+		var max;
+		this.allUnits.do { arg unit;
+			var numb;
+			numb = unit.numBeats;
+			if(numb.notNil,{
+				if(max.isNil,{
+					max = numb
+				},{
+					max = max(max,numb)
+				})
+			})
+		};
+		^max
+	}
 
 	// API
 	getInlet { arg point,index;
