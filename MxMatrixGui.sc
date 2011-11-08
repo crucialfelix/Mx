@@ -287,6 +287,9 @@ MxMatrixGui : SCViewHolder {
 		target = this.getByCoord(x,y);
 		if(target.notNil,{
 			if(dragging.isKindOf(MxOutlet) and: {target.isKindOf(MxInlet)} and: {dragging !== target},{
+				if(modifiers.isShift.not,{
+					mx.disconnectOutlet(dragging)
+				});
 				mx.connect(nil,dragging,nil,target);
 				mx.update;
 				currentDragPoint = nil;
