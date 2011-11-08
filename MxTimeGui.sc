@@ -50,12 +50,14 @@ MxTimeGui : ObjectGui {
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
 			timeRuler.refresh;
-			// units
-			// zoom is off. but it will be changed to TimeRuler anyway
-			// playHead will update itself
+			this.zoom(0,maxTime,true);
 		}).smallGui(layout);
+		ActionButton(layout,"Rec to Disk",{
+			model.record(endBeat:maxTime);
+		}).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
+		
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
 		makeSidebar.value(nil,
 			{ arg m;
