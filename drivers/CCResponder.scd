@@ -40,7 +40,8 @@ MxUnit.register('CCResponder',
 		[~source.matchEvent.port,~source.matchEvent.chan,~source.matchEvent.ctlnum]
 	},
 	load: { arg data;
-		CCResponder(nil,data[0],data[1],data[2],true)
+		// data[0]  not sure if port is saveable like that
+		CCResponder(nil,nil,data[1],data[2],nil,true)
 	},
 	gui: { arg layout;
 		var l,ne,tb,ve;
