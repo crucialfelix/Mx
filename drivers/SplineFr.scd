@@ -38,7 +38,7 @@ MxUnit.register('SplineFr',
 	zoomTime: { arg from,to;
 		~splineGui.setZoom(from,to).update;
 	},
-	numBeats: {
+	beatDuration: {
 		~source.spline.points.last.x
 	},
 	record: { arg boo,atTime;

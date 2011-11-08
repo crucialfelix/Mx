@@ -45,7 +45,7 @@ MxTimeGui : ObjectGui {
 			
 		};
 
-		maxTime = (model.numBeats ? 480) + 32;
+		maxTime = (model.beatDuration ? 480) + 32;
 		CXLabel(layout,"MaxBeat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;

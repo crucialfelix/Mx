@@ -96,7 +96,7 @@ MxUnit.register('TotalTracker',
 	zoomTime: { arg from,to;
 		~tg.setZoom(from,to).update;
 	},
-	numBeats: {
+	beatDuration: {
 		max(~source.app.endsAtBeat,300)
 	},
 	gotoBeat: { arg beat,atBeat,bundle;

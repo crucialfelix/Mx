@@ -330,11 +330,11 @@ Mx : AbstractPlayerProxy {
 			ticker = nil;
 		})
 	}
-	numBeats {
+	beatDuration {
 		var max;
 		this.allUnits.do { arg unit;
 			var numb;
-			numb = unit.numBeats;
+			numb = unit.beatDuration;
 			if(numb.notNil,{
 				if(max.isNil,{
 					max = numb

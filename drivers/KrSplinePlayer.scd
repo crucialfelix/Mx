@@ -21,7 +21,9 @@ MxUnit.register('KrSplinePlayer',
 	load: { arg data;
 		KrSplinePlayer(*data)
 	},
-	
+	beatDuration: {
+		~source.beatDuration
+	},
 	gui: { arg layout;
 		~source.gen.spline.gui(layout)
 	}

@@ -27,6 +27,9 @@ KrSplinePlayer : AbstractPlayer {
 	defName {
 		^"ksp"++gen.spline.hash
 	}
+	beatDuration {
+		^gen.spline.points.last[0]
+	}
 	rate { ^\control }
 	spec { ^(spec ?? { \unipolar.asSpec }) }
 }

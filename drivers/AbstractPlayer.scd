@@ -32,7 +32,9 @@ MxUnit.register('AbstractPlayer',
 		~source.stop;
 		~source.play(group,1,bus)
 	},
-	
+	beatDuration: {
+		~source.beatDuration
+	},
 	save: {
 		if(~source.path.notNil,{
 			~source.enpath
