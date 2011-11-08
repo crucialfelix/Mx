@@ -671,7 +671,7 @@ MxMatrixGui : SCViewHolder {
 				t = this.inletArea(cable.inlet);
 			});
 			
-			if(f.notNil and: t.notNil,{
+			if(f.notNil and: t.notNil and: {cable.inlet.unit.source !== mx.master},{
 				c = cable.outlet.spec.color;
 				if(cable.active.not,{
 					c = Color(c.red,c.green,c.blue,0.2)
