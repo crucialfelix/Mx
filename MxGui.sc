@@ -2,7 +2,7 @@
 
 MxGui : AbstractPlayerGui {
 	
-	var boxes;
+	var boxes,drawerGui;
 
 	writeName {}
 	saveConsole { arg layout;
@@ -35,7 +35,16 @@ MxGui : AbstractPlayerGui {
 				});
 			})
 		});
-		d.gui(layout,bounds)
+		drawerGui = d.gui(layout,bounds);
+	}
+	keyDownResponder {
+		var kdr;
+		kdr = UnicodeResponder.new;
+		//  control s
+		kdr.register(   19  ,   false, false, false, true, {
+			drawerGui.focusSearch
+		});
+		^kdr	++ boxes.keyDownResponder
 	}
 }
 

@@ -121,7 +121,7 @@ MxMatrixGui : SCViewHolder {
 
 
 		// keys
-		view.keyDownAction = this.keyDownResponder;
+		//view.keyDownAction = this.keyDownResponder;
 
 		view.keyUpAction = { arg me,char,modifiers,unicode,keycode;
 			//this.handleByFocused('keyUpAction',[char,modifiers,unicode,keycode])

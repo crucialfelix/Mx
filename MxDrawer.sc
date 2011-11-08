@@ -104,7 +104,7 @@ MxDrawerGui : ObjectGui {
         searchBox.action = {
             this.search(searchBox.value)
         };
-        searchBox.focusColor = GUI.skin.focusColor;
+        searchBox.focusColor = Color.blue;
 
         // using ListView, though it cannot drag directly into a unit yet
         lv = ListView(layout,width@(layout.bounds.height-17-17-4-20));
@@ -164,6 +164,9 @@ MxDrawerGui : ObjectGui {
         items = keys.collect { arg k; MxDrawer.registery[k] };
         currentItemGroup = nil;
         lv.items = keys;
+    }
+    focusSearch {
+        searchBox.focus   
     }
     search { arg q;
         if(currentItemGroup.isNil,{
