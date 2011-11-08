@@ -219,12 +219,14 @@ Mx : AbstractPlayerProxy {
 		^(channels.at(chan) ? []).at(index)
 	}
 	put { arg chan,index,object;
-		var channel,unit,old;
 		if(channels[chan].isNil,{
 			this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
 			^this
 		});
-		channel = channels[chan];
+		^this.prPutToChannel(channels[chan],index,object)
+	}
+	prPutToChannel { arg channel,index,object;
+		var unit,old;
 		unit = MxUnit.make(object);
 		if(unit.notNil,{ // nil object is nil unit which is legal
 			this.registerUnit(unit);
@@ -240,7 +242,7 @@ Mx : AbstractPlayerProxy {
 		^unit
 	}
 	putMaster { arg index,object;
-		object.debug("put master not yet implemented")
+		^this.prPutToChannel(master,index,object)
 	}
 	move { arg chan,index,toChan,toIndex;
 		var moving,unit,unitg;
@@ -536,8 +538,6 @@ Mx : AbstractPlayerProxy {
 			})
 		});
 	}
-	
-	//////////  private  ////////////
 	disconnectCable { arg cable;
 		if(this.isPlaying,{
 			removing = removing.add( cable );
@@ -545,6 +545,8 @@ Mx : AbstractPlayerProxy {
 		});
 		cables.remove(cable);
 	}
+	
+	//////////  private  ////////////
 	clearPending {
 		removing = [];
 		adding = [];
