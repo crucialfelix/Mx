@@ -600,11 +600,11 @@ Mx : AbstractPlayerProxy {
 		var patched,autoCabled,ac,changed=false;
 		var addingCables=[],removingCables;
 
-		channels.do { arg chan;
+		(channels ++ [master]).do { arg chan;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
 				if(unit.notNil and: {unit.spec.isKindOf(AudioSpec)},{
-					if(cables.fromUnit(unit).any({ arg cable; cable.inlet.unit === chan.myUnit }).not,{
+					if(cables.fromUnit(unit).any({ arg cable; cable.outlet.unit.spec.isKindOf(AudioSpec) }).not,{
 						ac = MxCable( unit.outlets.first, chan.myUnit.inlets.first );
 						cables.add(ac);									addingCables = addingCables.add(ac);
 						changed = true;
