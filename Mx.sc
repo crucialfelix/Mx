@@ -381,9 +381,11 @@ Mx : AbstractPlayerProxy {
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not
 
-		cables.toUnit(inlet.unit).do { arg oldcable;
-			if(oldcable.inlet === inlet
-					and: {oldcable.inlet.unit.source.isKindOf(MxChannel).not}
+		cables.toInlet(inlet).do { arg oldcable;
+			if(oldcable.outlet === outlet,{
+				^this // already connected
+			});
+			if(oldcable.inlet.unit.source.isKindOf(MxChannel).not
 					and: {oldcable.active},{
 				this.disconnectCable(oldcable);
 			})
@@ -409,6 +411,13 @@ Mx : AbstractPlayerProxy {
 			})
 		};
 		^nil
+	}
+	disconnectCable { arg cable;
+		if(this.isPlaying,{
+			removing = removing.add( cable );
+			cable.pending = true;
+		});
+		cables.remove(cable);
 	}
 	disconnectUnit { arg unit;
 		cables.copy.do { arg cable;
@@ -545,13 +554,6 @@ Mx : AbstractPlayerProxy {
 			})
 		});
 	}
-	disconnectCable { arg cable;
-		if(this.isPlaying,{
-			removing = removing.add( cable );
-			cable.pending = true;
-		});
-		cables.remove(cable);
-	}
 	
 	//////////  private  ////////////
 	clearPending {
@@ -612,8 +614,8 @@ Mx : AbstractPlayerProxy {
 		(channels ++ [master]).do { arg chan;
 			chan.units.do { arg unit;
 				// should be auto cabled, and isn't already
-				if(unit.notNil and: {unit.spec.isKindOf(AudioSpec)},{
-					if(cables.fromUnit(unit).any({ arg cable; cable.outlet.unit.spec.isKindOf(AudioSpec) }).not,{
+				if(unit.notNil and: {unit.outlets.first.notNil} and: {unit.outlets.first.spec.isKindOf(AudioSpec)},{
+					if(cables.fromOutlet(unit.outlets.first).isEmpty,{
 						ac = MxCable( unit.outlets.first, chan.myUnit.inlets.first );
 						cables.add(ac);									addingCables = addingCables.add(ac);
 						changed = true;
