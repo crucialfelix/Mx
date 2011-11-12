@@ -131,12 +131,10 @@ MxTimeGui : ObjectGui {
 	}
 	zoom { arg argFrom,argTo,updateZoomControl=true;
 		this.prSetFromTo(argFrom,argTo);
-		model.channels.do { arg chan,ci;
-			chan.units.do { arg unit;
-				if(unit.notNil and: {unit.handlers.at('zoomTime').notNil},{
-					unit.zoomTime(from,to);
-				})
-			}
+		model.allUnits.do { arg unit;
+			if(unit.handlers.at('zoomTime').notNil,{
+				unit.zoomTime(from,to);
+			})
 		};
 		if(updateZoomControl,{
 			zoom.setSpan( from / maxTime, to / maxTime )
@@ -148,14 +146,10 @@ MxTimeGui : ObjectGui {
 		middle = (to - from) / 2.0;
 		newto = to - middle * percentage + middle;
 		newfrom = middle - (middle - from * percentage);
-		//[newfrom,newto].debug("zooming to");
 		newfrom = newfrom.clip(0,maxTime - round);
 		newto = newto.clip(newfrom + round,maxTime);
-		//[newfrom,newto].debug("zooming to");
 		newfrom = newfrom.round(round);
-		newto = newto.round(round);
-		//[newfrom,newto].debug("zooming to");
-		
+		newto = newto.round(round);		
 		this.zoom(newfrom,newto);
 	}
 	moveBy { arg percentage,round=4.0; // -1 .. 1
@@ -167,17 +161,6 @@ MxTimeGui : ObjectGui {
 		newfrom = from + stepBy;
 		newfrom = newfrom.clip(0.0,maxTime - range).round(round);
 		newto = newfrom + range;
-		
-//		//[newfrom,newto].debug("zooming to");
-//		newfrom = newfrom.clip(0,maxTime - round);
-//		newto = newto.clip(newfrom + round,maxTime);
-//		//[newfrom,newto].debug("zooming to");
-//		newfrom = newfrom.round(round);
-//		newto = newto.round(round);
-//		//[newfrom,newto].debug("zooming to");		
-//		newfrom = max(from + stepBy,0.0).round(round);
-//		newto = min(newfrom + range,maxTime);
-		//[newfrom,newto].debug("moveBy to");
 		this.zoom(newfrom,newto);
 	}
 	maxTime_ { arg mt;
@@ -185,6 +168,10 @@ MxTimeGui : ObjectGui {
 		zoomCalc.modelRange = [0,maxTime];
 		playZoomCalc.modelRange = [0,maxTime];
 		timeRuler.maxTime = maxTime;
+		model.allUnits.do { arg unit;
+			unit.callHandler('setMaxTime',maxTime)
+		};
+		
 	}
 	keyDownResponder {
 		var k,default;
