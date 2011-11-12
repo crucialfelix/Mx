@@ -96,13 +96,6 @@ Mx : AbstractPlayerProxy {
 		};
 		this.unitAddFrameRateDevices(unit)
 	}
-	unitAddFrameRateDevices { arg unit;
-		unit.handlers.use {
-			~frameRateDevices.value.do { arg dev;
-				this.addFrameRateDevice(dev)
-			}
-		};
-	}
 	registerChannel { arg chan,uid;
 		uid = this.register(chan,uid);
 		chan.myUnit.inlets.do { arg inlet;
@@ -178,8 +171,8 @@ Mx : AbstractPlayerProxy {
 		removing = removing.add( chan );
 		// cut any cables going to/from any of those units
 		chan.units.do { arg unit;
-			cables.fromUnit.do(this.disconnectCable(_));
-			cables.toUnit.do(this.disconnectCable(_));
+			cables.fromUnit(unit).do(this.disconnectCable(_));
+			cables.toUnit(unit).do(this.disconnectCable(_));
 		};
 	}
 	prMakeChannel { arg units;
@@ -282,11 +275,6 @@ Mx : AbstractPlayerProxy {
 				this.disconnectCable(cab)
 			})
 		};
-		/*autoCables.do { arg cab;
-			if(cab.inlet.unit === del or: {cab.outlet.unit === del},{
-				this.disconnectCable(cab)
-			})
-		};*/
 	}
 	removeUnit { arg unit;
 		channels.do { arg ch,ci;
@@ -297,11 +285,21 @@ Mx : AbstractPlayerProxy {
 			}
 		}
 	}
-	addFrameRateDevice { arg func;
-		frameRateDevices = frameRateDevices.add( MxFrameRateDevice(func) );
+	unitAddFrameRateDevices { arg unit;
+		unit.handlers.use {
+			~frameRateDevices.value.do { arg func;
+				this.addFrameRateDevice(func,unit)
+			}
+		};
+	}
+	addFrameRateDevice { arg func,forUnit;
+		frameRateDevices = frameRateDevices.add( MxFrameRateDevice(func,forUnit) );
 		if(this.isPlaying and: {ticker.isNil},{
 			this.startTicker
 		});
+	}
+	removeFrameRateDeviceForUnit { arg unit;
+		frameRateDevices.remove( frameRateDevices.detect({ arg frd; frd.source === unit }) )
 	}
 	startTicker { arg bundle;
 		ticker = Task({
@@ -493,6 +491,15 @@ Mx : AbstractPlayerProxy {
 			b = bundle ?? { MixedBundle.new };
 			removing.do { arg r;
 				r.freeToBundle(b);
+				b.addFunction({
+					if(r.isKindOf(MxChannel),{
+						r.units.do { arg u;
+							this.removeFrameRateDeviceForUnit(u)
+						}
+					},{
+						this.removeFrameRateDeviceForUnit(r)
+					})
+				})
 			};
 			// new channels
 			adding.do { arg a;

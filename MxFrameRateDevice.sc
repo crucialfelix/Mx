@@ -2,10 +2,10 @@
 
 MxFrameRateDevice {
 	
-	var <>func;
+	var <>func,<>source;
 	
-	*new { arg func;
-		^super.newCopyArgs(func)
+	*new { arg func,source;
+		^super.newCopyArgs(func,source)
 	}
 	
 	tick { arg time;
