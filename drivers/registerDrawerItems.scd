@@ -12,6 +12,16 @@ MxDrawer.add("SplineKr",{ KrSplinePlayer.new });
 
 MxDrawer.add("SplineFr",{ SplineFr.new });
 
+MxDrawer.add("MultiSplineFr",{ 
+	var b;
+	b = BezierSpline.fromPoints(
+						[[0,0,0,0,0],
+						[30,0,0,0,0],
+						 [60,0,0,0,0]]);
+	MultiSplineFr(b,spec:\unipolar.asSpec);
+});
+
+
 MxDrawer.addGroup("Instr",{
 	Instr.leaves.collect { arg instr; [instr.dotNotation ,instr] }
 },{ arg instr,instrname;
