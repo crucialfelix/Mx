@@ -673,7 +673,8 @@ MxMatrixGui : SCViewHolder {
 			},{
 				t = this.inletArea(cable.inlet);
 			});
-			
+
+	// this is blocking ones down the master column too
 			if(f.notNil and: t.notNil and: {cable.inlet.unit.source !== mx.master},{
 				c = cable.outlet.spec.color;
 				if(cable.active.not,{
@@ -685,7 +686,7 @@ MxMatrixGui : SCViewHolder {
 						c = Color(c.red,c.green,c.blue,0.6)
 					})
 				});
-				pen.color = Color(alpha:0.1);
+				pen.color = Color(alpha:0.4);
 				pen.width = 3;
 				fcenter = f.center;
 				tcenter = t.center;
@@ -713,7 +714,7 @@ MxMatrixGui : SCViewHolder {
 				// outlet
 				pen.color = dragging.spec.color;
 				pen.width = 2;
-				r = Rect(draggingXY.x,draggingXY.y,ioHeight,ioHeight).moveBy(ioHeight.neg / 2,ioHeight.neg / 2);
+				r = Rect(draggingXY.x,draggingXY.y,4,4).moveBy(ioHeight.neg / 2,ioHeight.neg / 2);
 				pen.fillOval( r );
 				pen.color = Color.blue;
 				pen.strokeOval( r );
