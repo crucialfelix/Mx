@@ -16,7 +16,7 @@ MxJack {
 		// ArraySpec
 		
 		if(spec.isKindOf(TrigSpec),{
-			^MxTrJack.new
+			^MxTrJack(defArg ? spec.default,spec)
 		});
 		if(spec.isKindOf(StaticSpec),{
 			^NumberEditor(defArg ? spec.default,spec)
@@ -152,6 +152,9 @@ MxArJack : MxControlJack {
 
 MxIrJack : MxControlJack {
 
+	*new { arg value,spec;
+		^super.newCopyArgs(value,spec)
+	}
 	addToSynthDef {  arg synthDef,name;
 		synthDef.addIr(name,value);
 	}
@@ -164,6 +167,12 @@ MxIrJack : MxControlJack {
 
 MxTrJack : MxControlJack {
 
+	*new { arg value,spec;
+		^super.newCopyArgs(value,spec)
+	}
+	addToSynthDef {  arg synthDef,name;
+		synthDef.addTr(name,value);
+	}
 }
 
 
