@@ -642,6 +642,9 @@ Mx : AbstractPlayerProxy {
 			this.stopTicker(bundle)
 		});
 	}
+	gui { arg layout,bounds;
+		^super.gui(layout,bounds ?? {Rect(100,100,900,600)})
+	}
 	guiClass { ^MxGui }
 
 	draw { arg pen,bounds,style;
