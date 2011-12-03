@@ -32,8 +32,8 @@ MxCableCollection : List {
 		fromUnits[h] = fromUnits[h].add(cable);
 	}
 	remove { arg cable;
-		toUnits.at(cable.inlet.unit.identityHash).remove(cable) !? { toUnits.removeAt(cable.inlet.unit.identityHash) };
-		fromUnits.at(cable.outlet.unit.identityHash).remove(cable) !? { fromUnits.removeAt(cable.outlet.unit.identityHash) };
+		toUnits.at(cable.inlet.unit.identityHash).remove(cable);
+		fromUnits.at(cable.outlet.unit.identityHash).remove(cable);
 		^super.remove(cable);
 	}
 	toUnit { arg unit;

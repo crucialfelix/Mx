@@ -14,6 +14,10 @@ MxCable {
 	init {
 		state = Environment.new;
 	}
+	asString {
+		^format("MxCable: % [%] -> % [%]",this.outlet.unit.source.class,this.outlet.adapter.class,
+								this.inlet.unit.source.class,this.inlet.adapter.class)
+	}
 	strategy {
 		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ] ?? {
 			Error("No MxCableStrategy found for" + outlet + outlet.adapter + "=>" + inlet + inlet.adapter ).throw
@@ -90,6 +94,7 @@ MxCable {
 							bus
 						]);
 				~cableGroup = Group.basicNew(cable.inlet.adapter.server);
+				AbstractPlayer.annotate(~cableGroup,cable.asString);
 				bundle.add( ~cableGroup.addToHeadMsg(cable.inlet.adapter.group) );
 
 				~cableKr.prepareToBundle(~cableGroup,bundle);
@@ -130,6 +135,7 @@ MxCable {
 							
 					group = cable.inlet.adapter.group;
 					~synth = Synth.basicNew(def.name,group.server);
+					AbstractPlayer.annotate(~synth,cable.asString);
 					bundle.add( ~synth.addToHeadMsg(group,[inbus.index,outbus.index]) );
 				}
 			},{ arg cable,bundle;
@@ -139,7 +145,7 @@ MxCable {
 					bundle.add( synth.freeMsg )
 				})
 			})
-		);	
+		);			
 
 		this.register(\MxHasAction,\MxHasKrJack,
 			// always active, doesn't wait for play
@@ -236,10 +242,14 @@ MxCableStrategy {
 				connectf.value(cable,bundle)
 			}
 		},{ arg exc;
+			"".postln;
 			"MxCableStrategy failed".error;
-			(cable.outlet.adapter.class.asString + "->" + cable.inlet.adapter.class ).postln;
+			cable.asString.postln;
 			cable.outlet.dump;
+			cable.outlet.unit.source.dump;
+			"===>".postln;
 			cable.inlet.dump;
+			cable.inlet.unit.source.dump;
 			exc.reportError;
 			this.halt;
 		})

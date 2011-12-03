@@ -36,7 +36,8 @@ MxHasKrJack : AbsMxFuncAdapter {}
 
 MxPlaysOnBus : AbsMxFuncAdapter {}
 MxPlaysOnKrBus : AbsMxFuncAdapter {} 
-MxListensToBus : MxPlaysOnBus {}
+MxListensToBus : AbsMxFuncAdapter {}
+MxChannelInputAdapter : AbsMxFuncAdapter {}
 
 MxSetter : AbsMxFuncAdapter {}
 MxHasAction : AbsMxFuncAdapter {}

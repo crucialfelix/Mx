@@ -10,11 +10,12 @@ MxMatrixGui : SCViewHolder {
 	var selected,hovering,dragging;
 	var points;
 	
-	var <>ioHeight=10,<>faderHeight=100.0;
+	var <>ioHeight=10,<>faderHeight=80.0;
 
 	var <>dragOn=4; // pixel distance to initiate drag or a symbol like \isCntrl
 	var <>background,<styles,<defaultStyle;
-	var pen, boxWidth,boxHeight,boxBounds;
+	var pen, boxWidth,boxHeight,boxBounds, font;
+	var plus,mainInlets,mainOutlets,mainPlus;
 
 	*new { arg mx, w, bounds;
 		^super.new.init(mx,w, bounds);
@@ -26,8 +27,9 @@ MxMatrixGui : SCViewHolder {
 		mx = argmx;
 		skin = GUI.skin;
 		pen = GUI.pen;
+		font = Font(skin.fontSpecs.first,9);
 		defaultStyle = (
-			font: GUI.font.new(*skin.fontSpecs),
+			font: font,
 			fontColor: skin.fontColor,
 			boxColor: skin.offColor,
 			borderColor: skin.foreground,
@@ -38,7 +40,7 @@ MxMatrixGui : SCViewHolder {
 		this.calcNumRows;
 		selected = [];
 		boxWidth = 100.0;//bounds.width.asFloat / numCols;
-		boxHeight = 80.0;//min( (bounds.height.asFloat - faderHeight) / numRows, 80 );
+		boxHeight = 50.0;//min( (bounds.height.asFloat - faderHeight) / numRows, 80 );
 	   
 		// will leave room for mixer control at bottom
 		bounds = argbounds ?? {Rect(20, 20, min(numCols * boxWidth,1000), numRows * boxHeight + faderHeight + ioHeight + ioHeight)};
@@ -300,13 +302,13 @@ MxMatrixGui : SCViewHolder {
 			})
 		});
 		// to a unit
-		if(dragging.isKindOf(MxUnit),{
+		if(dragging.isKindOf(MxUnit) and: {target.isKindOf(MxChannel).not},{
 			// move it, copy it, replace it
 			if(modifiers.isAlt,{
-				this.put(targetPoint.x,targetPoint.y, dragging.copySource );
+				this.put(this.asChannelIndex(targetPoint.x), targetPoint.y, dragging.copySource );
 			},{
 				dp = points[dragging];
-				mx.move(dp.x,dp.y,targetPoint.x,targetPoint.y)
+				mx.move(this.asChannelIndex(dp.x), dp.y, this.asChannelIndex(targetPoint.x), targetPoint.y)
 			});
 			mx.update;
 		},{
@@ -317,7 +319,7 @@ MxMatrixGui : SCViewHolder {
 					if(fi >= mx.channels.size,{
 						mx.extendChannels(fi)
 					});
-					mx.connect(nil,dragging,nil,mx.channels[fi].myUnit.inlets.first);
+					mx.connect(nil, dragging, nil, mx.channels[fi].myUnit.inlets.first);
 					mx.update;
 				});
 			})
@@ -334,7 +336,9 @@ MxMatrixGui : SCViewHolder {
 		draggingXY = x@y;
 		this.view.refresh;
 	}
-
+	asChannelIndex { arg x;
+		^if(x == masterCol,inf,x)
+	}
 	focusedUnit {
 		^focusedPoint !? {
 			this.getUnit(focusedPoint)
@@ -356,7 +360,7 @@ MxMatrixGui : SCViewHolder {
 		var lastRow,bounds;
 		points = IdentityDictionary.new;
 		bounds = view.bounds;
-		lastRow = (bounds.height / boxHeight).floor - 1;
+		lastRow = (boxBounds.height / boxHeight).floor - 1;
 		masterCol = (bounds.width / boxWidth).floor - 1;
 		mx.channels.do { arg ch,ci;
 			ch.units.do { arg un,ri;
@@ -365,7 +369,7 @@ MxMatrixGui : SCViewHolder {
 				}
 			};
 			// or should it put the fader there ?
-			points[ch.myUnit] = ci@(lastRow);
+			points[ch.myUnit] = ci@(lastRow + 1);
 		};
 		// should be all outlets
 		mx.master.units.do { arg un,ri;
@@ -374,7 +378,7 @@ MxMatrixGui : SCViewHolder {
 			}
 		};
 		// or master fader
-		points[mx.master.myUnit] = masterCol@lastRow
+		points[mx.master.myUnit] = masterCol@(lastRow + 1)
 	}
 	calcBoxBounds {
 		var n;
@@ -388,6 +392,8 @@ MxMatrixGui : SCViewHolder {
 	fadersBounds {
 		^Rect(0,boxBounds.bottom,boxBounds.width, faderHeight)
 	}
+	getFaderBounds { arg chani;
+		^Rect(chani * boxWidth,boxBounds.bottom,boxWidth,faderHeight)	}
 	detectFader { arg p; // which fader is the point inside of ?
 		var fb;
 		fb = this.fadersBounds;
@@ -419,7 +425,7 @@ MxMatrixGui : SCViewHolder {
 	}
 
 	getUnit { arg boxPoint;
-		if(boxPoint.x == mx.channels.size,{
+		if(boxPoint.x == masterCol,{
 			^mx.master.units[boxPoint.y]
 		},{
 			^mx.at(boxPoint.x,boxPoint.y)
@@ -462,7 +468,11 @@ MxMatrixGui : SCViewHolder {
 				^mx.channels.at(fi)
 			});
 		});	
-			
+		// + in top left
+		if(plus.contains(p),{
+			^nil // not yet
+		});
+		
 		// top level inlets
 		if(mx.inlets.size > 0,{
 			if(p.y < ioHeight) {
@@ -497,14 +507,12 @@ MxMatrixGui : SCViewHolder {
 		^Rect(boxPoint.x * boxWidth, boxPoint.y * boxHeight + boxBounds.top, boxWidth, boxHeight)
 	}
 	mouseDownIsDragStart { arg modifiers,x,y;
-		var boo;
 		if(dragOn.isNumber,{
 			// wait for mouse move to confirm
 			^false
 		},{
 			// immediate pick up
-			boo = modifiers.perform(dragOn);
-			^boo
+			^modifiers.perform(dragOn);
 		})
 	}
 	isDragging { arg modifiers,x,y;
@@ -552,21 +560,28 @@ MxMatrixGui : SCViewHolder {
 		lets.do { arg outlet,i;
 			var or;
 			or = this.ioArea(ioarea,i,iowidth);
-			pen.color = outlet.spec.color;
-			pen.fillRect(or.insetBy(1,1));
-			if(selected.includes(outlet),{
-				pen.color = styles['selected']['borderColor']
-			},{
-				pen.color = Color(0.64179104477612, 0.64179104477612, 0.64179104477612, 0.5134328358209);
-			});
-			pen.strokeRect(or);
-			pen.color = Color.black;
-			pen.use {
-				pen.font = Font( "Helvetica", 9 );
-				pen.stringLeftJustIn(outlet.name.asString,or.insetBy(1,1))
-			}
+			this.drawIOletBox(or,outlet.spec.color,selected.includes(outlet),outlet.name.asString);
 		}
 	}
+	drawIOletBox { arg rect,color,isSelected,title,center=false;
+		pen.color = color;
+		pen.fillRect(rect.insetBy(1,1));
+		if(isSelected,{
+			pen.color = styles['selected']['borderColor']
+		},{
+			pen.color = Color(0.64179104477612, 0.64179104477612, 0.64179104477612, 0.5134328358209);
+		});
+		pen.strokeRect(rect);
+		pen.color = Color.black;
+		pen.use {
+			pen.font = font;
+			if(center,{
+				pen.stringCenteredIn(title,rect.insetBy(1,1))
+			},{
+				pen.stringLeftJustIn(title,rect.insetBy(1,1))
+			})
+		}
+	}		
 	drawGrid {
 		var d,box,style,r,fb;
 
@@ -629,11 +644,24 @@ MxMatrixGui : SCViewHolder {
 		this.calcBoxBounds;
 
 		points.keysValuesDo { arg unit,p;
-			d.value(this.getBounds(p),unit,nil,p);
+			var r;
+			if(unit.source.class === MxChannel,{
+				r = this.getFaderBounds(p.x)
+			},{
+				r = this.getBounds(p);
+			});
+			d.value(r,unit,nil,p);
 		};
+		plus = Rect(bounds.left,bounds.top,boxWidth,ioHeight);
+		mainInlets = Rect(bounds.left,bounds.top,bounds.width,ioHeight);
+		mainPlus = Rect(bounds.left,0,boxWidth,ioHeight).bottom_(bounds.bottom);
+		mainOutlets = Rect(bounds.left + boxWidth,bounds.top,bounds.width - boxWidth,ioHeight).bottom_(bounds.bottom);
+		
+		this.drawIOletBox(plus, Color(0.0, 0.23880597014925, 1.0, 0.35820895522388), false, "+",true );
+		
 		// main inlets / outlets
-		this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight),mx.inlets);
-		this.drawIOlets(Rect(bounds.left,bounds.top,bounds.width,ioHeight).bottom_(bounds.bottom),mx.outlets);
+		this.drawIOlets(mainInlets,mx.inlets);
+		this.drawIOlets(mainOutlets,mx.outlets);
 
 		// draw focused on top so border style wins out against neighbors
 		if(focusedPoint.notNil,{
@@ -645,12 +673,14 @@ MxMatrixGui : SCViewHolder {
 			d.value(this.getBounds(this.focusedPoint),mx.at(this.focusedPoint.x,this.focusedPoint.y),style, this.focusedPoint );
 		});
 
-		// inlets that can accept
+		// show:
+		// inlets that can accept what you are dragging
 		// hovering
 		
 		fb = this.fadersBounds;
 		mx.cables.do { arg cable,i;
 			var f,t,c,chan,ci,fcenter,tcenter;
+			
 			f = this.outletArea(cable.outlet);
 	
 			// if its to a MxChannel then draw to fader top
@@ -674,19 +704,18 @@ MxMatrixGui : SCViewHolder {
 				t = this.inletArea(cable.inlet);
 			});
 
-	// this is blocking ones down the master column too
-			if(f.notNil and: t.notNil and: {cable.inlet.unit.source !== mx.master},{
+			if(f.notNil and: t.notNil,{
 				c = cable.outlet.spec.color;
 				if(cable.active.not,{
 					c = Color(c.red,c.green,c.blue,0.2)
 				},{
 					if(cable.inlet.unit.source === mx.master,{
-						c = Color(c.red,c.green,c.blue,0.4)
+						c = Color(c.red,c.green,c.blue,0.1)
 					},{
 						c = Color(c.red,c.green,c.blue,0.6)
 					})
 				});
-				pen.color = Color(alpha:0.4);
+				pen.color = Color(alpha:0.25);
 				pen.width = 3;
 				fcenter = f.center;
 				tcenter = t.center;
@@ -695,8 +724,8 @@ MxMatrixGui : SCViewHolder {
 				pen.stroke;
 				pen.color = c;
 				pen.width = 1;
-				pen.moveTo(f.center);
-				pen.lineTo(t.center);
+				pen.moveTo(fcenter);
+				pen.lineTo(tcenter);
 				pen.stroke;
 			})
 		};
@@ -770,32 +799,33 @@ MxMatrixGui : SCViewHolder {
 	}
 
 	// rearranging
-//	  copy { arg fromBoxPoint,toBoxPoint;
-////		var box;
-////		box = this.getBox(fromBoxPoint).copy;
-////		box.point = toBoxPoint;
-////		boxes.put(toBoxPoint,box);
-//	  }
-//	  clear { arg point;
-////		boxes.removeAt(point);
-//	  }
-//	  clearAll {
-//		  boxes = Dictionary.new;
-//	  }
-//	  move { arg fromBoxPoint,toBoxPoint;
-////		if(fromBoxPoint != toBoxPoint,{
-////			this.copy(fromBoxPoint,toBoxPoint);
-////			this.clear(fromBoxPoint);
-////		});
-//	  }
-//	  swap { arg fromBoxPoint,toBoxPoint;
-////		var tmp;
-////		tmp = this.getBox(toBoxPoint).copy;
-////		this.copy(fromBoxPoint,toBoxPoint);
-////		tmp.point = toBoxPoint;
-////		boxes[toBoxPoint] = tmp;
-//	  }
-
+	/*
+	  copy { arg fromBoxPoint,toBoxPoint;
+		var box;
+		box = this.getBox(fromBoxPoint).copy;
+		box.point = toBoxPoint;
+		boxes.put(toBoxPoint,box);
+	  }
+	  clear { arg point;
+		boxes.removeAt(point);
+	  }
+	  clearAll {
+		  boxes = Dictionary.new;
+	  }
+	  move { arg fromBoxPoint,toBoxPoint;
+		if(fromBoxPoint != toBoxPoint,{
+			this.copy(fromBoxPoint,toBoxPoint);
+			this.clear(fromBoxPoint);
+		});
+	  }
+	  swap { arg fromBoxPoint,toBoxPoint;
+		var tmp;
+		tmp = this.getBox(toBoxPoint).copy;
+		this.copy(fromBoxPoint,toBoxPoint);
+		tmp.point = toBoxPoint;
+		boxes[toBoxPoint] = tmp;
+	  }
+	*/
 
 	// the key responders are passed to the FOCUSED box
 	// box, char,modifiers,unicode,keycode

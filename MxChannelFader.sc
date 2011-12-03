@@ -1,5 +1,40 @@
 
 
+
+MxChannelInput : AbstractPlayerProxy {
+	/* 
+		used to listen to a bus that one or more units are playing onto
+	*/
+
+	classvar cInstr;
+
+	var instr,busJack,<>numChannels=2;	
+	
+	*new { ^super.new.init }
+	init {
+		var instr;
+		instr = MxChannelInput.instr;
+		busJack = MxIrJack(126).spec_(instr.specs.at(0));
+		source = Patch(instr,[ this.numChannels,busJack ])
+	}
+	prepareToBundle { arg agroup,bundle,private = false, argbus;
+		super.prepareToBundle(agroup,bundle,private , argbus);
+		busJack.value = this.bus.index;
+	}
+	
+	*instr {
+		^cInstr ?? {
+			cInstr = Instr("MxChannelInput", { arg numChannels=2,bus;
+						In.ar(bus,numChannels)
+					},[
+						StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
+						StaticIntegerSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
+					],AudioSpec.new);
+		}
+	}	
+}
+
+
 MxChannelFader : AbstractPlayerProxy {
 
 	classvar cInstr;
@@ -88,10 +123,10 @@ MxChannelFader : AbstractPlayerProxy {
 	}
 		
 	*channelInstr {
-		// or create it on the fly so the on trigs can go
-		// could also pass those in
+		// or create it on the fly so the on trigs can be sent
+		// could also pass a responder function in
 		^cInstr ?? {
-			cInstr = Instr("MxChannel.channelStrip",{ arg numChannels=2,inBus=126,
+			cInstr = Instr("MxChannelFader",{ arg numChannels=2,inBus=126,
 									db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12;
 						var ok,threshold,c,k,in;
 						in = In.ar(inBus,numChannels);

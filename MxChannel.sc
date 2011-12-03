@@ -2,34 +2,42 @@
 
 MxChannel : AbstractPlayerProxy {
 
-	var <>units,<fader;
+	var <>units,<fader,<input;
 	
 	var <numChannels=2,<>pending=false;
 
-	var <myUnit,unitGroups,<mixGroup;
+	var <myUnit,<unitsGroup,unitGroups,<mixGroup;
 	var adding,removing;
 
 	*new { arg units, faderArgs;
-		var fader;
+		var fader,nc;
 		units = units ? [];
 		if(faderArgs.isNil,{
-			fader = MxChannelFader(numChannels:units.maxValue(_.numChannels) ? 2)
+			nc = max(units.maxValue(_.numChannels) ? 2,2);
+			fader = MxChannelFader(numChannels: nc)
 		},{
 			fader = MxChannelFader(*faderArgs)
 		});
-		^super.new.init(units,fader)
+		^super.new.init(units,fader,nc)
 	}
 	storeArgs { 
 		^[units.collect({|u| u !? {u.saveData}}),fader.storeArgs] 
 	}
 
-	init { arg argunits,argfader;
+	init { arg argunits,argfader,nc;
 		units = argunits;
 		unitGroups = Array.newClear(units.size);
 		fader = argfader;
 		source = fader; // 2 proxy layers
+		numChannels = nc ? 2;
 		myUnit = MxUnit.make(this);
 	}
+	makeInput {
+		input = MxChannelInput.new;
+		input.numChannels = numChannels;
+		input = MxUnit.make(input);
+		this.put(0,input);
+	}		
 	at { arg index;
 		^units[index]
 	}
@@ -88,7 +96,6 @@ MxChannel : AbstractPlayerProxy {
 		
 	move { arg fromIndex,toIndex;
 		var moving,g,oldg,old;
-
 		moving = units[fromIndex];
 		if(moving.notNil,{
 			units.put(fromIndex,nil);
@@ -126,20 +133,36 @@ MxChannel : AbstractPlayerProxy {
 		// if has a to-destination then play on a private bus
 		// and the Mx will cable it to that destination
 		// else play on public/main out => this is a master channel
+		var inputGroup;
 		group = groupToUse ?? {
 			group = Group.basicNew(parentGroup.server);
 			bundle.add( group.addToTailMsg(parentGroup) );
+			this.annotate(group);
 			group
 		};
+		super.prepareToBundle(group,bundle,private,bus);
+		
+		if(input.notNil,{
+			inputGroup = Group.basicNew(this.server);
+			this.annotate(inputGroup,"inputGroup");
+			bundle.add( inputGroup.addToHeadMsg(group) );
+			input.prepareToBundle( inputGroup, bundle, true );
+			input.source.insp("prepared input");
+		});
+		unitsGroup = Group.basicNew(this.server);
+		this.annotate(unitsGroup,"units");
+		bundle.add( unitsGroup.addToTailMsg(group) );
 		
 		units.do { arg u,i;
 			if(u.notNil,{
 				this.groupForIndex(i,bundle);
 			});
 		};
+		
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
-
+		this.annotate(mixGroup,"mixGroup");
+		
 		// fader
 		source.prepareToBundle(mixGroup,bundle,true,bus);
 		units.do { arg unit,i;
@@ -149,9 +172,7 @@ MxChannel : AbstractPlayerProxy {
 		};
 		adding = removing = nil; // all taken care of
 	}
-	prepareChildrenToBundle { arg bundle;
-		// fader is prepared during prepare
-	}	
+	prepareChildrenToBundle { arg bundle; }
 	loadDefFileToBundle { arg b,server;
 		// units would load during prepare
 		fader.loadDefFileToBundle(b,server)
@@ -175,14 +196,27 @@ MxChannel : AbstractPlayerProxy {
 			});
 		};
 		super.spawnToBundle(bundle);
+		if(input.notNil,{
+			input.spawnToBundle(bundle);
+		});
 		adding = removing = nil;
+	}
+	stopToBundle { arg bundle;
+		if(input.notNil,{
+			input.stopToBundle(bundle)
+		});
+		super.stopToBundle(bundle);
 	}
 	freeToBundle { arg bundle;
 		super.freeToBundle(bundle);
-		if(mixGroup.notNil,{
-			bundle.add( mixGroup.freeMsg );
+		mixGroup.freeToBundle(bundle);
+				
+		if(input.notNil,{
+			input.freeToBundle( bundle );
+			input.group.freeToBundle( bundle );
 		});
-		unitGroups.do { arg u;
+		unitsGroup.freeToBundle(bundle);
+		unitGroups.do { arg u; // already gone, right ?
 			if(u.notNil,{
 				bundle.add( u.freeMsg );
 			});
@@ -224,6 +258,7 @@ MxChannel : AbstractPlayerProxy {
 		var g;
 		^unitGroups.at(index) ?? {
 			g = Group.basicNew(this.server);
+			this.annotate(g,"unit"+index);
 			bundle.add( this.addUnitGroupMsg(index,g) );
 			if(unitGroups.size < index,{
 				unitGroups = unitGroups.extend(index,nil);
@@ -238,7 +273,7 @@ MxChannel : AbstractPlayerProxy {
 		if(prev.notNil,{
 			^g.addAfterMsg(prev)
 		},{
-			^g.addToHeadMsg(this.group)
+			^g.addToHeadMsg(unitsGroup)
 		});
 	}
 	moveUnitGroupMsg { arg index,g;
