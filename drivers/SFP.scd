@@ -67,7 +67,6 @@ MxUnit.register('SFP',(
 		~fratio = ~fbeats / maxTime;// if > 1 maxTime should have been higher
 		~maxTime = maxTime;
 		
-		bounds.insp("given to timeGui");
 		~view = SoundFileView(layout, Rect(0,0, bounds.width, 60));
 		~view.soundfile = ~source.file;
 		~view.gridOn = false;
