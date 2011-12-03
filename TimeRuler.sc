@@ -16,6 +16,7 @@ TimeRuler {
 
 	var <maxTime;	
 	var view,zoomCalc,gridLines;
+	var <position;
 	
 	*new { arg layout,bounds,maxTime;
 		^super.new.init(layout,bounds,maxTime)
@@ -31,8 +32,20 @@ TimeRuler {
 		view = UserView(layout,bounds);
 		gridLines = GridLines(view,bounds,nil,[0.0,maxTime].asSpec,true,false);
 		view.drawFunc = {
-			gridLines.draw	
-		}
+			gridLines.draw;
+			if((position ? -1).inclusivelyBetween(*zoomCalc.zoomedRange),{
+				Pen.use {
+					var x;
+					Pen.width = 1;
+					Pen.color = Color.blue;
+					x = zoomCalc.modelToDisplay(position);
+					Pen.moveTo( x@0 );
+					Pen.lineTo( x@bounds.height );
+					Pen.stroke;
+				}
+			})
+		};
+		view.focusColor = GUI.skin.focusColor ? Color.clear;
 	}
 	refresh {
 		view.refresh
@@ -47,7 +60,19 @@ TimeRuler {
 		zoomCalc.modelRange = [0.0,maxTime];
 		gridLines.domainSpec = [0.0,maxTime].asSpec;
 	}
+	position_ { arg p;
+		position = p;
+		view.refresh;	
+	}
 	keyDownAction_ { arg f;
 		view.keyDownAction = f;
+	}
+	mouseDownAction_ { arg f;
+		view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+			f.value( zoomCalc.displayToModel(x), modifiers,buttonNumber,clickCount )
+		}
+	}
+	isClosed {
+		^view.isClosed
 	}
 }

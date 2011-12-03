@@ -5,7 +5,7 @@ MxTimeGui : ObjectGui {
 	var <from,<to,<maxTime,zoomCalc,playZoomCalc;
 	var xScale;
 	var <>laneHeight=150;
-	var zoom,playHead,timeRuler,updater,units;
+	var zoom,timeRuler,updater,units;
 	
 	writeName {}
 	guiBody { arg layout;
@@ -59,19 +59,24 @@ MxTimeGui : ObjectGui {
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
 		
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
-		makeSidebar.value(nil,
+		makeSidebar.value({ arg s;
+			// goto start
+				ActionButton(s,"|<",{model.gotoBeat(0,1)})
+			},
 			{ arg m;
 				timeRuler = TimeRuler(m,Rect(0,0,m.bounds.width,buttonHeight * 2),maxTime);
 			});
 		timeRuler.keyDownAction = kdr;
-		
+		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
+			model.gotoBeat( beat.trunc(4)  )		
+		};
 		this.prSetFromTo(0.0,maxTime);
 		
 		// zoom controls
 		makeSidebar.value({ arg s;
 			ActionButton(s,"<-zoom->",{this.zoom(0,maxTime,true)})
 		},{ arg m;
-			zoom = SCRangeSlider(m,m.bounds.width@buttonHeight);
+			zoom = RangeSlider(m,m.bounds.width@buttonHeight);
 		});
 		zoom.lo = 0.0;
 		zoom.hi = 1.0;
@@ -80,24 +85,10 @@ MxTimeGui : ObjectGui {
 		zoom.keyDownAction = kdr;
 		zoom.focusColor = focusColor;
 
-		makeSidebar.value({ arg s;
-			// goto start
-				ActionButton(s,"|<",{model.gotoBeat(0,1)})
-			},{ arg m;
-				playHead = SCSlider(m,m.bounds.width@buttonHeight);
-			});
-		playHead.background = Color(0.36241707801819, 0.55301971435547, 0.60233759880066, 1);
-		playHead.knobColor = Color.black;
-		playHead.thumbSize = buttonHeight / 3.0;
-		playHead.action = { arg mg;
-			model.gotoBeat( playZoomCalc.displayToModel(mg.value).trunc(4)  )
-		};
-		playHead.keyDownAction = kdr;
-		playHead.focusColor = focusColor;
 		updater = Updater(model.position,{ arg pos;
 			{
-				if(playHead.isClosed.not,{// in case closed while deferring
-					playHead.value = playZoomCalc.modelToDisplay(pos.current) ? 0;
+				if(timeRuler.isClosed.not,{
+					timeRuler.position = pos.current;
 				})
 			}.defer
 		}).removeOnClose(layout);

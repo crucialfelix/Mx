@@ -2,7 +2,7 @@
 	
 ZoomCalc {
 
-	var <>modelRange,<>displayRange,zoomedRange;
+	var <>modelRange,<>displayRange,<zoomedRange;
 	var displaySpec,zoomedSpec;
 	
 	*new { arg modelRange,displayRange;
