@@ -118,12 +118,14 @@ MultiSplineFrGui : ObjectGui {
 		layout.startRow;
 		CXLabel(layout,"Theta",75);
 		thetas = MultiSliderView(layout,100@150);
+		thetas.value = Array.fill(model.spline.points.size - 1,{0.5});
 		thetas.action = {
 			this.setControlPoints;
 			model.initTable.changed;
 		};
 		CXLabel(layout,"Rho",75);
 		rhos = MultiSliderView(layout,100@150);
+		rhos.value = Array.fill(model.spline.points.size - 1,{0.5});
 		rhos.action = {
 			this.setControlPoints;
 			model.initTable.changed;
@@ -133,7 +135,8 @@ MultiSplineFrGui : ObjectGui {
 		
 	}
 	update { arg who,what;
-		var v;
+		var v,stop;
+		stop = model.spline.points.size - 1;
 		if(who.isKindOf(BezierSpline),{
 			// update from editable spline
 			who.points.do { arg p,i;
@@ -145,7 +148,7 @@ MultiSplineFrGui : ObjectGui {
 					model.spline.points[i][di] = p[1]
 				})
 			};
-			model.spline.controlPoints = Array.fill(model.spline.points.size - 1,{ arg i;
+			model.spline.controlPoints = Array.fill(stop,{ arg i;
 				var gp;
 				// return [ ] or [ [t,x,y,z] ]
 				if(who.controlPoints[i].size == 0,{
@@ -195,7 +198,14 @@ MultiSplineFrGui : ObjectGui {
 			times.value = v = v.copyToEnd(1);
 			times.thumbSize = times.bounds.width / v.size * 0.9;
 	
-			pointSelector.spec = [-1,model.spline.points.size-1,'lin',1].asSpec;
+			if( thetas.value.size != stop,{
+				thetas.value = Array.fill(stop,{0.5});
+			});
+			if( rhos.value.size != stop,{
+				rhos.value = Array.fill(stop,{0.5});
+			});
+
+			pointSelector.spec = [-1,stop,'lin',1].asSpec;
 			pointSelector.value = model.focusedPoint ? -1;
 			focusedDim.spec = [1,model.spline.numDimensions-1,\lin,1].asSpec;
 			// bad juggling : if the update did not come due to the splineGui
@@ -239,31 +249,26 @@ MultiSplineFrGui : ObjectGui {
 		^bs
 	}
 	setControlPoints {
-		/*
 		var t,r;
-		t = thetas.value * 2pi;
+		t = thetas.value - 0.5 * 2pi / 32.0;
 		r = rhos.value;
-		model.spline.controlPoints = model.spline.controlPoints.collect { arg cps,i;
-			var prev,current,vs,vals,cp;
-			
+		model.spline.controlPoints = Array.fill(model.spline.points.size - 1, { arg i;
+			var prev,next,newCP;
 			prev = model.spline.points[i];
-			current = model.spline.points[i];
-			vs = (current - prev);
-
-			cp = 
-			
-
-			vals = [ prev[0] + (vs[0] * ];
-			vs.do { arg vector,i;
-				var v;
-				if(i > 0,{
-					v = vector.asPolar.rotate(t[i-1]).scale( r[i-1] ).asPoint;
-					vals = vals.add( Point(
-				})
-				
-					
-			xx = [
-		*/
+			next = model.spline.points.clipAt(i+1);
+			newCP = [ blend( prev[0], next[0], r[i] ? 0.5 ) ];
+			model.numDimensions.do { arg di;
+				var vs,vals,cp,p,n,newDimCp;
+				di = di + 1;
+				p = Point( prev[0], prev[di] );
+				n = Point( next[0], next[di] );
+				vs = (n - p).asPolar;
+				vs = vs.rotate( t[i] );
+				newDimCp = p + vs.asPoint;
+				newCP = newCP.add( newDimCp.y );
+			};
+			[newCP]
+		});	
 	}
 	setZoom { arg argFromX,argToX;
 		splineGui.setZoom(argFromX,argToX).update;
