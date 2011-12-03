@@ -107,7 +107,7 @@ MxDrawerGui : ObjectGui {
         searchBox.focusColor = Color.blue;
 
         // using ListView, though it cannot drag directly into a unit yet
-        lv = ListView(layout,width@(layout.bounds.height-17-17-4-20));
+        lv = ListView(layout,width@(layout.bounds.height-17-4));
 
         // all top level items, nothing unfolded
         this.drillUp;
