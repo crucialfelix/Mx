@@ -70,6 +70,9 @@ MxControlJack : MxJack { // abstract
 		}
 	}
 	stopToBundle { arg bundle;
+		//bundle.addFunction({ patchOut.free; patchOut = nil; })
+	}
+	freeToBundle { arg bundle;
 		bundle.addFunction({ patchOut.free; patchOut = nil; })
 	}
 
