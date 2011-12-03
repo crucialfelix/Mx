@@ -2,7 +2,7 @@
 
 MxTimeGui : ObjectGui {
 	
-	var <from,<to,<maxTime=300,zoomCalc,playZoomCalc;
+	var <from,<to,<maxTime,zoomCalc,playZoomCalc;
 	var xScale;
 	var <>laneHeight=150;
 	var zoom,playHead,timeRuler,updater,units;
@@ -45,7 +45,7 @@ MxTimeGui : ObjectGui {
 			
 		};
 
-		maxTime = (model.beatDuration ? 480) + 32;
+		maxTime = (model.endBeat ?? {model.beatDuration} ? 480);
 		CXLabel(layout,"MaxBeat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
@@ -164,14 +164,14 @@ MxTimeGui : ObjectGui {
 		this.zoom(newfrom,newto);
 	}
 	maxTime_ { arg mt;
+		model.endBeat = mt;
 		maxTime = mt;
 		zoomCalc.modelRange = [0,maxTime];
 		playZoomCalc.modelRange = [0,maxTime];
 		timeRuler.maxTime = maxTime;
 		model.allUnits.do { arg unit;
 			unit.callHandler('setMaxTime',maxTime)
-		};
-		
+		};	
 	}
 	keyDownResponder {
 		var k,default;

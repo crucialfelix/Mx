@@ -8,17 +8,18 @@ Mx : AbstractPlayerProxy {
 	var <myUnit, <inlets, <outlets;
 
 	var <>autoCable=true;
-
+	var <>endBeat,<>loop=false,<>bpm;
+	
 	var allocator=0, register, unitGroups, busses;
 	var <master;
 	var removing, adding, cableEndpoints;
 	var <>frameRate=24, sched, ticker, <position, frameRateDevices, preFrameRateDevices;
 
-	*new { arg data;
-		^super.new.init(data)
+	*new { arg data,endBeat,loop=false,bpm;
+		^super.new.endBeat_(endBeat).loop_(loop).bpm_(bpm).init(data)
 	}
 	storeArgs {
-		^[MxLoader.saveData(this,register)];
+		^[MxLoader.saveData(this,register),endBeat,loop,bpm];
 	}
 	init { arg data;
 		var loader;
@@ -33,6 +34,7 @@ Mx : AbstractPlayerProxy {
 			channels = [];
 			inlets = [];
 			this.addOutput;
+			bpm = Tempo.bpm;
 		},{
 			loader = MxLoader(register);
 			loader.loadData(data);
@@ -332,18 +334,21 @@ Mx : AbstractPlayerProxy {
 	}
 	beatDuration {
 		var max;
-		this.allUnits.do { arg unit;
-			var numb;
-			numb = unit.beatDuration;
-			if(numb.notNil,{
-				if(max.isNil,{
-					max = numb
-				},{
-					max = max(max,numb)
+		// but if loop is on then its endless
+		^endBeat ?? {
+			this.allUnits.do { arg unit;
+				var numb;
+				numb = unit.beatDuration;
+				if(numb.notNil,{
+					if(max.isNil,{
+						max = numb
+					},{
+						max = max(max,numb)
+					})
 				})
-			})
-		};
-		^max
+			};
+			max
+		}
 	}
 
 	// API
