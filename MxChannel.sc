@@ -147,7 +147,6 @@ MxChannel : AbstractPlayerProxy {
 			this.annotate(inputGroup,"inputGroup");
 			bundle.add( inputGroup.addToHeadMsg(group) );
 			input.prepareToBundle( inputGroup, bundle, true );
-			input.source.insp("prepared input");
 		});
 		unitsGroup = Group.basicNew(this.server);
 		this.annotate(unitsGroup,"units");

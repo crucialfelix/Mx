@@ -43,19 +43,10 @@ MultiSplineFr : SplineFr {
 			^spline.points.clipAt(focusedPoint.floor.asInteger)
 		});
 		^super.value(time); // from the table, with no time val
-		/*
-		if(liveValues.notNil,{
-			^liveValues
-		});
-		p1 = spline.points.clipAt(focusedPoint.floor.asInteger);
-		p2 = spline.points.clipAt(focusedPoint.floor.asInteger + 1);
-		^blend(p1,p2,focusedPoint.frac).copyToEnd(1)
-		*/
 	}
 	setValue { arg value,time;
 		var i, point;
 		# i , point = this.findInsertIndex(time);
-
 //		if(point.notNil,{
 //			point[0+1] = value
 //		},{

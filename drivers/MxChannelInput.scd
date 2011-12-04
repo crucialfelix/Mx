@@ -17,7 +17,7 @@ MxUnit.register('MxChannelInput',
 		var inlets,outlets;
 
 		inlets  = [ 
-				MxInlet("in", 0, AudioSpec(input.numChannels), MxListensToBus({input.insp("bus").bus},{input.insp("server").server},{input.insp("group").group}) )
+				MxInlet("in", 0, AudioSpec(input.numChannels), MxListensToBus({input.bus},{input.server},{input.group}) )
 			];
 		
 		outlets = [ 
