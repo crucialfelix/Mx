@@ -140,9 +140,12 @@ MxCable {
 				}
 			},{ arg cable,bundle;
 				var synth;
-				synth = cable.state.removeAt('synth');
+				synth = cable.state.at('synth');
 				if(synth.notNil,{
-					bundle.add( synth.freeMsg )
+					bundle.add( synth.freeMsg );
+					bundle.addFunction({
+						cable.state.removeAt('synth')
+					})
 				})
 			})
 		);			
@@ -167,11 +170,9 @@ MxCable {
 				};
 				cable.outlet.adapter.value(action);
 			},{ arg cable,bundle;
-				~nr.remove;
-				
-				// action is harmless if nobody is listening
-				// and currently not tracking number of listeners
-				// cable.outlet.adapter.value(nil);
+				bundle.addFunction({
+					~nr.remove;
+				}.inEnvir);
 			})
 		);
 		
@@ -191,35 +192,43 @@ MxCable {
 				};
 				cable.outlet.adapter.value(action);
 			},{ arg cable,bundle;
-				~nr.remove;
-				
-				// action is harmless if nobody is listening
-				// and currently not tracking number of listeners
-				// cable.outlet.adapter.value(nil);
+				bundle.addFunction({
+					~nr.remove;
+				}.inEnvir);
 			})
 		);
 		
 		this.register(\MxSendsValueOnChanged,\MxHasKrJack,
 			MxCableStrategy({ arg cable,bundle;
-				var model;
+				var model,ina;
 				model = cable.outlet.adapter.value();
-				~updater = Updater(model,{ arg sender,value;
-					cable.inlet.adapter.value().value = cable.map(value);
-				});
+				ina = cable.inlet.adapter.value();
+				bundle.addFunction({
+					~updater = Updater(model,{ arg sender,value;
+						ina.value = cable.map(value);
+					});
+				}.inEnvir);
 			},{ arg cable,bundle;
-				~updater.remove
+				bundle.addFunction({
+					~updater.remove
+				}.inEnvir)
 			})
 		);
 		
 		this.register(\MxSendsValueOnChanged,\MxSetter,
 			MxCableStrategy({ arg cable,bundle;
-				var model;
+				var model,ina;
 				model = cable.outlet.adapter.value();
-				~updater = Updater(model,{ arg sender,value;
-					cable.inlet.adapter.value(cable.map(value))
-				});
+				ina = cable.inlet.adapter;
+				bundle.addFunction({
+					~updater = Updater(model,{ arg sender,value;
+						ina.value(cable.map(value))
+					});
+				}.inEnvir);
 			},{ arg cable,bundle;
-				~updater.remove
+				bundle.addFunction({
+					~updater.remove
+				}.inEnvir);
 			})
 		);		
 	}
