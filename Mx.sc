@@ -329,13 +329,15 @@ Mx : AbstractPlayerProxy {
 	}
 	startTicker { arg bundle;
 		ticker = Task({
-					var beat;
+					var beat,frr;
+					frr = frameRate.reciprocal;
 					loop {
+						beat = sched.beat;
 						frameRateDevices.do { arg frd;
-							frd.tick(sched.beat);
+							frd.tick(beat);
 						};
-						position.value = sched.beat;
-						frameRate.reciprocal.wait;
+						position.value = beat;
+						frr.wait;
 					}
 				},sched.tempoClock);
 		if(bundle.notNil,{
