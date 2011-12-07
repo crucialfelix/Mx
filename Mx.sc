@@ -282,7 +282,9 @@ Mx : AbstractPlayerProxy {
 			})
 		} {
 			// not yet checking if some cables need to be cut
-			channel.move(index,toIndex);
+			if(index != toIndex,{
+				channel.move(index,toIndex);
+			})
 		};
 		this.changed('grid');
 	}
