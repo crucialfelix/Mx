@@ -10,11 +10,11 @@ MxUnit.register('SplineFr',
 			if(~recording,{ sfr.setValueOnNextTick(v) }) 
 		}.inEnvir);
 		inlets  = [ MxInlet("setValueNow",0,sfr.spec,rec) ];
-		outlets = [ MxOutlet("out", 0, sfr.spec, MxSendsValueOnChanged({sfr}) ) ];
+		outlets = [ MxOutlet("out", 0, sfr.spec, MxIsFrameRateDevice({arg val; val}) ) ];
 		MxUnit(sfr,inlets,outlets);
 	},
-	frameRateDevices: {
-		[~source]
+	frameRateDevice: {
+		~source
 	},
 	play: { arg group, atTime, bus;
 	},

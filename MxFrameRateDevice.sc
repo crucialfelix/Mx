@@ -2,17 +2,16 @@
 
 MxFrameRateDevice {
 	
-	var <>func,<>source;
+	var <>func,<>forUnit,<lastValue;
 	
-	*new { arg func,source;
-		^super.newCopyArgs(func,source)
+	*new { arg func,forUnit;
+		^super.newCopyArgs(func,forUnit)
 	}
 	
 	tick { arg time;
-		var v;
-		v = func.value(time);
-		func.changed(v);
-		^v
+		lastValue = func.value(time);
+		this.changed(lastValue);
+		^lastValue
 	}
 }
 

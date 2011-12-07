@@ -12,22 +12,12 @@ MxUnit.register('MultiSplineFr',
 		inlets  = [ MxInlet("setValueNow",0,sfr.spec,rec) ];
 		outlets = Array.fill(~source.spline.numDimensions-1,
 				 { arg di;
-					MxOutlet("DIM" ++ (di+1), di, sfr.spec, MxSendsValueOnChanged({outlets[di]}) ) 
+					MxOutlet("DIM" ++ (di+1), di, sfr.spec, MxIsFrameRateDevice({ arg val; val[di+1] }) ) 
 				 });
 		MxUnit(sfr,inlets,outlets);
 	},
-	frameRateDevices: {
-		[{ arg time; 
-			var values;
-			values = ~source.value(time);
-			values.do { arg v,i;
-				if(i > 0,{
-					// real messaging happens here
-					~unit.outlets[i-1].changed(v)
-				})
-			};
-			values // the function will get .changed(values) but nobody listens
-		}.inEnvir]
+	frameRateDevice: {
+		~source
 	},
 	play: { arg group, atTime, bus;
 	},

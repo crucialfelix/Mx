@@ -13,7 +13,7 @@ Mx : AbstractPlayerProxy {
 	var allocator=0, register, unitGroups, busses;
 	var <master;
 	var removing, adding, cableEndpoints;
-	var <>frameRate=24, sched, ticker, <position, frameRateDevices, preFrameRateDevices;
+	var <>frameRate=24, sched, ticker, <position, frameRateDevices;
 
 	*new { arg data,endBeat,loop=false,bpm;
 		^super.new.endBeat_(endBeat).loop_(loop).bpm_(bpm).init(data)
@@ -315,19 +315,30 @@ Mx : AbstractPlayerProxy {
 	}
 	unitAddFrameRateDevices { arg unit;
 		unit.handlers.use {
-			~frameRateDevices.value.do { arg func;
-				this.addFrameRateDevice(func,unit)
-			}
+			var frdSource;
+			frdSource = ~frameRateDevice.value();
+			if(frdSource.notNil,{
+				// store it in unit data so the cable strategy can find it
+				~mxFrameRateDevice = this.addFrameRateDevice(frdSource,unit)
+			})
 		};
 	}
 	addFrameRateDevice { arg func,forUnit;
-		frameRateDevices = frameRateDevices.add( MxFrameRateDevice(func,forUnit) );
+		var frd;
+		frameRateDevices = frameRateDevices.add( frd = MxFrameRateDevice(func,forUnit) );
 		if(this.isPlaying and: {ticker.isNil},{
 			this.startTicker
 		});
+		^frd
 	}
 	removeFrameRateDeviceForUnit { arg unit;
-		frameRateDevices.remove( frameRateDevices.detect({ arg frd; frd.source === unit }) )
+		frameRateDevices.remove( frameRateDevices.detect({ arg frd; frd.forUnit === unit }) )
+	}
+	initialTick {
+		frameRateDevices.do { arg frd;
+			frd.tick(0.0);
+		};
+		position.value = 0.0;
 	}
 	startTicker { arg bundle;
 		ticker = Task({
@@ -609,11 +620,9 @@ Mx : AbstractPlayerProxy {
 		master.prepareToBundle(group,bundle,false,this.bus);
 	}
 	spawnToBundle { arg bundle;
-		// never sure that all defs havent been added, children prepared
-		// some could have been added while play is stopped
-		// cant prepare since dont have group yet
-		
-		// this.prepareChildrenToBundle(bundle);
+		// frameRate tick 0.0
+		this.initialTick;
+		cables.do(_.setInitial);
 		channels.do({ arg chan;
 			chan.spawnToBundle(bundle);
 		});
@@ -627,14 +636,6 @@ Mx : AbstractPlayerProxy {
 			sched.beat = 0.0;
 		});
 		this.startTicker(bundle);
-		
-		//if(frameRateDevices.notNil,{
-			// need some way to send initial value
-			// but the inlets are only connected by a changed notification
-			//frameRateDevices.do { arg frd;
-			//	frd.tick(0); // node don't exist yet
-			//};
-		//})
 	}
 
 	spawnCablesToBundle { arg bundle;

@@ -42,4 +42,6 @@ MxChannelInputAdapter : AbsMxFuncAdapter {}
 MxSetter : AbsMxFuncAdapter {}
 MxHasAction : AbsMxFuncAdapter {}
 MxSendsValueOnChanged : AbsMxFuncAdapter {}
+MxIsFrameRateDevice : AbsMxFuncAdapter {}
+
 
