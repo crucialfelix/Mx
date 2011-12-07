@@ -20,7 +20,7 @@ MxUnit.register('TotalTracker',
 					MxSetter({ arg v; player.app.setSongControl(i,v)},{player.server},{player.group}) 
 				)
 			};
-
+		player.numOuts = TotalTracker.numSongOuts;
 		switcher = TrPatternSwitcher(player);
 		~switcher = switcher;
 		// ok for midi note where you can choose
@@ -32,7 +32,11 @@ MxUnit.register('TotalTracker',
 					}));
 		sips = sips.insert(0,patter);
 		inlets  = sips;
-		outlets = [ MxOutlet(player.name, 0, player.spec, MxPlaysOnBus({player.bus}) ) ];
+		outlets = [ MxOutlet(player.name, 0, AudioSpec(2), MxPlaysOnBus({player.bus}) ) ];
+		player.numOuts.do { arg i;
+			outlets = outlets.add( MxOutlet((i+1).asString,i+1,AudioSpec(2),MxPlaysOnBus({ player.songBusses.at(i) }) ) );
+		};
+		outlets = outlets.add( MxOutlet("fx",player.numOuts + 2, AudioSpec(2), MxPlaysOnBus({ player.song.patchOut.busses[\efxBus] }) ) );
 		MxUnit(player,inlets,outlets);
 	},
 	prepareToBundle:  { arg agroup, bundle, private, bus;
