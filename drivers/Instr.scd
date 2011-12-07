@@ -18,10 +18,13 @@ MxUnit.register('Instr',(
 			if(inp.isKindOf(MxArJack),{
 				MxHasJack({inp},{patch.server},{patch.group})
 			},{
-				if(inp.isKindOf(MxKrJack),{
+				if(inp.isKindOf(MxControlJack),{
 					MxHasKrJack({inp},{patch.server},{patch.group})
 				},{
 					// many things it could be
+					// NumberEditor : wont modulate but can set on spawn
+					// but MxIrJack won't modulate, set on spawn
+					("No adapter found for" + inp + instr.specs.at(i) + instr.argNameAt(i) + "in" + instr).warn;
 					nil
 				})
 			})
