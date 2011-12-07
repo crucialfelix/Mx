@@ -18,6 +18,9 @@ MxCable {
 		^format("MxCable: % [%] -> % [%]",this.outlet.unit.source.class,this.outlet.adapter.class,
 								this.inlet.unit.source.class,this.inlet.adapter.class)
 	}
+	*hasStrategy { arg outlet,inlet;
+		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ].notNil
+	}		
 	strategy {
 		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ] ?? {
 			Error("No MxCableStrategy found for" + outlet + outlet.adapter + "=>" + inlet + inlet.adapter ).throw

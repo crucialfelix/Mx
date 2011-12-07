@@ -420,12 +420,16 @@ Mx : AbstractPlayerProxy {
 		if(inlet.isKindOf(MxInlet).not,{
 			inlet = this.getInlet(toUnit,inlet);
 		});
+		// is it possible ?
+		if(MxCable.hasStrategy(outlet,inlet).not,{
+			("No MxCableStrategy found for" + outlet + outlet.adapter + "=>" + inlet + inlet.adapter).warn;
+			^this
+		});
 
 		// actual connection here
 		// remove any that goes to this inlet
 		// only the MxChannel inputs are supposed to mix multiple inputs
 		// normal patch input points do not
-
 		cables.toInlet(inlet).do { arg oldcable;
 			if(oldcable.outlet === outlet,{
 				^this // already connected
