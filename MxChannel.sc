@@ -149,7 +149,7 @@ MxChannel : AbstractPlayerProxy {
 			input.prepareToBundle( inputGroup, bundle, true );
 		});
 		unitsGroup = Group.basicNew(this.server);
-		this.annotate(unitsGroup,"units");
+		this.annotate(unitsGroup,"unitsGroup");
 		bundle.add( unitsGroup.addToTailMsg(group) );
 		
 		units.do { arg u,i;
@@ -215,11 +215,7 @@ MxChannel : AbstractPlayerProxy {
 			input.group.freeToBundle( bundle );
 		});
 		unitsGroup.freeToBundle(bundle);
-		unitGroups.do { arg u; // already gone, right ?
-			if(u.notNil,{
-				bundle.add( u.freeMsg );
-			});
-		};
+		// that removes the unitsGroups
 		bundle.addFunction({
 			mixGroup = nil;
 			unitGroups = Array.newClear(units.size);
