@@ -40,7 +40,7 @@ MxChannelFader : AbstractPlayerProxy {
 	classvar cInstr;
 	
 	var <numChannels,<db=0, <mute=false, <solo=false;
-	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12;
+	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12,<>fuseBlown=false;
 	
 	var busJack,dbJack;
 	
@@ -71,10 +71,12 @@ MxChannelFader : AbstractPlayerProxy {
 					dbJack,
 					limit ? 0,
 					breakOnBadValues.binaryValue,
-					breakOnDbOver
+					breakOnDbOver,
+					{ arg val; val.inform; fuseBlown = true; }
 				],ReplaceOut);
 	}
 	prepareToBundle { arg agroup,bundle,private = false, argbus;
+		fuseBlown = false;
 		super.prepareToBundle(agroup,bundle,private , argbus);
 		busJack.value = this.bus.index;
 	}
@@ -127,14 +129,14 @@ MxChannelFader : AbstractPlayerProxy {
 		// could also pass a responder function in
 		^cInstr ?? {
 			cInstr = Instr("MxChannelFader",{ arg numChannels=2,inBus=126,
-									db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12;
+									db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12,onBad;
 						var ok,threshold,c,k,in;
 						in = In.ar(inBus,numChannels);
 						if(breakOnBadValues > 0,{
 							ok = BinaryOpUGen('==', CheckBadValues.kr(Mono(in), 0, 2), 0);
 							(1.0 - ok).onTrig({
-								"bad value, killing".inform;
-								//total.app.releaseAll;
+								"bad value, muting".inform;
+								onBad.value("bad value");
 							});
 							in = in * ok;
 						});
@@ -143,8 +145,8 @@ MxChannelFader : AbstractPlayerProxy {
 							c = max(0.0,(Amplitude.ar(Mono(in),0.001,0.001) - 2.0));
 							k = c > threshold;
 							A2K.kr(k).onTrig({
-								"amp > threshold, killing".inform;
-								//total.app.releaseAll;
+								"amp > threshold, muting".inform;
+								onBad.value("over threshold");
 							});
 							k = 1.0 - k;
 							in = in * k; //Lag.kr(k,0.01);
@@ -164,7 +166,8 @@ MxChannelFader : AbstractPlayerProxy {
 						ControlSpec(-1000,24,'db',0.0,0.0,\db),
 						StaticSpec(0,1.0),
 						StaticSpec(0,1),
-						StaticSpec(0,100)
+						StaticSpec(0,100),
+						ObjectSpec.new
 					],AudioSpec(2))
 		}
 	}	

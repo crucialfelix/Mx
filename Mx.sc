@@ -31,6 +31,7 @@ Mx : AbstractPlayerProxy {
 			this.register(this,0);
 			master = this.prMakeChannel;
 			this.registerChannel(master);
+			master.fader.limit = 1.0;
 			channels = [];
 			inlets = [];
 			this.addOutput;

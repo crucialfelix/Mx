@@ -588,7 +588,7 @@ MxMatrixGui : SCViewHolder {
 		Pen.capStyle = 1;
 		Pen.joinStyle = 1;
 		
-		d = { arg rect,unit,styleName,boxPoint;
+		d = { arg rect,unit,styleName,boxPoint,blown=false;
 			var style,styleNames,name,ioarea,iowidth;
 			// cascade styles: defaultStyle + box style + box's set styles (playing, selected) + temp style (down, focused)
 			style = defaultStyle.copy;
@@ -606,8 +606,11 @@ MxMatrixGui : SCViewHolder {
 					style[k] = v.value(style[k],unit)
 				}
 			};
-
-			pen.color = style['boxColor'];
+			if(blown,{
+				pen.color = Color.red;
+			},{
+				pen.color = style['boxColor'];
+			});
 			pen.fillRect( rect );
 
 			// or is the fader in selected
@@ -644,13 +647,14 @@ MxMatrixGui : SCViewHolder {
 		this.calcBoxBounds;
 
 		points.keysValuesDo { arg unit,p;
-			var r;
+			var r,blown=false;
 			if(unit.source.class === MxChannel,{
-				r = this.getFaderBounds(p.x)
+				r = this.getFaderBounds(p.x);
+				blown = unit.source.fader.fuseBlown;
 			},{
 				r = this.getBounds(p);
 			});
-			d.value(r,unit,nil,p);
+			d.value(r,unit,nil,p,blown);
 		};
 		plus = Rect(bounds.left,bounds.top,boxWidth,ioHeight);
 		mainInlets = Rect(bounds.left,bounds.top,bounds.width,ioHeight);
