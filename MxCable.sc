@@ -74,8 +74,9 @@ MxCable {
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
 				jack = cable.inlet.adapter.value;
-				//jack.readFromBusToBundle(bus,bundle);
-				jack.setValueToBundle( bus.index, bundle )
+				jack.readFromBusToBundle(bus,bundle);
+				// mono -> stereo audio requires a wire synth
+				//jack.setValueToBundle( bus.index, bundle )
 			},{ arg cable,bundle;
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
@@ -84,13 +85,18 @@ MxCable {
 				// what if a new connection is in the same bundle ?
 				// then order is important
 				// disconnects are first
-				jack.setValueToBundle( cable.inlet.adapter.server.options.numAudioBusChannels-2, bundle )
-				//jack.stopReadFromBusToBundle(bundle);
+				//jack.setValueToBundle( cable.inlet.adapter.server.options.numAudioBusChannels-2, bundle )
+				jack.stopReadFromBusToBundle(bundle);
 			},{ arg cable;
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
 				jack = cable.inlet.adapter.value;
-				jack.value = bus.index;
+				if(jack.isKindOf(MxArJack),{
+					jack.value = bus.index;
+				},{
+					// jack.value = 
+					
+				});
 			})
 		);
 
@@ -113,7 +119,18 @@ MxCable {
 				~cableKr.prepareToBundle(~cableGroup,bundle);
 				~cableKr.spawnToBundle(bundle);
 				
-				jack.readFromBusToBundle(~cableKr.bus,bundle);
+				// if I change patch to do connect patchIns on didSpawn
+				// then Patch has not yet connected patchIns/Outs
+				//if(jack.patchOut.connectedTo.insp("connectedTo").isNil,{
+					// bus via cable to jack
+					// to the patch that jack is in ASSUMING it is in a patch
+					// and what synth input is it ?
+				//	bundle.add( cable.inlet.unit.handlers['patch'].synth.mapMsg(1,~cableKr.insp.bus).insp("mapMsg") );
+				//	bundle.addFunction({ jack.isReadingFromBus = true });
+				//},{
+				//	// dynamic patching
+					jack.readFromBusToBundle(~cableKr.bus,bundle);
+				//})
 				
 			},{ arg cable,bundle;
 				var bus, jack;
