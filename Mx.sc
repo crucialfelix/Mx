@@ -137,7 +137,8 @@ Mx : AbstractPlayerProxy {
 	}
 	
 	insertChannel { arg index, objects;
-		// make sure at least that many channels
+		// if adding a new channel it will insert it at the end
+		// so needs  will add one make sure at least that many channels
 		var chan,units;
 		if(index > channels.size,{
 			this.extendChannels(index-1);
