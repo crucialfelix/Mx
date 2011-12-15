@@ -91,7 +91,7 @@ MxDrawerGui : ObjectGui {
     writeName {}
 
     guiBody { arg layout,bounds;
-        var bg,fg,width;
+        var bg,fg,width,action;
         bg = Color(0.21652929382936, 0.23886961779588, 0.26865671641791);
         fg = Color(0.94029850746269, 0.96588486140725, 1.0);
         width = min(layout.bounds.width,200);
@@ -112,18 +112,19 @@ MxDrawerGui : ObjectGui {
         // all top level items, nothing unfolded
         this.drillUp;
 
-        lv.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
-            // double click on a top level single item or unfolded sub-item => select
+		action = {
             var item;
-            if(clickCount == 2,{
                 item = items[lv.value];
                 if(item.isKindOf(MxDrawerItemGroup).not,{
-                    item.title.debug("Loading");
+                    item.title.inform("Loading");
                     item.make(lv.value,model.onSelect)
                 },{
                     this.drillDown(item);
                 })
-            })
+		};
+        lv.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
+            // double click on a top level single item or unfolded sub-item => select
+            if(clickCount == 2,action)
         };
         lv.background = bg;
         lv.stringColor = fg;
@@ -141,29 +142,47 @@ MxDrawerGui : ObjectGui {
             item
         };
         lv.enterKeyAction = {
-            var item;
-            item = items[lv.value];
-            if(item.isKindOf(MxDrawerItemGroup),{
-	            this.drillDown(item);
-            },{
-            	item.make(lv.value,model.onSelect)
-            });
+	        action.value;
             this.update;
         };
         lv.keyDownAction = this.keyDownResponder;
     }
     drillDown { arg itemGroup;
-        currentItemGroup = itemGroup;
+        var item;
+        itemGroup = currentItemGroup = itemGroup ?? {
+        		item = items[lv.value];
+         		if(item.isKindOf(MxDrawerItemGroup),{
+	          	item;
+         		},{
+	         		^nil
+         		})
+        };
         items = itemGroup.drill; // title, data
         keys = items.collect(_.title);
         lv.items = keys;
         lv.refresh
     }
     drillUp {
+	    var labels;
         keys = MxDrawer.registery.keys.as(Array).sort;
-        items = keys.collect { arg k; MxDrawer.registery[k] };
+        items = keys.collect { arg k; 
+	        var it;
+	        it = MxDrawer.registery[k];
+	        if(it.isKindOf(MxDrawerItemGroup),{
+		        labels = labels.add( "*" ++ k ++ " >" )
+	        },{
+		        labels = labels.add( k.asString )
+	        });
+	        it
+	    };
         currentItemGroup = nil;
-        lv.items = keys;
+        lv.items = labels;
+    }
+    nextItem {
+	    lv.value = min(lv.value + 1,lv.items.size-1)
+    }
+    prevItem {
+	    lv.value = max(lv.value - 1,0)
     }
     focusSearch {
         searchBox.focus   
@@ -182,23 +201,66 @@ MxDrawerGui : ObjectGui {
     keyDownResponder {
         var k;
         k = UnicodeResponder.new;
-        //  control 63232
-        k.register(   63232  ,   false, false, false, true, {
+		//  option 63232
+		k.register(   63232  ,   false, false, true, false, {
+			this.prevItem
+		
+		});
+		//  option 63233
+		k.register(   63233  ,   false, false, true, false, {
+			this.nextItem
+		
+		});
+		//  option 63234
+		k.register(   63234  ,   false, false, true, false, {
             this.drillUp
-        });
-        //  control 63233
-        k.register(   63233  ,   false, false, false, true, {
+		
+		});
+		//  option 63235
+		k.register(   63235  ,   false, false, true, false, {
             this.drillDown
-        });
-        //  control s-earch
-        k.register(   19  ,   false, false, false, true, {
+		
+		});
+		//  option 3
+		k.register(   3  ,   false, false, true, false, {
+			lv.enterKeyAction.value
+		
+		});        
+        //  option 223
+		k.register(   223  ,   false, false, true, false, {
             searchBox.focus
-        });
+		
+		});
 
+        
+//        //  shift-control arrow up 63232
+//        k.register(   63232  ,   false, false, false, false, {
+//            this.drillUp
+//        });
+//        //  shift-control arrow down 63233
+//        k.register(   63233  ,   true, false, false, true, {
+//            this.drillDown
+//        });
+//        //  control s-earch
+//        k.register(   19  ,   false, false, false, true, {
+//            searchBox.focus
+//        });
+//		//  shift arrow down 63232 nav up
+//		k.register(   63232  ,   true, false, false, false, {
+//			this.prevItem
+//		});
+//		//  shift arrow down 63233 nav down
+//		k.register(   63233  ,   true, false, false, false, {
+//			this.nextItem
+//		});		
+//		//  3 enter
+//		k.register(   3  ,   false, false, false, false, {
+//			lv.enterKeyAction.value
+//		});
 
-        ^k ++ { arg view, char,modifier,unicode,keycode;
+        ^k /*++ { arg view, char,modifier,unicode,keycode;
                 lv.defaultKeyDownAction(char,modifier,unicode)
-            };
+            };*/
     }
 }
 

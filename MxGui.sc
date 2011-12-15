@@ -22,6 +22,7 @@ MxGui : AbstractPlayerGui {
 		boxes = MxMatrixGui(model, layout, bb );
 		boxes.transferFocus(0@0);
 		this.drawer(layout,(bounds - bb).resizeTo(200,bounds.height));
+		boxes.focus;
 	}
 
 	drawer { arg layout,bounds;
@@ -41,13 +42,7 @@ MxGui : AbstractPlayerGui {
 		drawerGui = d.gui(layout,bounds);
 	}
 	keyDownResponder {
-		var kdr;
-		kdr = UnicodeResponder.new;
-		//  control s
-		kdr.register(   19  ,   false, false, false, true, {
-			drawerGui.focusSearch
-		});
-		^kdr	++ boxes.keyDownResponder
+		^boxes.keyDownResponder ++ drawerGui.keyDownResponder
 	}
 }
 
