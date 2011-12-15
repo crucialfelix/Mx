@@ -10,6 +10,9 @@ MxGui : AbstractPlayerGui {
 		ActionButton(layout,"Timeline",{
 			MxTimeGui(model).gui(nil,1000@800);
 		});
+		ActionButton(layout,"Mixer",{
+			MxMixerGui(model).gui(nil,1000@500);
+		});
 	}
 
 	guiBody { arg layout,bounds;
