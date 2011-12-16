@@ -107,6 +107,9 @@ MxUnit.register('Instr',(
 	gui: { arg layout;
 		var l;
 		l = layout ?? {PageLayout(~patch.instr.dotNotation,Rect(0,0,500,600))};
+		ActionButton(l,"respawn",{
+			~respawn.value
+		}.inEnvir);
 		~patch.gui(l);
 		InstrGui(~patch.instr).sourceGui(l,500);
 		if(layout.isNil,{
