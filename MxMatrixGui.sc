@@ -7,7 +7,7 @@ MxMatrixGui : SCViewHolder {
 	var bounds,<focusedPoint;
 	var <>currentDragPoint,draggingXY,draggingOutlet,mouseDownPoint,isDown=false;
 
-	var selected,hovering,dragging;
+	var <selected,hovering,dragging;
 	var points;
 	
 	var <>ioHeight=10,<>faderHeight=80.0;

@@ -13,6 +13,22 @@ MxGui : AbstractPlayerGui {
 		ActionButton(layout,"Mixer",{
 			MxMixerGui(model).gui(nil,1000@500);
 		});
+		// this will move into an MxAction
+		ActionButton(layout,"Insp selected",{
+			var inspMe,in,out,cable;
+			inspMe = boxes.selected;
+			if(boxes.selected.size == 2,{
+				out = boxes.selected.detect({ arg io; io.class === MxOutlet });
+				in = boxes.selected.detect({ arg io; io.class === MxInlet });
+				if(in.notNil and: out.notNil,{
+					cable = model.cables.detect({ arg cable; cable.inlet === in and: cable.outlet === out });
+					if(cable.notNil,{
+						inspMe = inspMe.add( cable );
+					});
+				})
+			});
+			inspMe.do(_.insp);
+		});
 	}
 
 	guiBody { arg layout,bounds;
