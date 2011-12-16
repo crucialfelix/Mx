@@ -146,7 +146,7 @@ MxMatrixGui : SCViewHolder {
 			// click to select
 			if(modifiers.isShift,{
 				if(obj.notNil,{
-					selected = selected.add(obj)
+					selected.remove(obj) ?? { selected = selected.add(obj) }
 				})
 			},{
 				if(obj.notNil,{
@@ -190,70 +190,78 @@ MxMatrixGui : SCViewHolder {
 		k.register(   63232  ,   false, false, false, false, {
 			var p;
 			p = (focusedPoint ? default);
-			focusedPoint = (p.x)@(p.y - 1).clip(0,inf);
+			focusedPoint = Point(p.x, max(p.y - 1,0));
 			this.refresh;
 		});
 		//  63233 down
 		k.register(   63233  ,   false, false, false, false, {
 			var p;
 			p = (focusedPoint ? default);
-			focusedPoint = (p.x)@(p.y + 1).clip(0,inf);
+			focusedPoint = Point(p.x, p.y + 1);
 			this.refresh;
 		});
 		//  63234 left
 		k.register(   63234  ,   false, false, false, false, {
 			var p;
 			p = (focusedPoint ? default);
-			focusedPoint = (p.x - 1).clip(0,inf)@(p.y);
+			focusedPoint = Point( max(p.x - 1,0), p.y);
 			this.refresh;
 		});
 		//  63235 right
 		k.register(   63235  ,   false, false, false, false, {
 			var p;
 			p = (focusedPoint ? default);
-			focusedPoint = (p.x + 1).clip(0,inf)@(p.y);
+			focusedPoint = Point(p.x + 1,p.y);
 			this.refresh;
 		});
 
 		// VOLUMES
 		//  63232 shift up
 		k.register(   63232  ,   true, false, false, false, {
-			var chans,chan;
-			//selected.do { arg thing;
-			//	// what channel are you in ?
-			//	MxUnit
-			//};
+			var chan;
 			if(focusedPoint.notNil,{
-				chan = mx.channels.at(focusedPoint.x)	;
+				chan = mx.channels.at(focusedPoint.x)	 ?? { if(focusedPoint.x == masterCol,{mx.master},nil) };
 				if(chan.notNil,{
 					chan.fader.db = chan.fader.db + 1.0;
 					this.refresh;
 				});
+			},{
+				selected.do { arg obj;
+					if(obj.isKindOf(MxChannel),{
+						obj.fader.db = obj.fader.db + 1.0					})
+				};
+				this.refresh;
 			});
 		});
 		//  63233 shift down
 		k.register(   63233  ,   true, false, false, false, {
 			var p,chan;
 			if(focusedPoint.notNil,{
-				chan = mx.channels.at(focusedPoint.x)	;
+				chan = mx.channels.at(focusedPoint.x)	 ?? { if(focusedPoint.x == masterCol,{mx.master},nil) };
 				if(chan.notNil,{
 					chan.fader.db = chan.fader.db - 1.0;
 					this.refresh;
 				});
+			},{
+				selected.do { arg obj;
+					if(obj.isKindOf(MxChannel),{
+						obj.fader.db = obj.fader.db + 1.0					})
+				};
+				this.refresh;
 			});
 		});
 		//  m
-		k.register(   109  ,   false, false, false, false, {
+		k.register(   109  ,   false, false, false, false, { arg view;
 			var chan;
-			if(focusedPoint.notNil,{
+			if(view.isKindOf(GUI.userView) and: {focusedPoint.notNil},{
 				mx.mute(focusedPoint.x);
 				this.refresh;
 			});
 		});
 		//  s
-		k.register(   115  ,   false, false, false, false, {
+		k.register(   115  ,   false, false, false, false, { arg view;
 			var chan;
-			if(focusedPoint.notNil,{
+			if(view.isKindOf(GUI.userView) and: focusedPoint.notNil,{
 				mx.solo(focusedPoint.x);
 				this.refresh;
 			})
@@ -262,6 +270,7 @@ MxMatrixGui : SCViewHolder {
 
 		// drawer drill up / down
 		//  control 63232
+		/*
 		k.register(   63232  ,   false, false, false, true, {
 			
 		});
@@ -279,6 +288,7 @@ MxMatrixGui : SCViewHolder {
 		k.register(   63233  ,   false, false, true, false, {
 
 		});
+		*/
 		^k
 	}
 	// internal dragging
@@ -465,7 +475,7 @@ MxMatrixGui : SCViewHolder {
 			// fader. returns the channel
 			fi = this.detectFader(p);
 			if(fi.notNil,{
-				^mx.channels.at(fi)
+				^mx.channels.at(fi) ?? { if(fi == masterCol,{mx.master},nil) }
 			});
 		});	
 		// + in top left
@@ -689,48 +699,50 @@ MxMatrixGui : SCViewHolder {
 	
 			// if its to a MxChannel then draw to fader top
 			chan = cable.inlet.unit.source;
-			if(chan.class === MxChannel,{
-
-				// vertical: in same channel
-				if(chan.units.includes(cable.outlet.unit),{
-					t = Rect(f.left,fb.top, boxWidth,0)
-				},{
-					if(chan === mx.master,{
-						t = Rect(boxBounds.right - boxWidth,boxBounds.top,boxWidth,0)
+			if(chan.class !== MxChannelInput,{
+				if(chan.class === MxChannel,{
+	
+					// vertical: in same channel
+					if(chan.units.includes(cable.outlet.unit),{
+						t = Rect(f.left,fb.top + (ioHeight/2), boxWidth,0)
 					},{
-						// channel doesn't know its number
-						// this is slow
-						ci = mx.channels.indexOf(chan);
-						t = Rect(ci * boxWidth,boxBounds.top,boxWidth,0)
+						if(chan === mx.master,{
+							t = Rect(boxBounds.right - boxWidth,boxBounds.top  + (ioHeight/2),boxWidth,0)
+						},{
+							// channel doesn't know its number
+							// this is slow
+							ci = mx.channels.indexOf(chan);
+							t = Rect(ci * boxWidth,boxBounds.top  + (ioHeight/2),boxWidth,0)
+						})
 					})
-				})
-			},{
-				t = this.inletArea(cable.inlet);
-			});
-
-			if(f.notNil and: t.notNil,{
-				c = cable.outlet.spec.color;
-				if(cable.active.not,{
-					c = Color(c.red,c.green,c.blue,0.2)
 				},{
-					if(cable.inlet.unit.source === mx.master,{
-						c = Color(c.red,c.green,c.blue,0.1)
-					},{
-						c = Color(c.red,c.green,c.blue,0.6)
-					})
+					t = this.inletArea(cable.inlet);
 				});
-				pen.color = Color(alpha:0.25);
-				pen.width = 3;
-				fcenter = f.center;
-				tcenter = t.center;
-				pen.moveTo(fcenter);
-				pen.lineTo(tcenter);
-				pen.stroke;
-				pen.color = c;
-				pen.width = 1;
-				pen.moveTo(fcenter);
-				pen.lineTo(tcenter);
-				pen.stroke;
+	
+				if(f.notNil and: t.notNil,{
+					c = cable.outlet.spec.color;
+					if(cable.active.not,{
+						c = Color(c.red,c.green,c.blue,0.2)
+					},{
+						if(cable.inlet.unit.source === mx.master,{
+							c = Color(c.red,c.green,c.blue,0.1)
+						},{
+							c = Color(c.red,c.green,c.blue,0.6)
+						})
+					});
+					pen.color = Color(alpha:0.25);
+					pen.width = 3;
+					fcenter = f.center;
+					tcenter = t.center;
+					pen.moveTo(fcenter);
+					pen.lineTo(tcenter);
+					pen.stroke;
+					pen.color = c;
+					pen.width = 1;
+					pen.moveTo(fcenter);
+					pen.lineTo(tcenter);
+					pen.stroke;
+				})
 			})
 		};
 
@@ -793,7 +805,8 @@ MxMatrixGui : SCViewHolder {
 			borderColor: { |c| c.alpha_(0.2) }
 			);
 		styles['selected'] = (
-			borderColor: Color(0.37100213219616, 0.68900395979287, 0.86567164179104, 0.97313432835821)
+			borderColor: Color(0.24258303049245, 0.23167743372689, 0.59701492537313),
+			boxColor: Color(0.37100213219616, 0.68900395979287, 0.86567164179104, 0.37313432835821)
 			);
 		styles['unit'] = (
 			boxColor: { arg c; c.darken(Color(0.2202380952381, 0.40008503401361, 0.5)) },
