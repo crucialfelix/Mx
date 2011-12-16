@@ -38,7 +38,7 @@ MxJack {
 MxControlJack : MxJack { // abstract
 
 	var <value,<>spec;
-	var <patchOut;
+	var <patchOut, <>isReadingFromBus=false;
 	
 	storeArgs {
 		^[value,spec]
@@ -60,14 +60,18 @@ MxControlJack : MxJack { // abstract
 		^patchIn.instVarAt('index')
 	}
 	readFromBusToBundle { arg bus, bundle;
+		// does not work in Patch spawn because connectedTo does not happen till didSpawn
+		// so this only works after already playing
 		patchOut.connectedTo.do { arg patchIn;
 			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),bus) );
-		}
+		};
+		bundle.addFunction({ isReadingFromBus = true });
 	}
 	stopReadFromBusToBundle { arg bundle;
 		patchOut.connectedTo.do { arg patchIn;
 			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),-1) );
-		}
+		};
+		bundle.addFunction({ isReadingFromBus = false });
 	}
 	stopToBundle { arg bundle;
 		//bundle.addFunction({ patchOut.free; patchOut = nil; })
@@ -133,6 +137,7 @@ MxArJack : MxControlJack {
 	storeArgs {
 		^[numChannels]
 	}
+
 	bus_ { arg v;
 		if(v.isSimpleNumber,{
 			value = v;
@@ -147,6 +152,14 @@ MxArJack : MxControlJack {
 	instrArgFromControl { arg control;
 		^In.ar(control,numChannels)
 	}
+
+	readFromBusToBundle { arg bus, bundle;
+		this.setValueToBundle(bus.index,bundle);
+	}
+	stopReadFromBusToBundle { arg bundle;
+		this.setValueToBundle(126,bundle);
+	}
+
 	rate { ^\audio }
 	
 	guiClass { ^MxArJackGui }

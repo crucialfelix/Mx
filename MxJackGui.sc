@@ -9,7 +9,11 @@ MxKrJackGui : ObjectGui {
 		ne = NumberEditor(model.value,model.spec);
 		ne.gui(layout);
 		ne.action = {
-			model.value = ne.value
+			// as long as you didn't get jacked into from something else
+			// then you may move the fader
+			if(model.isReadingFromBus.not,{
+				model.value = ne.value
+			})
 		}
 	}
 	update {
