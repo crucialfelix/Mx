@@ -103,10 +103,8 @@ MxUnit  {
 	}
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
-		^this.use({ 
-			~prepareToBundle.value(agroup,bundle,true,bus); 
-			bundle.addFunction({status='isPrepared'})
-		})
+		bundle.addFunction({status='isPrepared'});
+		^this.delegate('prepareToBundle',agroup,bundle,true,bus);
 	}
 	spawnToBundle { arg bundle;
 		^this.use { 
@@ -136,7 +134,7 @@ MxUnit  {
 		}
 	}
 	
-	use { arg function;
+	use { arg function,rollback;
 		var result, saveEnvir;
 
 		saveEnvir = currentEnvironment;
@@ -146,12 +144,32 @@ MxUnit  {
 		} { arg exception;
 			if(exception.notNil) {
 				("MxUnit" + this.source + this.source.class + "ERROR in:\n" + function.def + "\n" + function.def.sourceCode).postln;
+				rollback.value;
 			};
 			currentEnvironment = saveEnvir;
 		};
-		^result		
+		^result
 	}
-	//delegate
+	delegate { arg handlerName ... args;
+		var result, saveEnvir;
+
+		saveEnvir = currentEnvironment;
+		currentEnvironment = handlers;
+		protect {
+			result = currentEnvironment.at(handlerName).valueArray(args)
+		} { arg exception;
+			var code;
+			if(exception.notNil) {
+				code = currentEnvironment.at(handlerName);
+				if(code.isKindOf(Function),{
+					code = code.def.sourceCode;
+				});
+				("MxUnit:" + this.source + this.source.class + "\nERROR in:\n~" + handlerName + "\n" + code).postln;
+			};
+			currentEnvironment = saveEnvir;
+		};
+		^result
+	}
 	callHandler { arg method ... args;
 		var result, saveEnvir;
 
