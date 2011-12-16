@@ -34,8 +34,11 @@ MxUnit.register('Instr',(
 
 		conn = if(instr.outSpec.rate  === 'control',{MxPlaysOnKrBus},{MxPlaysOnBus}).new({patch.bus},{patch.server},{patch.group});
 		
-		outlets = [ MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
-		
+		if(instr.outSpec.notNil,{
+			outlets = [MxOutlet( (instr.outSpec.findKey ? instr.outSpec.class).asSymbol, 0, instr.outSpec, conn ) ];
+		},{
+			outlets = [ ];
+		});		
 		~patch = patch;
 		
 		MxUnit(instr,inlets,outlets);
