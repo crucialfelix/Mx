@@ -42,17 +42,24 @@ MxGui : AbstractPlayerGui {
 	}
 
 	drawer { arg layout,bounds;
-		var d;
+		var d,doIt;
+		doIt = { arg obj;
+			// which puts to master or channels
+			boxes.put(boxes.focusedPoint.x,boxes.focusedPoint.y,obj);
+			boxes.refresh;
+			if(model.isPlaying,{
+				model.update;
+			},{
+				model.updateAutoCables
+			});
+		};			
 		d = MxDrawer({ arg obj;
 			if(boxes.focusedPoint.notNil,{
-				// which puts to master or channels
-				boxes.put(boxes.focusedPoint.x,boxes.focusedPoint.y,obj);
-				boxes.refresh;
-				if(model.isPlaying,{
-					model.update;
+				if(obj.isKindOf(MxDeferredDrawerAction),{
+					obj.func = doIt
 				},{
-					model.updateAutoCables
-				});
+					doIt.value(obj)
+				})
 			})
 		});
 		drawerGui = d.gui(layout,bounds);
@@ -62,5 +69,14 @@ MxGui : AbstractPlayerGui {
 	}
 }
 
+
+MxDeferredDrawerAction {
+	
+	var <>func;
+	
+	value { arg object;
+		^func.value(object)
+	}
+}
 
 

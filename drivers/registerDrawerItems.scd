@@ -1,8 +1,4 @@
-/*
-	
-	
 
-*/
 
 MxDrawer.add("Slider",{ NumberEditor(1.0) });
 
@@ -28,7 +24,50 @@ MxDrawer.addGroup("Instr",{
 	instr
 });
 
-MxDrawer.add("InstrBuilder Effect 4",{  InstrBuilder([\audio,\one,\two,\three,\four]) });
+MxDrawer.addGroup("InstrGateSpawner",{
+	Instr.leaves.collect { arg instr; [instr.dotNotation ,instr] }
+},{ arg instr,instrname;
+	InstrGateSpawner(instr)
+});
+
+MxDrawer.add("Patterns from Instr...",{
+	var defAction;
+	defAction = MxDeferredDrawerAction.new;
+	InstrBrowser({ arg layout,instr;
+		ActionButton(layout,"Make pattern...",{
+			var min,max;
+			Sheet({ arg layout;
+				var p;
+				p = Patch(instr);
+				p.gui(layout);
+				ActionButton(layout,"RND",{
+					p.rand;
+				});
+				ActionButton(layout,"Test",{
+					var vals;
+					vals = p.value.asStream.nextN(200);
+					min = vals.minItem;
+					max = vals.maxItem;
+					vals.plot2
+				});
+				ActionButton(layout,"MAKE AND INSERT TO MX",{
+					var pattern,spec;
+					pattern = p.value;
+					if(min.notNil and: max.notNil,{
+						spec = StreamSpec( ScalarSpec(min,max) );
+					},{
+						spec = instr.outSpec
+					});
+					defAction.value(MxUnit.make([pattern,spec],Pattern))
+				});
+			},"Generate pattern from a function")
+		})
+	}).rate_('stream').init.gui;
+	defAction
+});
+
+
+
 
 [	[ "~/SoundFiles", "~/SoundFiles/*"], //personal
 	[ "Recordings",   thisProcess.platform.recordingsDir +/+ "*"]
@@ -57,5 +96,3 @@ MxDrawer.add("InstrBuilder Effect 4",{  InstrBuilder([\audio,\one,\two,\three,\f
 	});
 };
 
-
-//MxDrawer.add("InstrBuilder 4",{ InstrBuilder(\one,\two,\three,\four) });
