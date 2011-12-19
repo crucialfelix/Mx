@@ -3,11 +3,14 @@
 MxMixerGui : ObjectGui {
 
 	var scope,lastScope,freqScope,meters;
+	var solos,mutes;
 
 	writeName {}
 	guiBody { arg layout;
 		var scopeSize = 275,faderHeight,chans;
-		faderHeight = layout.bounds.height - scopeSize;
+		solos = Array.newClear(model.channels.size);
+		mutes = Array.newClear(model.channels.size + 1);
+		faderHeight = layout.bounds.height - scopeSize - 4;
 		layout.startRow;
 		if(model.isPlaying and: {model.server.inProcess},{
 			layout.flow({ arg layout;
@@ -43,35 +46,55 @@ MxMixerGui : ObjectGui {
 					meters.makeBusMeter(i,layout,Rect(0,GUI.skin.buttonHeight+1,30,faderHeight - GUI.skin.buttonHeight - 1));
 				},Rect(0,0,30,faderHeight))
 			});
-			if(scope.notNil,{
-				ab = ActionButton(layout,"¤",{
-					scope.index = chan.fader.bus.index;
-					if(freqScope.notNil,{
-						freqScope.inBus = chan.fader.bus.index;
+			layout.flow({ arg layout;
+				if(scope.notNil,{
+					ab = ActionButton(layout,"¤",{
+						scope.index = chan.fader.bus.index;
+						if(freqScope.notNil,{
+							freqScope.inBus = chan.fader.bus.index;
+						});
+						if(lastScope.notNil,{
+							lastScope.labelColor = Color.yellow;
+							lastScope.background = Color.black;
+							lastScope.refresh;
+						});
+						ab.background = Color.red;
+						ab.labelColor = Color.black;
+						ab.refresh;
+						lastScope = ab;
 					});
-					if(lastScope.notNil,{
-						lastScope.labelColor = Color.yellow;
-						lastScope.background = Color.black;
-						lastScope.refresh;
-					});
-					ab.background = Color.red;
-					ab.labelColor = Color.black;
-					ab.refresh;
-					lastScope = ab;
+					if(chan === model.master,{
+						ab.background = Color.red;
+						ab.labelColor = Color.black;
+						lastScope = ab;
+					},{
+						ab.background = Color.black;
+						ab.labelColor = Color.yellow;
+					})
 				});
-				if(chan === model.master,{
-					ab.background = Color.red;
-					ab.labelColor = Color.black;
-					lastScope = ab;
-				},{
-					ab.background = Color.black;
-					ab.labelColor = Color.yellow;
-				})
-			})
+				if(chan !== model.master,{
+					layout.startRow;
+					solos.put(i, ToggleButton(layout,"S",{ arg button,bool; model.solo(i,bool); this.updateButtons }) );
+				});
+				layout.startRow;
+				mutes.put(i, ToggleButton(layout,"M",{ arg button,bool; 
+					if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); }); 
+					this.updateButtons 
+				}) );
+					
+			},Rect(0,0,24,faderHeight));
 		};
+		this.updateButtons;
 		if(meters.notNil,{
 			meters.start
 		})
+	}
+	updateButtons {
+		model.channels.do { arg chan,i;
+			solos[i].value = chan.fader.solo;
+			mutes[i].value = chan.fader.mute;
+		};
+		mutes.last.value = model.master.fader.mute;
 	}
 	remove {
 		meters.remove;
