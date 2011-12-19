@@ -330,11 +330,45 @@ MxCable {
 				ina.value( cable.map( value ) )
 			})
 		);
+		
+		// to HasMxStreamJack
+		this.register(\MxIsStream,\MxHasStreamJack,{
+			var connect;
+			connect = { arg cable;
+				var streamable,jack,mapper,stream;
+				streamable = cable.outlet.adapter.value;
+				jack = cable.inlet.adapter.value;
+				if(cable.outlet.spec != jack.spec and: {cable.outlet.spec.notNil},{
+					stream = streamable.asStream;
+					streamable = Pfunc({ arg inval; 
+									var v;
+									v = stream.next(inval);
+									cable.map(v)
+								},{
+									stream.reset
+								});
+				});
+				jack.source = streamable.debug("set stream");
+				~connected = true;
+			};
+			MxCableStrategy({ arg cable,bundle;
+				if(~connected.isNil,{
+					connect.value(cable)
+				})
+			},{ arg cable,bundle;
+				bundle.addFunction({
+					cable.inlet.adapter.value.source = nil;
+					~connected = false;
+				})
+			},{ arg cable;
+				connect.value(cable);
+			})
+		}.value
+		);				
+				
 	}
 }
 
-
-MxAutoCable : MxCable {}
 
 
 MxCableStrategy {

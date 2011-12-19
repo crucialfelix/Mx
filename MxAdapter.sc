@@ -33,6 +33,7 @@ MxHasBus : AbsMxFuncAdapter {}
 
 MxHasJack : AbsMxFuncAdapter {}
 MxHasKrJack : AbsMxFuncAdapter {}
+MxHasStreamJack : AbsMxFuncAdapter {}
 
 MxPlaysOnBus : AbsMxFuncAdapter {}
 MxPlaysOnKrBus : AbsMxFuncAdapter {} 
@@ -43,5 +44,5 @@ MxSetter : AbsMxFuncAdapter {}
 MxHasAction : AbsMxFuncAdapter {}
 MxSendsValueOnChanged : AbsMxFuncAdapter {}
 MxIsFrameRateDevice : AbsMxFuncAdapter {}
-
+MxIsStream : AbsMxFuncAdapter {}
 

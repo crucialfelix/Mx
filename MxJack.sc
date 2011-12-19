@@ -14,6 +14,10 @@ MxJack {
 		// BusSpec
 		// ScaleSpec
 		// ArraySpec
+		// StreamSpec
+		if(spec.isKindOf(StreamSpec),{
+			^MxStreamJack(defArg ? spec.default,spec)
+		});
 		
 		if(spec.isKindOf(TrigSpec),{
 			^MxTrJack(defArg ? spec.default,spec)
@@ -35,10 +39,79 @@ MxJack {
 }
 
 
+MxStreamJack : MxJack {
+	
+	var stream,<>spec;
+	var <source,firstVal,lastVal;
+	var <isConnected=false;
+	
+	*new { arg initialValue,spec;
+		^super.new.spec_(spec).value_(initialValue ? spec.default)
+	}
+	storeArgs {
+		^[this.value,spec]
+	}
+	source_ { arg v;
+		source = v;
+		if(v.notNil,{
+			stream = v.asStream;
+			firstVal = stream.next;
+			lastVal = nil;
+			isConnected = true;
+		},{
+			// repeat last val till plugged into something new
+			stream = lastVal.asStream;
+			firstVal = stream.next;
+			isConnected = false;
+		});
+	}
+	value {
+		^lastVal ? firstVal ? spec.default
+	}
+	value_ { arg v;
+		lastVal = v;
+	}
+	rate { ^\stream }
+	asStream { ^this }
+	next { arg inval;
+		var v;
+		if(firstVal.notNil,{ // stream is set
+			v = firstVal;
+			firstVal = nil;
+			lastVal = v;
+			this.changed;
+			^v
+		},{
+			if(stream.isNil,{
+				^this.value
+			});
+			lastVal = stream.next(inval);
+			this.changed;
+			^lastVal
+		})
+	}
+	reset {
+		stream.reset;
+		firstVal = lastVal = nil;
+	}
+	
+	synthArg {
+		^this.value
+	}
+	addToSynthDef {  arg synthDef,name;
+		synthDef.addIr(name,this.synthArg);
+	}
+	instrArgFromControl { arg control;
+		^control
+	}
+	guiClass { ^MxStreamJackGui }		
+}
+
+
 MxControlJack : MxJack { // abstract
 
 	var <value,<>spec;
-	var <patchOut, <>isReadingFromBus=false;
+	var <patchOut, <>isConnected=false;
 	
 	storeArgs {
 		^[value,spec]
@@ -65,13 +138,13 @@ MxControlJack : MxJack { // abstract
 		patchOut.connectedTo.do { arg patchIn;
 			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),bus) );
 		};
-		bundle.addFunction({ isReadingFromBus = true });
+		bundle.addFunction({ isConnected = true });
 	}
 	stopReadFromBusToBundle { arg bundle;
 		patchOut.connectedTo.do { arg patchIn;
 			bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),-1) );
 		};
-		bundle.addFunction({ isReadingFromBus = false });
+		bundle.addFunction({ isConnected = false });
 	}
 	stopToBundle { arg bundle;
 		//bundle.addFunction({ patchOut.free; patchOut = nil; })
