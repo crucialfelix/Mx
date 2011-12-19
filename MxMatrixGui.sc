@@ -441,6 +441,9 @@ MxMatrixGui : SCViewHolder {
 			^mx.at(boxPoint.x,boxPoint.y)
 		});
 	}
+	boxPointForUnit { arg unit;
+		^points[unit]
+	}
 	getUnitFromCoords { arg x,y; // view coords
 		^this.getUnit(this.boxPoint(x,y) ?? {^nil});
 	}
@@ -699,22 +702,13 @@ MxMatrixGui : SCViewHolder {
 	
 			// if its to a MxChannel then draw to fader top
 			chan = cable.inlet.unit.source;
-			if(chan.class !== MxChannelInput,{
-				if(chan.class === MxChannel,{
-	
-					// vertical: in same channel
-					if(chan.units.includes(cable.outlet.unit),{
-						t = Rect(f.left,fb.top + (ioHeight/2), boxWidth,0)
+			if(chan.class !== MxChannelInput,{ // no messy cables to master channel input
+				if(chan.class === MxChannel,{ // going to the fader box
+					if(chan === mx.master,{
+						t = Rect(fb.right - boxWidth,fb.top,boxWidth,ioHeight)
 					},{
-						if(chan === mx.master,{
-							t = Rect(boxBounds.right - boxWidth,boxBounds.top  + (ioHeight/2),boxWidth,0)
-						},{
-							// channel doesn't know its number
-							// this is slow
-							ci = mx.channels.indexOf(chan);
-							t = Rect(ci * boxWidth,boxBounds.top  + (ioHeight/2),boxWidth,0)
-						})
-					})
+						t = Rect(mx.channels.indexOf(chan) * boxWidth,fb.top,boxWidth,ioHeight)
+					});
 				},{
 					t = this.inletArea(cable.inlet);
 				});
