@@ -25,7 +25,12 @@ MxUnit.register('MxChannelInput',
 			];
 
 		MxUnit(input,inlets,outlets);
-	} /*,
+	},
+	save: { [] },
+	load: { MxChannelInput.new }
+	
+	
+	 /*,
 	draw: { arg pen,bounds,style;
 		~source.draw(pen,bounds,style)
 	} */

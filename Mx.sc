@@ -37,9 +37,7 @@ Mx : AbstractPlayerProxy {
 			this.addOutput;
 			bpm = Tempo.bpm;
 			// add a unit at top right
-			master.makeInput;
-			this.registerUnit(master.input);
-			
+			this.findMasterInput;
 		},{
 			loader = MxLoader(register);
 			loader.loadData(data);
@@ -111,7 +109,17 @@ Mx : AbstractPlayerProxy {
 			this.register(outlet);
 		};
 	}
-
+	findMasterInput {
+		/* locate or make an input unit on the master channel */
+		^master.input ?? {
+			master.input = master.units.detect({ arg u; u.source.isKindOf(MxChannelInput) });
+			if(master.input.isNil,{
+				master.makeInput;
+				this.registerUnit(master.input);
+			});
+			master.input
+		}
+	}		
 	add { arg ... objects;
 		^this.insertChannel(channels.size-1,objects)
 	}
@@ -301,6 +309,25 @@ Mx : AbstractPlayerProxy {
 			})
 		};
 	}
+	insert { arg chan,index,object;
+		var channel,unit;
+		if(chan == inf,{
+			channel = master
+		},{
+			channel = channels[chan];
+			if(channel.isNil,{
+				this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
+				^this
+			});				
+		});
+		unit = MxUnit.make(object);
+		if(unit.notNil,{ // nil object is nil unit which is legal
+			this.registerUnit(unit);
+		});		
+		channel.insert(index,unit);
+		this.changed('grid');
+		^unit
+	}		
 	removeUnit { arg unit;
 		channels.do { arg ch,ci;
 			ch.units.do { arg u,ri;
@@ -649,7 +676,7 @@ Mx : AbstractPlayerProxy {
 	}
 	updateAutoCables {
 
-		var patched,autoCabled,ac,changed=false,to;
+		var patched,autoCabled,ac,changed=false,to,input;
 		var addingCables=[],removingCables;
 
 		(channels ++ [master]).do { arg chan;
@@ -667,7 +694,7 @@ Mx : AbstractPlayerProxy {
 			// if the channel is not patched to anything then patch it to the master
 			if(chan !== master,{
 				if(cables.fromUnit(chan.myUnit).isEmpty,{
-					ac = MxCable( chan.myUnit.outlets.first, master.input.inlets.first );
+					ac = MxCable( chan.myUnit.outlets.first, this.findMasterInput.inlets.first );
 					cables.add(ac);
 					addingCables = addingCables.add(ac);
 					changed = true;
@@ -680,7 +707,8 @@ Mx : AbstractPlayerProxy {
 					},{
 						to = chan.myUnit.inlets.first
 					});
-					ac = MxCable( chan.input.outlets.first, to );
+					input = this.findMasterInput;
+					ac = MxCable( input.outlets.first, to );
 					cables.add(ac);
 					addingCables = addingCables.add(ac);
 					changed = true;

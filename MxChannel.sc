@@ -2,7 +2,7 @@
 
 MxChannel : AbstractPlayerProxy {
 
-	var <>units,<fader,<input;
+	var <>units,<fader,<>input;
 	
 	var <numChannels=2,<>pending=false;
 
@@ -36,7 +36,12 @@ MxChannel : AbstractPlayerProxy {
 		input = MxChannelInput.new;
 		input.numChannels = numChannels;
 		input = MxUnit.make(input);
-		this.put(0,input);
+		if(this.at(0).notNil,{
+			this.insert(0,input)
+		},{
+			this.put(0,input);
+		});
+		^input
 	}		
 	at { arg index;
 		^units[index]
@@ -46,6 +51,14 @@ MxChannel : AbstractPlayerProxy {
 		this.extendUnits(index);
 		units[index] = unit;
 		adding = adding.add(unit);
+	}
+	insert { arg index,unit;
+		if(index < units.size,{
+			for(units.size - 1, index - 1,{ arg i;
+				this.move(i, i + 1);
+			});
+		});
+		this.put(index,unit);	
 	}
 	extendUnits { arg index;
 		var ip = index + 1;
