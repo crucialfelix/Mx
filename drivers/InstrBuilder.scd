@@ -130,8 +130,9 @@ MxUnit.register('InstrBuilder',(
 		ActionButton(l,"EDIT" + (~name.value),{
 			~source.gui
 		}.inEnvir);
-		~patch.inputs.do { arg inp;
-			inp.gui(l.startRow);
+		~patch.inputs.do { arg inp,i;
+			ArgNameLabel( ~patch.argNameAt(i), l.startRow );
+			inp.gui(l);
 		};
 		if(layout.isNil,{
 			l.resizeToFit
