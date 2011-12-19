@@ -45,7 +45,7 @@ MxCable {
 			^mapping.value(v)
 		},{
 			if(outlet.spec.isKindOf(ControlSpec) and: {inlet.spec.isKindOf(ControlSpec)} and: {outlet.spec != inlet.spec},{
-				^inlet.spec.map( outlet.spec.unmap(v) )
+				^inlet.spec.map( outlet.spec.unmap(v).clip(0.0,1.0) )
 			},{
 				^v
 			})
