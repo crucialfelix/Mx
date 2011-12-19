@@ -443,6 +443,7 @@ Mx : AbstractPlayerProxy {
 		*/
 		var cable;
 		// should be in API
+		// wrong
 		if(outlet.isKindOf(MxOutlet).not,{
 			outlet = this.getOutlet(fromUnit,outlet);
 		});
@@ -576,6 +577,7 @@ Mx : AbstractPlayerProxy {
 		var b;
 		if(this.isPlaying,{
 			b = bundle ?? { MixedBundle.new };
+
 			removing.do { arg r;
 				r.freeToBundle(b);
 				b.addFunction({
@@ -608,11 +610,11 @@ Mx : AbstractPlayerProxy {
 				a.spawnToBundle(b)
 			};
 			channels.do { arg chan; chan.update(b); };
+			removing = adding = nil;
 			b.addFunction({
 				removing.do { arg r;
 					this.unregister(r);
 				};
-				removing = adding = nil
 			});
 			if(bundle.isNil,{
 				b.send(this.server)

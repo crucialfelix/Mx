@@ -93,6 +93,7 @@ MxChannel : AbstractPlayerProxy {
 	}
 	insertAt { arg index,unit,unitGroup;
 		// insert unit + group to this channel
+		// for moving things that are already playing
 		if(units[index].notNil,{
 			removing = removing.add(units[index]);
 			if(this.isPlaying,{
@@ -254,15 +255,13 @@ MxChannel : AbstractPlayerProxy {
 				unit.spawnToBundle(bundle);
 			});
 		};
-		bundle.addFunction({
-			removing = adding = nil;
-		})
+		removing = adding = nil;
 	}
 	bus {
 		^source.bus
 	}
 	groupForIndex { arg index,bundle;
-		// make a group on demand if needed
+		// make group on demand
 		var g;
 		^unitGroups.at(index) ?? {
 			g = Group.basicNew(this.server);
