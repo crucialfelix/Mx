@@ -68,25 +68,43 @@ MxCable {
 			StaticIntegerSpec(1,128),
 			StaticIntegerSpec(1,128)
 		],\audio);
+			
 		
 		this.register(\MxPlaysOnBus,\MxHasJack,
 			MxCableStrategy({ arg cable,bundle;
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
+				// no patchOut on jack
 				jack = cable.inlet.adapter.value;
-				jack.readFromBusToBundle(bus,bundle);
-				// mono -> stereo audio requires a wire synth
-				//jack.setValueToBundle( bus.index, bundle )
+				if(bus.numChannels == jack.numChannels,{
+					jack.readFromBusToBundle(bus,bundle);
+				},{
+					// mono -> stereo audio requires a wire synth
+					~wireBus = Bus.audio(bus.server,jack.numChannels);
+					
+					~wireSynth = Instr("MxCable.cableAr").head(cable.inlet.adapter.group, [
+												bus.index,
+												~wireBus.index,
+												bus.numChannels,
+												jack.numChannels
+											 ],bundle);
+											 						AbstractPlayer.annotate(~wireSynth,"wireSynth for " + cable.asString);
+
+					jack.readFromBusToBundle(~wireBus,bundle);
+				});
 			},{ arg cable,bundle;
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
 				jack = cable.inlet.adapter.value;
-				// temp: set it to silence
-				// what if a new connection is in the same bundle ?
-				// then order is important
-				// disconnects are first
-				//jack.setValueToBundle( cable.inlet.adapter.server.options.numAudioBusChannels-2, bundle )
+				if(~wireSynth.notNil,{
+					bundle.add( ~wireSynth.freeMsg );
+					bundle.addFunction({
+						cable.state.removeAt('wireSynth');
+						~wireBus.free;
+					}.inEnvir)
+				});
 				jack.stopReadFromBusToBundle(bundle);
+
 			},{ arg cable;
 				var bus, jack;
 				bus = cable.outlet.adapter.value;
@@ -119,18 +137,7 @@ MxCable {
 				~cableKr.prepareToBundle(~cableGroup,bundle);
 				~cableKr.spawnToBundle(bundle);
 				
-				// if I change patch to do connect patchIns on didSpawn
-				// then Patch has not yet connected patchIns/Outs
-				//if(jack.patchOut.connectedTo.insp("connectedTo").isNil,{
-					// bus via cable to jack
-					// to the patch that jack is in ASSUMING it is in a patch
-					// and what synth input is it ?
-				//	bundle.add( cable.inlet.unit.handlers['patch'].synth.mapMsg(1,~cableKr.insp.bus).insp("mapMsg") );
-				//	bundle.addFunction({ jack.isReadingFromBus = true });
-				//},{
-				//	// dynamic patching
-					jack.readFromBusToBundle(~cableKr.bus,bundle);
-				//})
+				jack.readFromBusToBundle(~cableKr.bus,bundle);
 				
 			},{ arg cable,bundle;
 				var bus, jack;
