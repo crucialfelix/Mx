@@ -2,10 +2,10 @@
 
 MxUnit.register('Instr',(
 
-	make: { arg instr;
+	make: { arg instr; // accepts either an instr or [instr, inputs]
 
 		var inlets,outlets,patch,inps,connectors,conn,handlers;
-		// accept either an instr or [instr, inputs]
+		
 		if(instr.isSequenceableCollection,{
 			# instr,inps = instr;
 			instr = instr.asInstr;
@@ -47,10 +47,15 @@ MxUnit.register('Instr',(
 		~patch.prepareToBundle(agroup,bundle,private,bus);
 		},
 	spawnToBundle: { arg bundle; 
-		~patch.spawnToBundle(bundle)
+		~patch.spawnToBundle(bundle);
+		~up = Updater(~patch.instr,{
+			// have to check if the args or specs changed
+			~respawn.value
+		}.inEnvir);
 		},
 	stopToBundle: { arg bundle; 
-		~patch.stopToBundle(bundle)
+		~patch.stopToBundle(bundle);
+		~up.remove
 		},
 	freeToBundle: { arg bundle; 
 		~patch.freeToBundle(bundle)
@@ -110,6 +115,10 @@ MxUnit.register('Instr',(
 		ActionButton(l,"respawn",{
 			~respawn.value
 		}.inEnvir);
+		ActionButton(l,"rand",{
+			~patch.rand
+		}.inEnvir);
+		l.startRow;
 		~patch.gui(l);
 		InstrGui(~patch.instr).sourceGui(l,500);
 		if(layout.isNil,{
