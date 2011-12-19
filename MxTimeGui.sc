@@ -46,13 +46,13 @@ MxTimeGui : ObjectGui {
 		};
 
 		maxTime = (model.endBeat ?? {model.beatDuration} ? 480);
-		CXLabel(layout,"MaxBeat:");
+		CXLabel(layout,"End beat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
 			timeRuler.refresh;
 			this.zoom(0,maxTime,true);
 		}).smallGui(layout);
-		ActionButton(layout,"Rec to Disk",{
+		ActionButton(layout,"Rec to disk",{
 			model.record(endBeat:maxTime);
 		}).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 

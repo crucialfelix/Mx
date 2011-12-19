@@ -60,7 +60,7 @@ MxLoader {
 	}
 	loadData { arg data;
 		this.initForLoad(data[0]);
-		// just find the Mx and load that
+		// better: just find the Mx and load that
 		// the rest comes with it
 		registerData.keysValuesDo { arg id,data;
 			var object;

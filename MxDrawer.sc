@@ -169,7 +169,7 @@ MxDrawerGui : ObjectGui {
 	        var it;
 	        it = MxDrawer.registery[k];
 	        if(it.isKindOf(MxDrawerItemGroup),{
-		        labels = labels.add( "*" ++ k ++ " >" )
+		        labels = labels.add( "*" ++ k ++ "*" )
 	        },{
 		        labels = labels.add( k.asString )
 	        });

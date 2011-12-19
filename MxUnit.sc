@@ -17,6 +17,7 @@ MxUnit  {
 			var unit;
 			unit = ~make.value(source);
 			if(~source.isNil,{
+				// set var so you can access it
 				~source = source;
 			});
 			unit.handlers = handlers;
