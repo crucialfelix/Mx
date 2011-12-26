@@ -7,6 +7,7 @@ MxGui : AbstractPlayerGui {
 	writeName {}
 	saveConsole { arg layout;
 		super.saveConsole(layout);
+		InspectorLink.icon(model,layout);
 		ActionButton(layout,"Timeline",{
 			MxTimeGui(model).gui(nil,1000@800);
 		});
@@ -28,6 +29,7 @@ MxGui : AbstractPlayerGui {
 				})
 			});
 			inspMe.do(_.insp);
+			InspManager.front;
 		});
 		ActionButton(layout,"respawn",{
 			boxes.selected.do { arg obj;

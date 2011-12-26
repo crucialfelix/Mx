@@ -10,10 +10,10 @@
 				
 
 				InspectorLink.captioned("Out",cable.outlet.unit.source,layout.startRow);
-				InspectorLink.captioned("In",cable.inlet.unit.source,layout.startRow);
+				InspectorLink(cable.outlet.adapter,layout);
 
-				InspectorLink.captioned("In adapter",cable.outlet.adapter,layout.startRow);
-				InspectorLink.captioned("Out adapter",cable.inlet.adapter,layout.startRow);
+				InspectorLink.captioned("In",cable.inlet.unit.source,layout.startRow);
+				InspectorLink(cable.inlet.adapter,layout);
 
 				layout.startRow;
 				try {
