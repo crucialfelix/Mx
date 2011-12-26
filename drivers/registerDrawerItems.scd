@@ -131,3 +131,8 @@ MxDrawer.add("Patterns from Instr...",{
 	});
 };
 
+MxDrawer.add("Sample",{ 
+	Sample.new
+});
+	
+
