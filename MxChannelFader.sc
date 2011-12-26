@@ -4,22 +4,32 @@
 MxChannelInput : AbstractPlayerProxy {
 	/* 
 		used to listen to a bus that one or more units are playing onto
+		
+		channel input was playing on same bus it listens in on
+		thus adding to it.
+		really no point in this thing, eh ?
+		well it creates on bus, doesn't even need a synth
+		its just a unit that others can connect to
+		and since they play on its bus, then it doesn't need a synth just to echo no-op
+
+		currently making an extra bus and copying it
 	*/
 
 	classvar cInstr;
 
-	var instr,busJack,<>numChannels=2;	
+	var instr,busJack,<>numChannels=2,inBus;	
 	
 	*new { ^super.new.init }
 	init {
 		var instr;
 		instr = MxChannelInput.instr;
-		busJack = MxIrJack(126).spec_(instr.specs.at(0));
+		busJack = MxIrJack(126).spec_(instr.specs.at(1));
 		source = Patch(instr,[ this.numChannels,busJack ])
 	}
 	prepareToBundle { arg agroup,bundle,private = false, argbus;
 		super.prepareToBundle(agroup,bundle,private , argbus);
-		busJack.value = this.bus.index;
+		inBus = this.patchOut.allocBus("inBus",\audio,this.numChannels);
+		busJack.value = inBus.index;
 	}
 	
 	*instr {
@@ -28,7 +38,7 @@ MxChannelInput : AbstractPlayerProxy {
 						In.ar(bus,numChannels)
 					},[
 						StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
-						StaticIntegerSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
+						ScalarSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
 					],AudioSpec.new);
 		}
 	}	

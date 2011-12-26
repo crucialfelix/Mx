@@ -156,12 +156,6 @@ MxChannel : AbstractPlayerProxy {
 		};
 		super.prepareToBundle(group,bundle,private,bus);
 		
-		if(input.notNil,{
-			inputGroup = Group.basicNew(this.server);
-			this.annotate(inputGroup,"inputGroup");
-			bundle.add( inputGroup.addToHeadMsg(group) );
-			input.prepareToBundle( inputGroup, bundle, true );
-		});
 		unitsGroup = Group.basicNew(this.server);
 		this.annotate(unitsGroup,"unitsGroup");
 		bundle.add( unitsGroup.addToTailMsg(group) );
@@ -175,9 +169,9 @@ MxChannel : AbstractPlayerProxy {
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
 		this.annotate(mixGroup,"mixGroup");
+
+		fader.prepareToBundle(mixGroup,bundle,private,bus);
 		
-		// fader
-		source.prepareToBundle(mixGroup,bundle,true,bus);
 		units.do { arg unit,i;
 			if(unit.notNil and: {unit.isPrepared.not},{
 				unit.prepareToBundle(unitGroups[i],bundle,true)
@@ -187,16 +181,17 @@ MxChannel : AbstractPlayerProxy {
 	}
 	prepareChildrenToBundle { arg bundle; }
 	loadDefFileToBundle { arg b,server;
-		// units would load during prepare
+		// units will load during prepare
 		fader.loadDefFileToBundle(b,server)
 	}	
 	spawnToBundle { arg bundle;
 		units.do { arg u,i;
 			var g;
 			if(u.isPlaying.not,{
-				if(u.notNil and: {u.isPrepared.not},{
-					u.prepareToBundle(this.groupForIndex(i,bundle),bundle,true)
-				});
+				// messy. this is if the channel is spawning in an mx already playing
+				//if(u.notNil and: {u.isPrepared.not and: {u.status != \isPreparing}},{
+				//	u.prepareToBundle(this.groupForIndex(i,bundle),bundle,true)
+				//});
 				u.spawnToBundle(bundle);
 			},{
 				g = this.groupForIndex(i,bundle);
@@ -209,9 +204,6 @@ MxChannel : AbstractPlayerProxy {
 			});
 		};
 		super.spawnToBundle(bundle);
-		if(input.notNil,{
-			input.spawnToBundle(bundle);
-		});
 		adding = removing = nil;
 	}
 	stopToBundle { arg bundle;
