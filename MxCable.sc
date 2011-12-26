@@ -15,7 +15,7 @@ MxCable {
 		state = Environment.new;
 	}
 	asString {
-		^format("MxCable: % [%] -> % [%]",this.outlet.unit.source.class,this.outlet.adapter.class,
+		^format("%[%]->%[%] MxCable",this.outlet.unit.source.class,this.outlet.adapter.class,
 								this.inlet.unit.source.class,this.inlet.adapter.class)
 	}
 	*hasStrategy { arg outlet,inlet;
@@ -23,7 +23,7 @@ MxCable {
 	}		
 	strategy {
 		^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ] ?? {
-			Error("No MxCableStrategy found for" + outlet + outlet.adapter + "=>" + inlet + inlet.adapter ).throw
+			Error("No MxCableStrategy found for" + this).throw
 		}
 	}
 	setInitial {
@@ -44,11 +44,7 @@ MxCable {
 		if(mapping.notNil,{
 			^mapping.value(v)
 		},{
-			if(outlet.spec.isKindOf(ControlSpec) and: {inlet.spec.isKindOf(ControlSpec)} and: {outlet.spec != inlet.spec},{
-				^inlet.spec.map( outlet.spec.unmap(v).clip(0.0,1.0) )
-			},{
-				^v
-			})
+			^outlet.spec.mapToSpec(v,inlet.spec)
 		})
 	}
 
@@ -88,8 +84,8 @@ MxCable {
 												bus.numChannels,
 												jack.numChannels
 											 ],bundle);
-											 						AbstractPlayer.annotate(~wireSynth,"wireSynth for " + cable.asString);
 
+					AbstractPlayer.annotate(~wireSynth, cable,"wireSynth");
 					jack.readFromBusToBundle(~wireBus,bundle);
 				});
 			},{ arg cable,bundle;
@@ -272,20 +268,48 @@ MxCable {
 				bundle.addFunction({
 					~updater.remove
 				}.inEnvir);
-			}
-			/*,{ arg cable;
-				// this is assuming that value is a frame rate device
-				// which is incorrect
-				var model,ina;
-				// multi dim this is an outlet ?
-				model = cable.outlet.adapter.value;
-				ina = cable.inlet.adapter;
-				
-				ina.value( cable.map( model.value(0.0) ?? {model.spec.default}).insp("initial value") )
-				
+			}/*,{ arg cable;
+				cable.inlet.adapter.value( cable.map( cable.outlet.adapter.value().value ) )
 			}*/)
 		);
-		
+
+		this.register(\MxSendSelfOnChanged,\MxSetter,
+			MxCableStrategy({ arg cable,bundle;
+				var model,ina;
+				model = cable.outlet.adapter.value();
+				ina = cable.inlet.adapter;
+				bundle.addFunction({
+					~updater = Updater(model,{ arg sender,value;
+						ina.value(cable.map(model))
+					});
+				}.inEnvir);
+			},{ arg cable,bundle;
+				bundle.addFunction({
+					cable.inlet.adapter.value( nil );
+					~updater.remove
+				}.inEnvir);
+			},{ arg cable;
+				cable.inlet.adapter.value( cable.map( cable.outlet.adapter.value() ) )
+			})
+		);
+
+		this.register(\MxPlaysOnBus,\MxSetter,
+			MxCableStrategy({ arg cable,bundle;
+				var bus,ina;
+				bundle.addFunction({
+					bus = cable.outlet.adapter.value();
+					ina = cable.inlet.adapter;
+					ina.value(bus)
+				}.inEnvir);
+			},{ arg cable,bundle;
+				bundle.addFunction({
+					cable.inlet.adapter.value( nil );
+				}.inEnvir);
+			},{ arg cable;
+				cable.inlet.adapter.value( cable.outlet.adapter.value() )
+			})
+		);
+						
 		this.register(\MxIsFrameRateDevice,\MxHasKrJack,
 			MxCableStrategy({ arg cable,bundle;
 				var jack,getValue;
@@ -375,7 +399,6 @@ MxCable {
 				
 	}
 }
-
 
 
 MxCableStrategy {
