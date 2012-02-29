@@ -29,19 +29,23 @@ TimeRuler {
 	}
 		
 	gui { arg layout,bounds;
+		var pen,blue;
 		view = UserView(layout,bounds);
-		gridLines = GridLines(view,bounds,nil,[0.0,maxTime].asSpec,true,false);
+		view.background = Color.white;
+		gridLines = DrawGrid(bounds,GridLines([0.0,maxTime]),nil);
+		pen = GUI.pen;
+		blue = Color.blue;
 		view.drawFunc = {
 			gridLines.draw;
 			if((position ? -1).inclusivelyBetween(*zoomCalc.zoomedRange),{
-				Pen.use {
+				pen.use {
 					var x;
-					Pen.width = 1;
-					Pen.color = Color.blue;
+					pen.width = 1;
+					pen.color = blue;
 					x = zoomCalc.modelToDisplay(position);
-					Pen.moveTo( x@0 );
-					Pen.lineTo( x@bounds.height );
-					Pen.stroke;
+					pen.moveTo( x@0 );
+					pen.lineTo( x@bounds.height );
+					pen.stroke;
 				}
 			})
 		};
@@ -52,13 +56,13 @@ TimeRuler {
 	}
 	setZoom { arg from,to;
 		zoomCalc.setZoom(from,to);
-		gridLines.domainSpec = [from,to].asSpec;
+		gridLines.x.setZoom(from,to);
 		view.refresh;
 	}
 	maxTime_ { arg mt;
 		maxTime = mt;
 		zoomCalc.modelRange = [0.0,maxTime];
-		gridLines.domainSpec = [0.0,maxTime].asSpec;
+		gridLines.x.setZoom(0.0,maxTime);
 	}
 	position_ { arg p;
 		position = p;
