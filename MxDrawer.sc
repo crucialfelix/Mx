@@ -200,28 +200,28 @@ MxDrawerGui : ObjectGui {
     }
     keyDownResponder {
         var k;
-        k = UnicodeResponder.new;
-		//  option 63232
-		k.register(   63232  ,   false, false, true, false, {
+        k = KeyResponder.new;
+		//  option
+		k.register(   \left  ,   false, false, true, false, {
 			this.prevItem
 		
 		});
-		//  option 63233
-		k.register(   63233  ,   false, false, true, false, {
+		//  option
+		k.register(   \right  ,   false, false, true, false, {
 			this.nextItem
 		
 		});
-		//  option 63234
-		k.register(   63234  ,   false, false, true, false, {
+		//  option
+		k.register(   \up  ,   false, false, true, false, {
             this.drillUp
 		
 		});
-		//  option 63235
-		k.register(   63235  ,   false, false, true, false, {
+		//  option
+		k.register(   \down  ,   false, false, true, false, {
             this.drillDown
 		
 		});
-		//  option 3
+		//  option enter
 		k.register(   3  ,   false, false, true, false, {
 			lv.enterKeyAction.value
 		
@@ -229,15 +229,14 @@ MxDrawerGui : ObjectGui {
         //  option 223
 		k.register(   223  ,   false, false, true, false, {
             searchBox.focus
-		
 		});
 
         
-//        //  shift-control arrow up 63232
-//        k.register(   63232  ,   false, false, false, false, {
+//        //  shift-control arrow up 
+//        k.register(   \up  ,   false, false, false, false, {
 //            this.drillUp
 //        });
-//        //  shift-control arrow down 63233
+//        //  shift-control arrow down
 //        k.register(   63233  ,   true, false, false, true, {
 //            this.drillDown
 //        });
@@ -245,11 +244,11 @@ MxDrawerGui : ObjectGui {
 //        k.register(   19  ,   false, false, false, true, {
 //            searchBox.focus
 //        });
-//		//  shift arrow down 63232 nav up
-//		k.register(   63232  ,   true, false, false, false, {
+//		//  shift arrow down  nav up
+//		k.register(   \up  ,   true, false, false, false, {
 //			this.prevItem
 //		});
-//		//  shift arrow down 63233 nav down
+//		//  shift arrow down nav down
 //		k.register(   63233  ,   true, false, false, false, {
 //			this.nextItem
 //		});		

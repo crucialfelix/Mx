@@ -166,9 +166,8 @@ MxMatrixGui : SCViewHolder {
 		// probably move to MxGui
 		var k,default;
 		default = 0@0;
-		k = UnicodeResponder.new;
-		//  127 delete
-		k.register( 127, false, false, false, false, {
+		k = KeyResponder.new;
+		k.register('backspace',false, false, false, false,{
 			selected.do { arg obj;
 				if(obj.class === MxOutlet,{
 					// all cables going to or from this
@@ -186,29 +185,29 @@ MxMatrixGui : SCViewHolder {
 			mx.update;
 			this.refresh;
 		});
-		//  63232 up
-		k.register(   63232  ,   false, false, false, false, {
+
+		k.register('up',false, false, false, false,{
 			var p;
 			p = (focusedPoint ? default);
 			focusedPoint = Point(p.x, max(p.y - 1,0));
 			this.refresh;
 		});
-		//  63233 down
-		k.register(   63233  ,   false, false, false, false, {
+
+		k.register('down',false, false, false, false,{
 			var p;
 			p = (focusedPoint ? default);
 			focusedPoint = Point(p.x, p.y + 1);
 			this.refresh;
 		});
-		//  63234 left
-		k.register(   63234  ,   false, false, false, false, {
+
+		k.register('left',false, false, false, false,{
 			var p;
 			p = (focusedPoint ? default);
 			focusedPoint = Point( max(p.x - 1,0), p.y);
 			this.refresh;
 		});
-		//  63235 right
-		k.register(   63235  ,   false, false, false, false, {
+
+		k.register('right',false, false, false, false,{
 			var p;
 			p = (focusedPoint ? default);
 			focusedPoint = Point(p.x + 1,p.y);
@@ -216,8 +215,7 @@ MxMatrixGui : SCViewHolder {
 		});
 
 		// VOLUMES
-		//  63232 shift up
-		k.register(   63232  ,   true, false, false, false, {
+		k.register('up',true, false, false, false,{
 			var chan;
 			if(focusedPoint.notNil,{
 				chan = mx.channels.at(focusedPoint.x)	 ?? { if(focusedPoint.x == masterCol,{mx.master},nil) };
@@ -228,13 +226,13 @@ MxMatrixGui : SCViewHolder {
 			},{
 				selected.do { arg obj;
 					if(obj.isKindOf(MxChannel),{
-						obj.fader.db = obj.fader.db + 1.0					})
+						obj.fader.db = obj.fader.db + 1.0
+					})
 				};
 				this.refresh;
 			});
 		});
-		//  63233 shift down
-		k.register(   63233  ,   true, false, false, false, {
+		k.register('down',true, false, false, false,{
 			var p,chan;
 			if(focusedPoint.notNil,{
 				chan = mx.channels.at(focusedPoint.x)	 ?? { if(focusedPoint.x == masterCol,{mx.master},nil) };
@@ -245,13 +243,14 @@ MxMatrixGui : SCViewHolder {
 			},{
 				selected.do { arg obj;
 					if(obj.isKindOf(MxChannel),{
-						obj.fader.db = obj.fader.db + 1.0					})
+						obj.fader.db = obj.fader.db + 1.0
+					})
 				};
 				this.refresh;
 			});
 		});
 		//  m
-		k.register(   109  ,   false, false, false, false, { arg view;
+		k.register(   $m  ,   false, false, false, false, { arg view;
 			var chan;
 			if(view.isKindOf(GUI.userView) and: {focusedPoint.notNil},{
 				mx.mute(focusedPoint.x);
@@ -259,36 +258,13 @@ MxMatrixGui : SCViewHolder {
 			});
 		});
 		//  s
-		k.register(   115  ,   false, false, false, false, { arg view;
+		k.register(   $s  ,   false, false, false, false, { arg view;
 			var chan;
 			if(view.isKindOf(GUI.userView) and: focusedPoint.notNil,{
 				mx.solo(focusedPoint.x);
 				this.refresh;
 			})
-		});		
-
-
-		// drawer drill up / down
-		//  control 63232
-		/*
-		k.register(   63232  ,   false, false, false, true, {
-			
 		});
-		//  control 63233
-		k.register(   63233  ,   false, false, false, true, {
-
-		});
-
-		// drawer left/right
-		//  option 63232
-		k.register(   63232  ,   false, false, true, false, {
-
-		});
-		//  option 63233
-		k.register(   63233  ,   false, false, true, false, {
-
-		});
-		*/
 		^k
 	}
 	// internal dragging

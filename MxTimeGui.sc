@@ -167,37 +167,33 @@ MxTimeGui : ObjectGui {
 	keyDownResponder {
 		var k,default;
 		default = 0@0;
-		k = UnicodeResponder.new;
-		//  63232
-		k.register(   63232  ,   false, false, false, false, {
+		k = KeyResponder.new;
+		k.register(   \up  ,   false, false, false, false, {
 			this.zoomBy(1.1)
 		});
-		//  63233
-		k.register(   63233  ,   false, false, false, false, {
+		k.register(   \down  ,   false, false, false, false, {
 			this.zoomBy(0.9)
 		});
-		//  shift control 63232
-		k.register(   63232  ,   true, false, false, true, {
+		//  shift control \up
+		k.register(   \up  ,   true, false, false, true, {
 			this.zoomBy(1.01,1)
 		});
-		//  shift control 63233
-		k.register(   63233  ,   true, false, false, true, {
+		//  shift control
+		k.register(   \down  ,   true, false, false, true, {
 			this.zoomBy(0.99,1)
 		});
-		//  63234
-		k.register(   63234  ,   false, false, false, false, {
+		k.register(   \left  ,   false, false, false, false, {
 			this.moveBy(-0.1)
 		});
-		//  63235
-		k.register(   63235  ,   false, false, false, false, {
+		k.register(   \right  ,   false, false, false, false, {
 			this.moveBy(0.1)		
 		});
-		//  shift control 63234
-		k.register(   63234  ,   true, false, false, true, {
+		//  shift control 
+		k.register(   \left  ,   true, false, false, true, {
 			this.moveBy(-0.01,1)		
 		});
-		//  shift control 63235
-		k.register(   63235  ,   true, false, false, true, {
+		//  shift control 
+		k.register(   \right  ,   true, false, false, true, {
 			this.moveBy(0.01,1)
 		});
 		^k		
