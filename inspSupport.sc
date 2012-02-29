@@ -19,7 +19,7 @@
 				try {
 					InspButton.captioned("Strategy",cable.strategy,layout);
 				} {
-					CXLabel(layout,"NO STRATEGY FOR CABLE");
+					SimpleLabel(layout,"NO STRATEGY FOR CABLE");
 				}
 			});
 			
@@ -33,7 +33,7 @@
 						if(bus.rate == 'audio',{
 							listen = Patch({ In.ar( bus.index, bus.numChannels ) });
 							layout.startRow;
-							CXLabel( layout, bus.asString );
+							SimpleLabel( layout, bus.asString );
 							ToggleButton( layout,"listen",{
 								listen.play
 							},{
@@ -42,14 +42,14 @@
 						});	
 						layout.startRow.flow({ |f|
 							var ann;
-							CXLabel(f,"Annotations:");
+							SimpleLabel(f,"Annotations:");
 							ann = BusPool.getAnnotations(bus);
 	
 							if(ann.notNil,{
 								ann.keysValuesDo({ |client,name|
 									f.startRow;
 									Tile(client,f);
-									CXLabel(f,":"++name);
+									SimpleLabel(f,":"++name);
 								});
 							});
 						})
@@ -74,7 +74,7 @@
 				try {
 					InspButton.captioned("Strategy",cable.strategy,layout);
 				} {
-					CXLabel(layout,"NO STRATEGY FOR CABLE");
+					SimpleLabel(layout,"NO STRATEGY FOR CABLE");
 				}
 			})
 			*/
