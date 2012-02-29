@@ -14,16 +14,16 @@ MxMixerGui : ObjectGui {
 		layout.startRow;
 		if(model.isPlaying and: {model.server.inProcess},{
 			layout.flow({ arg layout;
-				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,view:layout);
+				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,zoom:1.0,rate:\audio,view:layout);
 				scope.xZoom = 16;
 			},scopeSize@scopeSize);
-			if(SCFreqScope.notNil,{
-				freqScope = SCFreqScope(layout,scopeSize@scopeSize);
-				freqScope.inBus = model.master.bus.index;
-				freqScope.dbRange_(24);
-				freqScope.freqMode = 1;
-				freqScope.active = true;
-			})
+			/*
+			freqScope = PlusFreqScope(layout,Rect(0,0,scopeSize,scopeSize));
+			freqScope.inBus = model.master.bus.index;
+			freqScope.dbRange = 18;
+			freqScope.freqMode = 1;
+			freqScope.active = true;
+			*/
 		});
 		layout.startRow;
 		chans = (model.channels ++ [model.master]);
