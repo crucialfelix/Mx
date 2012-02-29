@@ -5,19 +5,19 @@
 	*initClass {
 		var busf;
 		if(Insp.notNil,{
-			Class.initClassTree(CXObjectInspector);
-			CXObjectInspector.registerHook(MxCable,{ arg cable,layout;
+			Class.initClassTree(ObjectInsp);
+			ObjectInsp.registerHook(MxCable,{ arg cable,layout;
 				
 
-				InspectorLink.captioned("Out",cable.outlet.unit.source,layout.startRow);
-				InspectorLink(cable.outlet.adapter,layout);
+				InspButton.captioned("Out",cable.outlet.unit.source,layout.startRow);
+				InspButton(cable.outlet.adapter,layout);
 
-				InspectorLink.captioned("In",cable.inlet.unit.source,layout.startRow);
-				InspectorLink(cable.inlet.adapter,layout);
+				InspButton.captioned("In",cable.inlet.unit.source,layout.startRow);
+				InspButton(cable.inlet.adapter,layout);
 
 				layout.startRow;
 				try {
-					InspectorLink.captioned("Strategy",cable.strategy,layout);
+					InspButton.captioned("Strategy",cable.strategy,layout);
 				} {
 					CXLabel(layout,"NO STRATEGY FOR CABLE");
 				}
@@ -56,23 +56,23 @@
 					});
 				};
 			[MxPlaysOnBus,MxListensToBus,MxHasBus,MxPlaysOnKrBus].do { arg klass;
-				CXObjectInspector.registerHook(klass,busf);
+				ObjectInsp.registerHook(klass,busf);
 			};
 				
 						
 			/*
-			CXObjectInspector.registerHook(MxCableStrategy,{ arg strategy,layout;
+			ObjectInsp.registerHook(MxCableStrategy,{ arg strategy,layout;
 				
-				CXObjectInspector.sourceCodeGui
-				InspectorLink.captioned("connectf",cable.outlet.unit.source,layout.startRow);
-				InspectorLink.captioned("adapter",cable.outlet.adapter,layout.startRow);
+				ObjectInsp.sourceCodeGui
+				InspButton.captioned("connectf",cable.outlet.unit.source,layout.startRow);
+				InspButton.captioned("adapter",cable.outlet.adapter,layout.startRow);
 
-				InspectorLink.captioned("In",cable.inlet.unit.source,layout.startRow);
-				InspectorLink.captioned("adapter",cable.inlet.adapter,layout.startRow);
+				InspButton.captioned("In",cable.inlet.unit.source,layout.startRow);
+				InspButton.captioned("adapter",cable.inlet.adapter,layout.startRow);
 
 				layout.startRow;
 				try {
-					InspectorLink.captioned("Strategy",cable.strategy,layout);
+					InspButton.captioned("Strategy",cable.strategy,layout);
 				} {
 					CXLabel(layout,"NO STRATEGY FOR CABLE");
 				}
