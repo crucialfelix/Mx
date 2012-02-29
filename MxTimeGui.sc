@@ -22,30 +22,30 @@ MxTimeGui : ObjectGui {
 			var s,m,minHeight,b;
 			var lane;
 			
-			lane = layout.comp({ arg l;
-				s = l.vert({ arg s;
-						side.value(s)
-				},Rect(0,0,sidebarSize,laneHeight));
+			layout.flow({ arg layout;
+				lane = layout.comp({ arg l;
+					s = l.vert({ arg s;
+							side.value(s)
+					},Rect(0,0,sidebarSize,laneHeight));
+					
+					m = FlowView(l,Rect(sidebarSize,0,width - sidebarSize,laneHeight),0@0,0@0);
+					main.value(m);
+				},Rect(0,0,width,laneHeight));
 				
-				m = FlowView(l,Rect(sidebarSize,0,width - sidebarSize,laneHeight),0@0,0@0);
-				main.value(m);
-			},Rect(0,0,width,laneHeight));
-			
-			m.resizeToFit(true);
-			m.resizeToFit(true);
-			minHeight = s.bounds.height;
-			
-			b = m.bounds;
-			if(b.height < s.bounds.height,{
-				minHeight = b.height;
-			});
-			
-			s.bounds = s.bounds.height_(minHeight);
-			lane.bounds = lane.bounds.height_(minHeight);
-			
+				m.resizeToFit(true);
+				minHeight = s.bounds.height;
+				
+				b = m.bounds;
+				if(b.height < s.bounds.height,{
+					minHeight = b.height;
+				});
+				s.bounds = s.bounds.height_(minHeight);
+				lane.bounds = lane.bounds.height_(minHeight);
+	
+			}).resizeToFit			
 		};
 
-		maxTime = (model.endBeat ?? {model.beatDuration} ? 480);
+		maxTime = (model.endBeat ?? {model.beatDuration} ? 480) + 8;
 		CXLabel(layout,"End beat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
@@ -82,6 +82,7 @@ MxTimeGui : ObjectGui {
 		zoom.hi = 1.0;
 		zoom.action = {this.zoom((zoom.lo * maxTime).round(4), (zoom.hi * maxTime).round(4),false)};
 		zoom.knobColor = Color.black;
+		zoom.background = Color.white;
 		zoom.keyDownAction = kdr;
 		zoom.focusColor = focusColor;
 
