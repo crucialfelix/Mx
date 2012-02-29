@@ -57,21 +57,8 @@ MxTimeGui : ObjectGui {
 		}).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
-		
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
-		makeSidebar.value({ arg s;
-			// goto start
-				ActionButton(s,"|<",{model.gotoBeat(0,1)})
-			},
-			{ arg m;
-				timeRuler = TimeRuler(m,Rect(0,0,m.bounds.width,buttonHeight * 2),maxTime);
-			});
-		timeRuler.keyDownAction = kdr;
-		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
-			model.gotoBeat( beat.trunc(4)  )		
-		};
-		this.prSetFromTo(0.0,maxTime);
-		
+
 		// zoom controls
 		makeSidebar.value({ arg s;
 			ActionButton(s,"<-zoom->",{this.zoom(0,maxTime,true)})
@@ -85,7 +72,20 @@ MxTimeGui : ObjectGui {
 		zoom.background = Color.white;
 		zoom.keyDownAction = kdr;
 		zoom.focusColor = focusColor;
-
+		
+		makeSidebar.value({ arg s;
+			// goto start
+				ActionButton(s,"|<",{model.gotoBeat(0,1)})
+			},
+			{ arg m;
+				timeRuler = TimeRuler(m,Rect(0,0,m.bounds.width,buttonHeight * 2),maxTime);
+			});
+		timeRuler.keyDownAction = kdr;
+		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
+			model.gotoBeat( beat.trunc(4)  )		
+		};
+		this.prSetFromTo(0.0,maxTime);
+		
 		updater = Updater(model.position,{ arg pos;
 			{
 				if(timeRuler.isClosed.not,{
