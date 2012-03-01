@@ -108,6 +108,12 @@ EventListPlayer : EventPlayer {
 			})
 		})
 	}
+	removeEvent { arg ev;
+		events.remove(ev);
+		if(ev['beat'].notNil and: {ev['beat'] >= sched.beat},{
+			this.schedAll;
+		})
+	}
 	playEventAt { arg i,inval;
 		var te;
 		te = events[i];
