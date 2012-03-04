@@ -7,7 +7,7 @@ MxUnit.register('SplineFr',
 		~source = sfr;
 		~recording = false;
 		rec = MxSetter({ arg v; 
-			if(~recording,{ sfr.setValueOnNextTick(v) }) 
+			if(~recording,{ v !? {sfr.setValueOnNextTick(v)} }) 
 		}.inEnvir);
 		inlets  = [ MxInlet("setValueNow",0,sfr.spec,rec) ];
 		outlets = [ MxOutlet("out", 0, sfr.spec, MxIsFrameRateDevice({arg val; val}) ) ];
