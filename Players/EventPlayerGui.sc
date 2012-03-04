@@ -34,12 +34,18 @@ EventListPlayerGui : AbstractPlayerGui {
 			this.updateTimeGui;
 		};
 		manager.onCopy = { arg obj,by;
-			
+			var nobj;
+			nobj = obj.copy;
+			nobj['beat'] = obj['beat'] + by;
+			model.addEvent(nobj);
 		};
 		manager.onDelete = { arg obj;
 			model.removeEvent(obj);
 		};
-				
+		manager.onDoubleClick = { arg obj;
+			model.playEvent(obj)
+		};
+
 		this.updateTimeGui;
 		tg.drawFunc = manager;
 	}
@@ -54,7 +60,7 @@ EventListPlayerGui : AbstractPlayerGui {
 				pixelStart = zoomCalc.modelToDisplay(ev['beat']);
 				pixelEnd = zoomCalc.modelToDisplay(endBeat);
 				if(pixelStart.notNil and: {pixelEnd.notNil},{ // on screen
-					
+
 					r = Rect(0,0,pixelEnd - pixelStart,h);
 					rs = PenCommandList.new;
 					rs.add(\color_,Color.green);
