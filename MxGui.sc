@@ -89,7 +89,7 @@ MxGui : AbstractPlayerGui {
 							});
 							model.changed('grid');
 						})
-					},false).rate_(spec.rate).inputSpec_(spec).outputSpec_(spec).init.gui
+					},nil,false).rate_(spec.rate).inputSpec_(spec).outputSpec_(spec).init.gui
 				})
 			})
 		});
