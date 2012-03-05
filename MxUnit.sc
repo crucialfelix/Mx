@@ -52,7 +52,7 @@ MxUnit  {
 			Error("No MxUnit driver found for " + class).throw;
 		});
 		// this is actually a variable space dict, not just handlers
-		^Environment(32,nil,classHandlers,true);
+		^Environment(32,classHandlers,nil,true);
 	}
 	*handlersForClass { arg class;
 		var match,path;
@@ -98,7 +98,7 @@ MxUnit  {
 		Error("Outlet not found:" + index).throw
 	}
 	*register { arg classname,handlers;
-		var e,class,parentHandlers;
+		var e,class,superclassHandlers;
 		classname = classname.asSymbol;
 		e = registery.at(classname); 
 		if(e.notNil,{ // updating
@@ -109,11 +109,11 @@ MxUnit  {
 			class = classname.asClass;
 			if(class.notNil and: {class !== Object}) {
 				class.superclasses.any { arg sup;
-					parentHandlers = this.handlersForClass(sup);
-					parentHandlers.notNil
+					superclassHandlers = this.handlersForClass(sup);
+					superclassHandlers.notNil
 				}
 			};
-			e = Environment(32,nil,parentHandlers,true);
+			e = Environment(32,superclassHandlers,nil,true);
 		});
 		handlers.keysValuesDo { arg k,v;
 			e.put(k,v)
