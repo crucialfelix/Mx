@@ -8,6 +8,7 @@ EventListPlayerGui : AbstractPlayerGui {
 	guiBody { arg layout,bounds;
 		// zoom control if top
 		// test buttons to click each one
+		ToggleButton(layout,"debug",{ model.verbose = true },{ model.verbose = false },model.verbose);
 		this.timeGui(layout,bounds ?? {Rect(0,0,layout.bounds.width,100)})
 	}
 	timeGui { arg layout,bounds,maxTime;

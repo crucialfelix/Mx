@@ -5,7 +5,7 @@
 EventPlayer : AbstractPlayer {
 	
 	var <>postFilter,<>protoEvent,<>spec;
-	var postStream;
+	var postStream,<>verbose=false;
 	
 	*new { arg postFilter,protoEvent,spec=\audio;
 		^super.new.init(postFilter,protoEvent).spec_(spec.asSpec)
@@ -22,6 +22,7 @@ EventPlayer : AbstractPlayer {
 			e = postStream.next(e)
 		});
 		e.play;
+		if(verbose,{ e.debug });
 		^e
 	}
 	postFilterPut { arg k,v;
@@ -131,6 +132,7 @@ EventListPlayer : EventPlayer {
 			e.putAll(inval)
 		});
 		e.play;
+		if(verbose,{ e.debug });
 		^e
 	}
 	
