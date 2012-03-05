@@ -45,26 +45,27 @@ MxUnit  {
 		outlets.do(_.unit = this);
 	}
 	*handlersFor { arg class;
-		var h;
-		h = protoHandler.copy;
-		class.superclassesDo({ arg class;
-			var match,path;
-			match = registery[class.name];
-			if(match.isNil,{
-				path = PathName(MxUnit.class.filenameSymbol.asString).parentPath 
-								+/+ "drivers" +/+ class.name.asString ++ ".scd";
-				if(File.exists(path),{
-					path.load;
-					match = registery[class.name]
-				});
-			});				
-			if(match.notNil,{
-				h.putAll(match);
-				^h
-			})
+		var classHandlers;
+		classHandlers = this.handlersForClass(class);
+		if(classHandlers.isNil,{
+			Error("No MxUnit driver found for " + class).throw;
 		});
-		Error("No MxUnit driver found for " + class).throw;
+		// this is actually a variable space dict, not just handlers
+		^Environment(32,nil,classHandlers,true);
 	}
+	*handlersForClass { arg class;
+		var match,path;
+		match = registery[class.name] ?? {
+			path = PathName(MxUnit.class.filenameSymbol.asString).parentPath 
+							+/+ "drivers" +/+ class.name.asString ++ ".scd";
+			if(File.exists(path),{
+				path.debug("Loading driver").load;
+				match = registery[class.name]
+			});
+		};
+		^match
+	}
+
 	getInlet { arg index;
 		if(index.isNil,{
 			^inlets.first
@@ -96,7 +97,27 @@ MxUnit  {
 		Error("Outlet not found:" + index).throw
 	}
 	*register { arg classname,handlers;
-		registery.put(classname.asSymbol, handlers)
+		var e,class,parentHandlers;
+		classname = classname.asSymbol;
+		e = registery.at(classname); 
+		if(e.notNil,{ // updating
+			e.keys.do { arg k;
+				e.removeAt(k)
+			};
+		},{ // new registration
+			class = classname.asClass;
+			if(class.notNil and: {class !== Object}) {
+				class.superclasses.any { arg sup;
+					parentHandlers = this.handlersForClass(sup);
+					parentHandlers.notNil
+				}
+			};
+			e = Environment(32,nil,parentHandlers,true);
+		});
+		handlers.keysValuesDo { arg k,v;
+			e.put(k,v)
+		};
+		registery.put(classname, e)
 	}
 
 	isPrepared {
@@ -239,53 +260,6 @@ MxUnit  {
 	}
 	*initClass {
 		registery = IdentityDictionary.new;
-		
-		protoHandler = (
-			make: { arg object; MxUnit(object) },
-			save: { ~source.asCompileString },
-			load: { arg string; string.compile.value() },
-			copy: { ~source.deepCopy },
-			
-			prepareToBundle:  { arg agroup, bundle, private, bus; ~source.prepareToBundle(agroup,bundle,private,bus) },
-			spawnToBundle: { arg bundle; ~source.spawnToBundle(bundle) },
-			stopToBundle: { arg bundle; ~source.stopToBundle(bundle) },
-			freeToBundle: { arg bundle; ~source.freeToBundle(bundle) },
-			moveToHead: { arg aGroup,bundle,currentGroup; 
-				// default is to stop it and fully restart it
-				// objects that can move themselves can implement this cleaner
-				~stopToBundle.value(bundle);
-				~prepareToBundle.value(aGroup,bundle);
-				~spawnToBundle.value(bundle);
-			},
-			play: { arg group, atTime, bus;},
-			stop: { arg atTime,andFreeResources = true; },
-			respawn: { arg atTime; },
-			isPlaying: { ~source.isPlaying },
-			
-			numChannels: { ~source.numChannels ? 2 },
-			spec: { ~source.spec ?? {'audio'.asSpec} },
-			beatDuration: { nil }, // meaning unknownable or unending
-			gui: { arg layout,bounds; 
-				~source.gui(layout ?? {Window(~name.value,bounds).front},bounds) 
-			},
-			draw: { arg pen,bounds,style;
-				pen.color = style['fontColor'];
-				pen.font = style['font'];
-				if(style['center'],{
-					pen.stringCenteredIn(~name.value,bounds)
-				},{
-					pen.stringLeftJustIn(~name.value, bounds.insetBy(2,2) )
-				});
-			}, 
-			name: { ~source.asString }
-
-			// crop
-			// relocate: { arg toBeat, atTime; }
-			// timeGui
-			// zoomTimeGui
-			// asCompileString
-			// 
-		);
 	}
 }
 
