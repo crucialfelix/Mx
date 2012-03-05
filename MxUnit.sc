@@ -4,7 +4,7 @@ MxUnit  {
 	
 	classvar registery,<protoHandler;
 
-	var <>source,<inlets,<outlets,<>handlers;
+	var <>source,<inlets,<outlets,<>handlers,<varPooling=false;
 	var <>group,status;
 	
 	*make { arg source,class;
@@ -122,6 +122,16 @@ MxUnit  {
 	}
 	mx_ { arg mx;
 		handlers['mx'] = mx;
+	}
+	varPooling_ { arg boo;
+		varPooling = boo;
+		handlers['mx'].updateVarPooling;
+	}
+	parentEnvir_ { arg env;
+		handlers.parent = env;
+	}
+	parentEnvir {
+		^handlers.parent
 	}
 	isPrepared {
 		^['isPrepared','isPlaying','isStopped'].includes(status)

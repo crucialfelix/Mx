@@ -57,8 +57,9 @@ Mx : AbstractPlayerProxy {
 		source = master;
 		sched = OSCSched.new;
 		position = Position.new;
+		this.updateVarPooling;
 	}
-			
+
 	nextID {
 		^allocator = allocator + 1;
 	}
@@ -167,6 +168,7 @@ Mx : AbstractPlayerProxy {
 		if(autoCable,{
 			this.updateAutoCables
 		});
+		this.updateVarPooling;
 		this.changed('grid');
 		^chan
 	}
@@ -181,6 +183,7 @@ Mx : AbstractPlayerProxy {
 	}
 	removeChannel { arg index;
 		this.prRemoveChannel(index);
+		this.updateVarPooling;
 		this.changed('grid'); // this is why app should be separate
 	}
 	prRemoveChannel { arg index;
@@ -257,6 +260,7 @@ Mx : AbstractPlayerProxy {
 			this.unregister(this.findID(old));
 		});
 		channel.put(index, unit);
+		this.updateVarPooling;
 		this.changed('grid');
 		^unit
 	}
@@ -283,7 +287,7 @@ Mx : AbstractPlayerProxy {
 				this.extendChannels(toChan);
 				channel = channels[toChan];
 			},{
-				channel = master;	
+				channel = master;
 			});
 			
 			channel.insertAt(toIndex,unit,unitg);
@@ -297,6 +301,7 @@ Mx : AbstractPlayerProxy {
 				channel.move(index,toIndex);
 			})
 		};
+		this.updateVarPooling;
 		this.changed('grid');
 	}
 	remove { arg chan,index;
@@ -319,16 +324,17 @@ Mx : AbstractPlayerProxy {
 			if(channel.isNil,{
 				this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
 				^this
-			});				
+			});
 		});
 		unit = MxUnit.make(object);
 		if(unit.notNil,{ // nil object is nil unit which is legal
 			this.registerUnit(unit);
-		});		
+		});
 		channel.insert(index,unit);
+		this.updateVarPooling;
 		this.changed('grid');
 		^unit
-	}		
+	}
 	removeUnit { arg unit;
 		channels.do { arg ch,ci;
 			ch.units.do { arg u,ri;
@@ -622,6 +628,21 @@ Mx : AbstractPlayerProxy {
 			});
 		});
 		^b
+	}
+	updateVarPooling {
+		// set up parent chain of unit environments that participate in varPooling
+		var prevUnit;
+		this.allUnits.do { arg u;
+			u.parentEnvir = nil;
+			if(u.varPooling) {
+				if(prevUnit.notNil) {
+					// still worried that a timeGui will show up as implemented
+					// when its just a bleed through
+					u.parentEnvir = prevUnit.handlers
+				};
+				prevUnit = u
+			};
+		}
 	}
 	allUnits {
 		^Routine({
