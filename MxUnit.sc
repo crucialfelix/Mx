@@ -22,6 +22,7 @@ MxUnit  {
 			});
 			unit.handlers = handlers;
 			~unit = unit;
+			~this = unit;
 			unit
 		}
 	}
@@ -119,7 +120,9 @@ MxUnit  {
 		};
 		registery.put(classname, e)
 	}
-
+	mx_ { arg mx;
+		handlers['mx'] = mx;
+	}
 	isPrepared {
 		^['isPrepared','isPlaying','isStopped'].includes(status)
 	}

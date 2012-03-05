@@ -68,5 +68,15 @@ TestMx : UnitTest {
 		p = Instr("_test_.Sin",{ SinOsc.ar });
 		x.put(0,0,p);
 	}
+	test_mx_is_set {
+		var x,p,unit;
+		x = Mx.new;
+		p = Instr("_test_.Sin",{ SinOsc.ar });
+		x.put(0,0,p);
+		unit = x.at(0,0);
+		unit.use {
+			this.assert( ~mx === x,"Unit's ~mx should be set to the mx that it has been added to");
+		}
+	}
 	
 }

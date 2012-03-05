@@ -92,6 +92,7 @@ Mx : AbstractPlayerProxy {
 	}
 	registerUnit { arg unit,uid;
 		uid = this.register(unit,uid);
+		unit.mx = this;
 		unit.inlets.do { arg inlet;
 			this.register(inlet); // already registered ?
 		};
