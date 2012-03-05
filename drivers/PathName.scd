@@ -65,6 +65,6 @@ MxUnit.register('PathName',(
 */
 	name: { ~source.fileName ? "Document "},
 	gui: { arg layout;
-		Document.open(~source.fullPath);
+		Document.open(~source.fullPath,envir:currentEnvironment);
 	},
 ));
