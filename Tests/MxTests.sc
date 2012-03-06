@@ -135,4 +135,22 @@ TestMx : UnitTest {
 		
 	}
 	
+	prTestMakeForSource { arg source;
+		var x;
+		x = Mx.new;
+		x.put(0,0, source );
+		^x.at(0,0)
+	}
+	
+	test_makeDocument {
+		var path,unit;
+		path = PathName(this.class.filenameSymbol.asString).parentPath +/+ "fixtures/document.scd";
+		unit = this.prTestMakeForSource( PathName(path) );
+		unit.insp;
+		unit.use {
+			this.assert( ~thisDocumentWasRun == true, "~thisDocumentWasRun should be set when the document was loaded");
+			this.assert( ~onLoadDidHappen == true,"this.onLoad should have been executed and set the test var ~onLoadDidHappen");
+		};
+	}
 }
+
