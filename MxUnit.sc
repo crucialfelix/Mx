@@ -5,6 +5,7 @@ MxUnit  {
 	classvar registery,<protoHandler;
 
 	var <>source,<inlets,<outlets,<>handlers,<varPooling=false;
+	var <>onLoad;
 	var <>group,status;
 	
 	*make { arg source,class;

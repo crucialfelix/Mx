@@ -5,6 +5,9 @@ MxUnit.register('Object',
 	save: { ~source.asCompileString },
 	load: { arg string; string.compile.value() },
 	copy: { ~source.deepCopy },
+
+	// methods that the driver can implement, called after make
+	didLoad: {},
 	
 	prepareToBundle:  { arg agroup, bundle, private, bus; ~source.prepareToBundle(agroup,bundle,private,bus) },
 	spawnToBundle: { arg bundle; ~source.spawnToBundle(bundle) },
