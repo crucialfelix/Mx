@@ -76,7 +76,63 @@ TestMx : UnitTest {
 		unit = x.at(0,0);
 		unit.use {
 			this.assert( ~mx === x,"Unit's ~mx should be set to the mx that it has been added to");
+			this.assert( ~this === unit,"Unit's ~this should be set to the unit");
 		}
+	}
+	test_varPooling {
+		var x,p,q,pu,qu;
+		x = Mx.new;
+		p = Instr("_test_.Sin",{ SinOsc.ar });
+		q = Instr("_test_.Sin",{ SinOsc.ar });
+		x.put(0,0,p);
+		x.put(0,1,q);
+		pu = x.at(0,0);
+		qu = x.at(0,1);
+		pu.varPooling = true;
+		qu.varPooling = true;
+
+		pu.use {
+			~variable = "variable";
+		};
+		qu.use {
+			this.assert( ~variable == "variable","Unit's ~variable should be set to the string 'variable' from listening upstream");
+		};
+		
+		// turn it off
+		qu.varPooling = false;
+		pu.use {
+			~variable = "off";
+		};
+		qu.use {
+			this.assert( ~variable != "off","Unit's ~variable should NOT be set to the string 'off' as unit's varPooling is set to off");
+		}
+	}
+	test_varPooling2 {
+		var x,p,q,r,pu,qu,ru;
+		x = Mx.new;
+		p = Instr("_test_.Sinp",{ SinOsc.ar });
+		q = Instr("_test_.Sinq",{ SinOsc.ar });
+		r = Instr("_test_.Sinr",{ SinOsc.ar });
+		x.put(0,0,p);
+		x.put(0,1,q);
+		x.put(0,2,r);
+		pu = x.at(0,0);
+		qu = x.at(0,1);
+		ru = x.at(0,2);
+		pu.varPooling = true;
+		// not qu
+		ru.varPooling = true;
+
+		pu.use {
+			~variable = "variable";
+		};
+		qu.use {
+			this.assert( ~variable != "variable","qu's ~variable should be NOT set to the string 'variable' from listening upstream");
+		};
+		ru.use {
+			this.assert( ~variable == "variable","ru's ~variable should be set to the string 'variable' from listening upstream");
+		};
+		
 	}
 	
 }
