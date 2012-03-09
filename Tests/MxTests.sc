@@ -60,11 +60,15 @@ TestMxUnit : UnitTest {
 	}
 }
 
-TestMx : UnitTest {
+TestMx : TestAbstractPlayer {
+
+	makePlayer {
+		^Mx.new
+	}
 	
 	test_put {
 		var x,p;
-		x = Mx.new;
+		x = this.makePlayer;
 		p = Instr("_test_.Sin",{ SinOsc.ar });
 		x.put(0,0,p);
 	}
@@ -81,7 +85,7 @@ TestMx : UnitTest {
 	}
 	test_varPooling {
 		var x,p,q,pu,qu;
-		x = Mx.new;
+		x = this.makePlayer;
 		p = Instr("_test_.Sin",{ SinOsc.ar });
 		q = Instr("_test_.Sin",{ SinOsc.ar });
 		x.put(0,0,p);
@@ -109,7 +113,7 @@ TestMx : UnitTest {
 	}
 	test_varPooling2 {
 		var x,p,q,r,pu,qu,ru;
-		x = Mx.new;
+		x = this.makePlayer;
 		p = Instr("_test_.Sinp",{ SinOsc.ar });
 		q = Instr("_test_.Sinq",{ SinOsc.ar });
 		r = Instr("_test_.Sinr",{ SinOsc.ar });
@@ -137,7 +141,7 @@ TestMx : UnitTest {
 	
 	prTestMakeForSource { arg source;
 		var x;
-		x = Mx.new;
+		x = this.makePlayer;
 		x.put(0,0, source );
 		^x.at(0,0)
 	}
@@ -146,11 +150,23 @@ TestMx : UnitTest {
 		var path,unit;
 		path = PathName(this.class.filenameSymbol.asString).parentPath +/+ "fixtures/document.scd";
 		unit = this.prTestMakeForSource( PathName(path) );
-		unit.insp;
 		unit.use {
 			this.assert( ~thisDocumentWasRun == true, "~thisDocumentWasRun should be set when the document was loaded");
 			this.assert( ~onLoadDidHappen == true,"this.onLoad should have been executed and set the test var ~onLoadDidHappen");
 		};
+	}
+	
+	test_playSimple {
+		var x,s;
+		x = this.makePlayer;
+		//s = Instr("_test.SinMX",{SinOsc.ar});
+		
+		s = Instr("_test.Mx.lfsaw",{ arg freq=440,amp=1.0,iphase=0.0;
+				LFSaw.ar(freq,iphase,amp)
+			},[],\mono);
+
+		x.add(s);
+		this.startStopStart;
 	}
 }
 
