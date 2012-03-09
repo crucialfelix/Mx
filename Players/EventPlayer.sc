@@ -132,7 +132,7 @@ EventListPlayer : EventPlayer {
 			e.putAll(inval)
 		});
 		e.play;
-		if(verbose,{ e.debug });
+		if(verbose,{ e.asCompileString.postln; "".postln; });
 		^e
 	}
 	
