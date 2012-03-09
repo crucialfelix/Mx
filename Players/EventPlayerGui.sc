@@ -43,9 +43,22 @@ EventListPlayerGui : AbstractPlayerGui {
 		manager.onDelete = { arg obj;
 			model.removeEvent(obj);
 		};
-		manager.onDoubleClick = { arg obj;
-			model.playEvent(obj)
+		manager.onDoubleClick = { arg obj,p,modifiers;
+			if(modifiers.isCmd,{
+				DictionaryEditor(obj).gui(nil,nil,{ arg ev;
+					var beatChanged = ev['beat'] != obj['beat'];
+					ev.keysValuesDo { arg k,v;
+						obj.put(k,v)
+					};
+					if(beatChanged,{
+						model.schedAll
+					})
+				});
+			},{
+				model.playEvent(obj)
+			})
 		};
+		// control would be mute it
 
 		this.updateTimeGui;
 		tg.drawFunc = manager;
