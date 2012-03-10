@@ -212,7 +212,7 @@ MxArJack : MxControlJack {
 	}
 
 	bus_ { arg v;
-		if(v.isSimpleNumber,{
+		if(v.isNumber,{
 			value = v;
 		},{
 			value = v.index
