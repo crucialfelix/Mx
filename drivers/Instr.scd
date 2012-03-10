@@ -77,11 +77,14 @@ MxUnit.register('Instr',(
 		~patch.stop(atTime,andFreeResources)
 		},
 	respawn: {
-		var group,bus;
-		group = ~patch.group;
-		bus = ~patch.bus;
-		~patch.stop;
-		~patch.play(group,1,bus)
+		var group,bus,patch;
+		patch = ~patch;
+		group = patch.group;
+		bus = patch.bus;
+		patch.stop;
+		{
+			patch.play(group,1,bus)
+		}.defer(0.2)
 	},
 		
 	isPlaying: {
