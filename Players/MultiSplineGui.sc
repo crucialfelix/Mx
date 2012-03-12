@@ -10,7 +10,7 @@ MultiSplineFrGui : ObjectGui {
 		CXLabel(layout,"Multi Dimensional Spline Designer",font:Font("Helvetica-Bold",14));
 		layout.startRow;
 	}
-	guiBody { arg layout,argMaxTime;
+	guiBody { arg layout,bounds,argMaxTime;
 
 		maxTime = argMaxTime ?? {model.spline.points.last[0]};
 		splineGui = this.make2DSpline(focusedDim).gui(layout,Rect(0,0,layout.bounds.width,150),model.spec,ControlSpec(0,maxTime));

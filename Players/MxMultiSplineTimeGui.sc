@@ -3,7 +3,7 @@
 MxMultiSplineTimeGui : MultiSplineFrGui {
 	
 	writeName {}
-	guiBody { arg layout,argMaxTime;
+	guiBody { arg layout,bounds,argMaxTime;
 
 		maxTime = argMaxTime ?? {model.spline.points.last[0]};
 		splineGui = this.make2DSpline(focusedDim).gui(layout,Rect(0,0,layout.bounds.width,layout.bounds.height - 25),model.spec,ControlSpec(0,maxTime));
