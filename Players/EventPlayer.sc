@@ -42,7 +42,7 @@ EventPlayer : AbstractPlayer {
 	spawnToBundle { arg b;
 		this.resetProtoStream;
 		b.addFunction({
-			status = \isPlaying	
+			this.prSetStatus(\isPlaying)
 		})
 	}
 	resetProtoStream {
@@ -55,7 +55,7 @@ EventPlayer : AbstractPlayer {
 	}
 	stopToBundle { arg b;
 		b.addFunction({
-			status = \isStopped
+			this.prSetStatus(\isStopped)
 		})
 	}
 	isPlaying { ^(status == \isPlaying) }
