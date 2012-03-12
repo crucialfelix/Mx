@@ -137,27 +137,32 @@ MxUnit  {
 	isPrepared {
 		^['isPrepared','isPlaying','isStopped'].includes(status)
 	}
+	prSetStatus { arg newStatus;
+		status = newStatus;
+		NotificationCenter.notify(this,\didChangeStatus,newStatus)
+	}
+		
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
-		bundle.addFunction({status='isPrepared'});
+		bundle.addFunction({this.prSetStatus('isPrepared')});
 		^this.delegate('prepareToBundle',agroup,bundle,true,bus);
 	}
 	spawnToBundle { arg bundle;
 		^this.use { 
 			~spawnToBundle.value(bundle);
-			bundle.addFunction({ status = 'isPlaying' })
+			bundle.addFunction({ this.prSetStatus('isPlaying') })
 		}
 	}
 	stopToBundle { arg bundle;
 		^this.use { 
 			~stopToBundle.value(bundle);
-			bundle.addFunction({ status = 'isStopped' })
+			bundle.addFunction({ this.prSetStatus('isStopped') })
 		}
 	}
 	freeToBundle { arg bundle;
 		^this.use { 
 			~freeToBundle.value(bundle);
-			bundle.addFunction({status='isFreed'})
+			bundle.addFunction({ this.prSetStatus('isFreed') })
 		}
 	}
 	respawnToBundle { arg bundle;
