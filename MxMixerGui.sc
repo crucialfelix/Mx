@@ -6,13 +6,20 @@ MxMixerGui : ObjectGui {
 	var solos,mutes;
 
 	writeName {}
-	guiBody { arg layout;
+	guiBody { arg layout,bounds,showScope=true;
 		var scopeSize = 275,faderHeight,chans;
 		solos = Array.newClear(model.channels.size);
 		mutes = Array.newClear(model.channels.size + 1);
-		faderHeight = layout.bounds.height - scopeSize - 4;
-		layout.startRow;
-		if(model.isPlaying and: {model.server.inProcess},{
+		bounds = bounds ?? {layout.bounds};
+		showScope = showScope and: {model.isPlaying and: {model.server.inProcess}};
+		if(showScope,{
+			faderHeight = bounds.height - scopeSize - 4;
+		},{
+			faderHeight = bounds.height
+		});
+
+		if(showScope,{
+			layout.startRow;
 			layout.flow({ arg layout;
 				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,zoom:1.0,rate:\audio,view:layout);
 				scope.xZoom = 16;
@@ -28,7 +35,9 @@ MxMixerGui : ObjectGui {
 		layout.startRow;
 		chans = (model.channels ++ [model.master]);
 		if(model.isPlaying,{
-			meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus}));
+			// else it doesnt have busses yet
+			// could allocate on demand
+			meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus }));
 		});
 		chans.do { arg chan,i;
 			var f,ab;
