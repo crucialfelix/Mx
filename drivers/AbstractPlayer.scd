@@ -29,8 +29,14 @@ MxUnit.register('AbstractPlayer',
 		var group,bus;
 		group = ~source.group;
 		bus = ~source.bus;
-		~source.stop;
-		~source.play(group,1,bus)
+		~source.onFree({
+			~source.play(group,1,bus)
+		}.inEnvir).free;
+	},
+	moveToHead: { arg newGroup,bundle,currentGroup;
+		if(newGroup !== currentGroup,{
+			~source.setGroupToBundle(newGroup,bundle)
+		})
 	},
 	beatDuration: {
 		~source.beatDuration
