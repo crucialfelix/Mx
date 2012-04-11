@@ -52,6 +52,24 @@ TestMxChannelApp : MxAppTester {
 		this.assertEquals( x.channel(3).channelNumber, 3 );
 		this.assertEquals( x.master.channelNumber, inf );
 	}
+	outlet_to_fader {
+		var f,u;
+		u = x.channel(0).put(2,instr);
+		f = x.channel(0).fader;
+		u.o.first >> f;
+	}
+	test_unit_to_fader {
+		var f,u;
+		u = x.channel(0).put(2,instr);
+		f = x.channel(0).fader;
+		u >> f;
+	}
+	test_fader2 {
+		var f,u;
+		u = x.channel(0).put(2,instr);
+		f = x.channel(0).fader;
+		u >> f;
+	}
 }
 
 TestMxUnitApp : MxAppTester {

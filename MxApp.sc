@@ -139,6 +139,10 @@ MxChannelApp : AbsApp {
 	}
 	
 	//unit
+	fader {
+		// the audio inlet to the fader
+		^mxapp.prFind(model.myUnit.inlets.first)
+	}
 	
 	//select
 	add { arg ... sources; // add 1 or more to the end
@@ -374,6 +378,12 @@ MxInletApp : AbsApp {
 MxOutletApp : AbsApp {
 
 	>> { arg inlet;
+		/*
+		could connect to fader of channel,
+		or take connect to channel as meaning connect to top of channel strip
+		if(inlet.isKindOf(MxChannelApp),{
+			inlet = inlet.fader
+		}); */
 		this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
 		this.mx.update;
 		this.mx.changed('grid');
