@@ -261,6 +261,16 @@ MxUnitApp : AbsApp {
 	//replaceWith { arg source; // or unit or point
 	//}
 	//replace(other)
+	disconnect {
+		model.inlets.do { arg io;
+			this.mx.disconnectInlet(io);
+		};
+		model.outlets.do { arg io;
+			this.mx.disconnectOutlet(io);
+		};
+		this.mx.update;
+		this.mx.changed('grid');
+	}
 	
 	i { ^this.inlets }
 	o { ^this.outlets }
@@ -312,7 +322,17 @@ MxIOletsApp : AbsApp {
 			this.superPerformList(\doesNotUnderstand, selector, args);
 		}
 	}
-	
+	disconnect {
+		model.do { arg io;
+			if(io.class === MxOutlet,{
+				this.mx.disconnectOutlet(io);
+			},{
+				this.mx.disconnectInlet(io);
+			})
+		};
+		this.mx.update;
+		this.mx.changed('grid');
+	}
 	prFindIOlet { arg i,warn=false;
 		if(i.isNumber,{
 			if(i >= model.size,{
