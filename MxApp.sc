@@ -281,14 +281,14 @@ MxIOletsApp : AbsApp {
 	}
 	
 	at { arg key;
-		^this.prFindIOlet(key)
+		^this.prFindIOlet(key,true)
 	}
 	first {
-		^this.prFindIOlet(0)
+		^this.prFindIOlet(0,true)
 	}
 	out {
 		// shortcut to the first output
-		^this.prFindIOlet('out') ?? {this.prFindIOlet(0)}
+		^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
 	}
 	// finds iolet by name
 	doesNotUnderstand { arg selector ... args;
@@ -297,10 +297,12 @@ MxIOletsApp : AbsApp {
 		}
 	}
 	
-	prFindIOlet { arg i;
+	prFindIOlet { arg i,warn=false;
 		if(i.isNumber,{
 			if(i >= model.size,{
-				("In/Out index out of range:"+ i.asCompileString + this).warn;
+				if(warn,{
+					("In/Out index out of range:"+ i.asCompileString + this).warn;
+				});
 				^nil
 			},{
 				^mxapp.prFind(model.at(i))
@@ -313,7 +315,9 @@ MxIOletsApp : AbsApp {
 				})
 			}
 		});
-		("In/Out index not found:"+ i.asCompileString + this).warn;
+		if(warn,{
+			("In/Out index not found:"+ i.asCompileString + this).warn;
+		});
 		^nil
 	}
 	printOn { arg stream;
