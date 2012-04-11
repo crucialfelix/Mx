@@ -123,11 +123,15 @@ MxChannelApp : AbsApp {
 	
 	//select
 	add { arg ... sources; // add 1 or more to the end
-		var start,apps;
+		var start,apps,ci;
 		start = model.units.size;
+		ci = this.channelNumber;
 		apps = sources.collect { arg source,i;
-			this.put(start + i,source)
+			this.mx.put( ci,start + i, source );
+			this.at(i)
 		};
+		this.mx.update;
+		this.mx.changed('grid');
 		if(apps.size == 1,{
 			^apps.first
 		},{
