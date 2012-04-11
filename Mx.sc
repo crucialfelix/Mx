@@ -129,6 +129,13 @@ Mx : AbstractPlayerProxy {
 	channelAt { arg chan;
 		^if(chan == inf,{master},{channels[chan]});
 	}
+	indexOfChannel { arg channel;
+		var i;
+		if(channel === master,{ ^inf });
+		i = channels.indexOf(channel);
+		^i
+	}
+		
 	extendChannels { arg toSize;
 		// create more channels if needed
 		// such that there is a channel at forIndex
