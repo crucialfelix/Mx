@@ -147,13 +147,24 @@ TestMx : TestAbstractPlayer {
 	}
 	
 	test_makeDocument {
-		var path,unit;
-		path = PathName(this.class.filenameSymbol.asString).parentPath +/+ "fixtures/document.scd";
-		unit = this.prTestMakeForSource( PathName(path) );
+		var doc,unit,path;
+		path = PathName(this.class.filenameSymbol.asString);
+		doc = MxDocument(path.parentPath +/+ "fixtures/document.scd");
+		unit = this.prTestMakeForSource( doc );
 		unit.use {
 			this.assert( ~thisDocumentWasRun == true, "~thisDocumentWasRun should be set when the document was loaded");
 			this.assert( ~onLoadDidHappen == true,"this.onLoad should have been executed and set the test var ~onLoadDidHappen");
 		};
+	}
+	test_documentDidLoad {
+		var x,u;
+		x = Mx(
+			[ [ (1 -> [ MxChannel, [ 5 ], [ 2 ], [ 3 ], [ 0.0, false, false, 1.0, true, 12.0, 2 ] ]), (10 -> [ MxInlet, 'MxChanIn' ]), (11 -> [ MxOutlet, 'MxChanOut' ]), (5 -> [ MxUnit, [ 'MxChannelInput', [  ] ], [ 6 ], [ 7 ] ]), (0 -> [ Mx, [  ], [ [ 4, 'out', AudioSpec() ] ], [ 9 ], 1 ]), (7 -> [ MxOutlet, 'out' ]), (8 -> [ MxUnit, [ 'MxDocument', MxDocument(nil, "~yesIDid=true;") ], [  ], [  ] ]), (2 -> [ MxInlet, 'MxChanIn' ]), (9 -> [ MxChannel, [ 8 ], [ 10 ], [ 11 ], [ 0.0, false, false, nil, true, 12.0, 2 ] ]), (3 -> [ MxOutlet, 'MxChanOut' ]), (4 -> [ MxOutlet, 'out' ]), (6 -> [ MxInlet, 'in' ]) ], [ [ 11, 6, nil, true ], [ 7, 2, nil, true ] ] ], nil, false, 130.0
+		);
+		u = x.at(0,0);
+		u.use {
+			this.assert( ~yesIDid.notNil, "var ~yesIDid should be set because unit's didLoad was called" )
+		}
 	}
 	
 	test_playSimple {
