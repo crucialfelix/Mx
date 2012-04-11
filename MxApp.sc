@@ -233,7 +233,7 @@ MxUnitApp : AbsApp {
 	moveTo { arg point;
 		var me;
 		me = this.point;
-		this.mx.move(me[0],me[1],point.x,point.y).update;
+		this.mx.move(me.x,me.y,point.x,point.y).update;
 		this.mx.changed('grid');
 	}
 	//replaceWith { arg source; // or unit or point
