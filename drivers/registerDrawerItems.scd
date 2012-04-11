@@ -135,23 +135,12 @@ MxDrawer.add("Sample",{
 	Sample.new
 });
 
-MxDrawer.addGroup("Documents/mx-loose",{
-	var all,search;
-	all = List.new;
-	search = { arg searchPath;
-		searchPath.debug.pathMatch.debug.do { arg path;
-			var pn = PathName(path);
-			if(pn.isFolder,{
-				search.value(pn +/+ "*")
-			},{
-				all.add([pn.fileName,path])
-			})
-		}
-	};
-	search.value(Document.dir +/+ "mx-loose" +/+ "*");
-	all
-},{ arg path,filename;
-	PathName(path)
+
+MxDrawer.add("New document",{
+	
+	MxDocument.new
+
 });
+
 
 
