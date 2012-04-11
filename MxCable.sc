@@ -162,8 +162,8 @@ MxCable {
 			MxCableStrategy({ arg cable,bundle;
 				cable.state.use {
 					var inbus,outbus,def,group;
-					inbus = cable.outlet.adapter.value ?? {cable.inlet.insp("no inbus")};
-					outbus = cable.inlet.adapter.value ?? {cable.outlet.insp("no outbus")};
+					inbus = cable.outlet.adapter.value ?? {cable.inlet.debug("no inbus")};
+					outbus = cable.inlet.adapter.value ?? {cable.outlet.debug("no outbus")};
 					
 					def = this.instr.asSynthDef([
 								\kr,
@@ -174,7 +174,7 @@ MxCable {
 					// loads if needed
 					InstrSynthDef.loadDefFileToBundle(def,bundle,inbus.server);
 							
-					group = cable.inlet.adapter.group;
+					group = cable.inlet.adapter.group ?? {cable.inlet.debug("no group")};
 					~synth = Synth.basicNew(def.name,group.server);
 					AbstractPlayer.annotate(~synth,cable.asString+"synth");
 					bundle.add( ~synth.addToHeadMsg(group,[\inBus,inbus.index,\outBus,outbus.index]) );
