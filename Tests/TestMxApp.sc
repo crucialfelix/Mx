@@ -103,3 +103,22 @@ TestMxUnitApp : MxAppTester {
 		this.u.asString
 	}
 }
+
+TestMxInletApp : MxAppTester {
+
+	u {
+		^x.channel(2).put(2, Instr("_test.u",{ arg freq; Saw.kr(freq) },[\freq],['bipolar']) );
+	}
+	v {
+		^x.channel(3).put(3, Instr("_test.v",{ arg freq,amp=1.0; Saw.ar(freq) * amp },[\freq],['audio']) );
+	}
+	test_connect_out {
+		this.u.o.out >> this.v.i.freq
+	}
+	test_connect_in{		
+		this.v.i.amp << this.u.o.out
+	}
+}
+
+
+	
