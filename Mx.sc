@@ -250,6 +250,14 @@ Mx : AbstractPlayerProxy {
 		});
 		^this.prPutToChannel(channels[chan],index,object)
 	}
+	copy { arg fromChan,fromIndex,toChan,toIndex;
+		var unit,copy,channel;
+		unit = this.at(fromChan,fromIndex) ?? { ^nil };
+		copy = MxUnit.make(unit.copySource,unit.source.class);
+		this.extendChannels(toChan);
+		channel = this.channelAt(toChan);
+		^this.prPutToChannel(channel,toIndex, copy);
+	}
 	prMakeUnit { arg object;
 		var unit;
 		unit = MxUnit.make(object);

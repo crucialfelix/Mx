@@ -291,11 +291,13 @@ MxMatrixGui : SCViewHolder {
 		// to a unit
 		if(dragging.isKindOf(MxUnit) and: {target.isKindOf(MxChannel).not},{
 			// move it, copy it, replace it
+			dp = points[dragging];
 			if(modifiers.isAlt,{
-				this.put(this.asChannelIndex(targetPoint.x), targetPoint.y, dragging.copySource );
+				mx.copy( this.asChannelIndex(dp.x), dp.y,  
+					this.asChannelIndex(targetPoint.x), targetPoint.y );
 			},{
-				dp = points[dragging];
-				mx.move(this.asChannelIndex(dp.x), dp.y, this.asChannelIndex(targetPoint.x), targetPoint.y)
+				mx.move(this.asChannelIndex(dp.x), dp.y, 
+					this.asChannelIndex(targetPoint.x), targetPoint.y)
 			});
 			mx.update;
 		},{
