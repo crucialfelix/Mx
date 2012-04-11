@@ -240,40 +240,64 @@ MxUnitApp : AbsApp {
 	//}
 	//replace(other)
 	
+	i { ^this.inlets }
+	o { ^this.outlets }
 	inlets {
-		^model.inlets.collect(mxapp.prFind(_))
+		^MxIOletsApp(model.inlets,mxapp,model)
 	}
 	outlets {
-		^model.outlets.collect(mxapp.prFind(_))
-	}
-	inlet { arg i; // index or name
-		^this.prFindIOlet(i,model.inlets)
-	}
-	outlet { arg i;
-		^this.prFindIOlet(i,model.outlet)
+		^MxIOletsApp(model.outlets,mxapp,model)
 	}
 	channel {
 		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
 	
 	point { ^this.mx.pointForUnit(model) }
+}
+
+
+MxIOletsApp : AbsApp {
 	
-	prFindIOlet { arg i,iolets;
+	var <unit,desc;
+	
+	*new { arg model,mxapp,unit,desc;
+		^super.newCopyArgs(model,mxapp,unit,desc).prInit
+	}
+	
+	at { arg key;
+		^this.prFindIOlet(key)
+	}
+	first {
+		^this.prFindIOlet(0)
+	}
+	out {
+		// shortcut to the first output
+		^this.prFindIOlet('out') ?? {this.prFindIOlet(0)}
+	}
+	// finds iolet by name
+	doesNotUnderstand { arg selector ... args;
+		^this.prFindIOlet(selector) ?? {
+			this.superPerformList(\doesNotUnderstand, selector, args);
+		}
+	}
+	
+	prFindIOlet { arg i;
 		if(i.isNumber,{
-			// post error if out of bounds
-			if(i >= model.inlets.size,{
+			if(i >= model.size,{
+				("In/Out index out of range:"+ i.asCompileString + this).warn;
 				^nil
 			},{
-				^mxapp.prFind(model.inlets.at(i))
+				^mxapp.prFind(model.at(i))
 			})
 		},{
 			i = i.asSymbol;
-			model.inlets.do { arg inl;
+			model.do { arg inl;
 				if(inl.name == i,{
 					^mxapp.prFind(inl)
 				})
 			}
 		});
+		("In/Out index not found:"+ i.asCompileString + this).warn;
 		^nil
 	}
 }
