@@ -1,10 +1,7 @@
 
 /*
-
-inlets
-	db
-	mute
-	solo
+MxChannelInput is used internally to mix multiple cables for the top of a channel strip.
+its mainly used on the master bus.
 
 outlets
 	you don't patch from it directly,

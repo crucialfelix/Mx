@@ -14,9 +14,13 @@ MxUnit.register('MxChannel',
 (
 	make: { arg chan;
 		var inlets,outlets,patch,inps,connectors,conn,handlers;
-		// isnt it a MxHasJack ??
-		inlets  = [ MxInlet("MxChanIn", 0, AudioSpec(chan.numChannels), MxListensToBus({chan.source.bus},{chan.server},{chan.mixGroup})) ];
-		// to add: control inputs for fader
+
+		inlets  = [ 
+			MxInlet("MxChanIn", 0, AudioSpec(chan.numChannels),
+			 	MxListensToBus({chan.source.bus},{chan.server},{chan.mixGroup}))/*,
+			MxInlet("db",1,ControlSpec(-inf, 6.0, 'db', 0.0, -inf, " dB"),
+				MxSetter({ arg v; chan.fader.db = v }) ) */
+		 ];
 		
 		outlets = [ MxOutlet("MxChanOut", 0, AudioSpec(chan.numChannels),MxPlaysOnBus({chan.source.bus}) ) ];
 

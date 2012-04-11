@@ -113,6 +113,7 @@ MxMatrixGui : SCViewHolder {
 			//this.handleByFocused('beginDragAction',[]) ?? {this.focusedUnit}
 		};
 		view.canReceiveDragHandler = { arg me;
+			//View.currentDrag.debug;
 			focusedPoint.notNil
 			// View.currentDrag
 		};
@@ -379,7 +380,8 @@ MxMatrixGui : SCViewHolder {
 		^Rect(0,boxBounds.bottom,boxBounds.width, faderHeight)
 	}
 	getFaderBounds { arg chani;
-		^Rect(chani * boxWidth,boxBounds.bottom,boxWidth,faderHeight)	}
+		^Rect(chani * boxWidth,boxBounds.bottom,boxWidth,faderHeight)	
+	}
 	detectFader { arg p; // which fader is the point inside of ?
 		var fb;
 		fb = this.fadersBounds;
@@ -452,6 +454,7 @@ MxMatrixGui : SCViewHolder {
 			^unit
 		},{
 			// fader. returns the channel
+			// should return the channels input
 			fi = this.detectFader(p);
 			if(fi.notNil,{
 				^mx.channels.at(fi) ?? { if(fi == masterCol,{mx.master},nil) }
