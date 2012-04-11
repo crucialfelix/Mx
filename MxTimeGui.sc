@@ -7,7 +7,6 @@ MxTimeGui : ObjectGui {
 	var <>laneHeight=150;
 	var zoom,timeRuler,updater,units;
 	
-	writeName {}
 	guiBody { arg layout;
 		var i = 0,width, focusColor,kdr,makeSidebar;
 		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight,gap=GUI.skin.gap.x,currenty;
@@ -197,6 +196,18 @@ MxTimeGui : ObjectGui {
 			this.moveBy(0.01,1)
 		});
 		^k		
+	}
+	writeName {}
+	//background { ^Color(0.81176470588235, 0.80392156862745, 0.79607843137255) }
+	background { ^Color.clear }
+	guify { arg parent,bounds,title;
+		var mine,w;
+		mine = parent.isNil;
+		w = super.guify(parent,bounds,title ? "Timeline");
+		if(mine,{
+			w.window.background = this.background
+		});
+		^w
 	}
 }
 
