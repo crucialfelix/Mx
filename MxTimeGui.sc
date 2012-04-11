@@ -83,6 +83,9 @@ MxTimeGui : ObjectGui {
 		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
 			model.gotoBeat( beat.trunc(4)  )		
 		};
+		timeRuler.shiftSwipeAction = { arg start,end;
+			this.zoom(start,end,true)
+		};
 		this.prSetFromTo(0.0,maxTime);
 		
 		updater = Updater(model.position,{ arg pos;
