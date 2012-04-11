@@ -305,15 +305,11 @@ MxIOletsApp : AbsApp {
 
 MxInletApp : AbsApp {
 
-	>> { arg outlet; // wrong, backwards
-		this.mx.connect(model.unit,model,outlet.unit,outlet);
+	<< { arg outlet;
+		this.mx.connect(outlet.model.unit,outlet.model,model.unit,model);
 		this.mx.update;
 		this.mx.changed('grid');
 		^outlet
-	}
-	<< { arg inlet;
-		inlet -> this;
-		^this
 	}
 	disconnect {
 		this.mx.disconnectInlet(model);
@@ -344,14 +340,10 @@ MxInletApp : AbsApp {
 MxOutletApp : AbsApp {
 
 	>> { arg inlet;
-		this.mx.connect(model.unit,model,inlet.unit,inlet);
+		this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
 		this.mx.update;
 		this.mx.changed('grid');
 		^inlet // or magically find the outlet of that unit; or return that unit
-	}
-	<< { arg inlet;
-		inlet -> this;
-		^this
 	}
 	disconnect {
 		this.mx.disconnectOutlet(model);
