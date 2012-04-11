@@ -114,7 +114,7 @@ SplineFr {
 		^[prev,nil]
 	}
 	gui { arg layout,bounds,maxTime;
-		^spline.gui(layout,bounds,spec,ControlSpec(0,maxTime))
+		^spline.gui(layout,bounds,spec,ControlSpec(0,maxTime??{spline.points.last.x}))
 	}
 }	
 
