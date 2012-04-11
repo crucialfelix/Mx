@@ -21,7 +21,9 @@ MxApp : AbsApp {
 
 	mx { ^model }
 	at { arg point;
-		^this.prFind( model.at(point.x,point.y) )
+		var u;
+		u = model.at(point.x,point.y) ?? { ^nil };
+		^this.prFind( u )
 	}
 	channel { arg i;
 		var c;
