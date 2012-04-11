@@ -9,10 +9,10 @@ MxGui : AbstractPlayerGui {
 		super.saveConsole(layout);
 		InspButton.icon(model,layout);
 		ActionButton(layout,"Timeline",{
-			MxTimeGui(model).gui(nil,1000@800);
+			MxTimeGui(model).gui(nil,Rect(0,0,1000,800));
 		});
 		ActionButton(layout,"Mixer",{
-			MxMixerGui(model).gui(nil,1000@500);
+			MxMixerGui(model).gui(nil,Rect(0,0,1000,500));
 		});
 		// these will move into an MxAction
 		ActionButton(layout,"Insp selected",{
