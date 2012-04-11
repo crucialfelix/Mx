@@ -335,16 +335,20 @@ Mx : AbstractPlayerProxy {
 		^unit
 	}
 	removeUnit { arg unit;
+		var p = this.pointForUnit(unit);
+		^this.remove(*p.asArray)
+	}
+	pointForUnit { arg unit;
 		channels.do { arg ch,ci;
 			ch.units.do { arg u,ri;
 				if(unit === u,{
-					^this.remove(ci,ri)
+					^Point(ci,ri)
 				})
 			}
 		};
 		master.units.do { arg u,ri;
 			if(unit === u,{
-				^this.remove(inf,ri)
+				^Point(inf,ri)
 			})
 		}
 	}
