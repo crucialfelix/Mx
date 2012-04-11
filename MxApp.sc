@@ -65,7 +65,7 @@ MxApp : AbsApp {
 	gui { arg layout,bounds;
 		// detect and front
 		var open;
-		open = model.dependents.detect(_.isKindOf(MxGui));
+		open = model.dependants.detect(_.isKindOf(MxGui));
 		if(open.notNil,{
 			open.front
 		},{
