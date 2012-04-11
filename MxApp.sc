@@ -273,7 +273,9 @@ MxUnitApp : AbsApp {
 	channel {
 		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
-	
+	>> { arg that;
+		^(this.outlets >> that)
+	}
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
 		var p;
@@ -300,6 +302,9 @@ MxIOletsApp : AbsApp {
 	out {
 		// shortcut to the first output
 		^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
+	}
+	>> { arg inlet;
+		^(this.out ?? { (this.asString ++ "has no out").error; ^this }) >> inlet
 	}
 	// finds iolet by name
 	doesNotUnderstand { arg selector ... args;
