@@ -3,13 +3,14 @@
 MxMixerGui : ObjectGui {
 
 	var scope,lastScope,freqScope,meters;
-	var solos,mutes;
+	var faders,solos,mutes;
 
 	writeName {}
 	guiBody { arg layout,bounds,showScope=true;
 		var scopeSize = 275,faderHeight,chans;
 		solos = Array.newClear(model.channels.size);
 		mutes = Array.newClear(model.channels.size + 1);
+		faders = Array.newClear(model.channels.size + 1);
 		bounds = bounds ?? {layout.bounds};
 		showScope = showScope and: {model.isPlaying and: {model.server.inProcess}};
 		if(showScope,{
@@ -43,11 +44,12 @@ MxMixerGui : ObjectGui {
 			var f,ab;
 			f = NumberEditor(chan.fader.db,ControlSpec(-80,12,default:0,units:"dB"));
 			f.action = {
-				chan.fader.db = f.value
+				chan.fader.db = f.value;
+				model.changed('mixer',this);
 			};
+			faders.put(i,f);
 			f.gui(layout,40@faderHeight);
-			// mute, solo
-			
+
 			// meter
 			if(meters.notNil,{
 				layout.comp({ arg layout;
@@ -83,11 +85,16 @@ MxMixerGui : ObjectGui {
 				});
 				if(chan !== model.master,{
 					layout.startRow;
-					solos.put(i, ToggleButton(layout,"S",{ arg button,bool; model.solo(i,bool); this.updateButtons }) );
+					solos.put(i, ToggleButton(layout,"S",{ arg button,bool; 
+									model.solo(i,bool); 
+									model.changed('mixer',this);
+									this.updateButtons 
+								}) );
 				});
 				layout.startRow;
 				mutes.put(i, ToggleButton(layout,"M",{ arg button,bool; 
 					if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); }); 
+					model.changed('mixer',this);
 					this.updateButtons 
 				}) );
 					
@@ -104,6 +111,18 @@ MxMixerGui : ObjectGui {
 			mutes[i].value = chan.fader.mute;
 		};
 		mutes.last.value = model.master.fader.mute;
+	}
+	updateFaders {
+		// needs to add remove, reorder faders
+		model.channels.do { arg chan,i;
+			faders[i].value = chan.fader.db
+		}
+	}
+	update { arg mx, what;
+		if(what == 'mixer',{
+			this.updateButtons;
+			this.updateFaders
+		})
 	}
 	remove {
 		meters.remove;
