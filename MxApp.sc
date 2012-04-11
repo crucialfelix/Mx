@@ -9,6 +9,9 @@ AbsApp {
 	}
 	prInit {}
 	mx { ^mxapp.model }
+	printOn { arg stream;
+		stream << model
+	}
 }
 
 
@@ -186,6 +189,9 @@ MxChannelApp : AbsApp {
 	channelNumber {
 		^this.mx.indexOfChannel(model)
 	}
+	printOn { arg stream;
+		stream << "Channel" << this.channelNumber
+	}	
 }
 
 
@@ -253,6 +259,11 @@ MxUnitApp : AbsApp {
 	}
 	
 	point { ^this.mx.pointForUnit(model) }
+	printOn { arg stream;
+		var p;
+		p = this.point;
+		stream << p.x << "@" << p.y << "(" << this.name << ")"
+	}
 }
 
 
@@ -300,6 +311,9 @@ MxIOletsApp : AbsApp {
 		("In/Out index not found:"+ i.asCompileString + this).warn;
 		^nil
 	}
+	printOn { arg stream;
+		stream << mxapp.prFind(unit) << ":" << (", ".join(model.collect(_.name)))
+	}
 }
 
 
@@ -332,6 +346,10 @@ MxInletApp : AbsApp {
 		^this.mx.cables.toInlet(model).collect { arg cable;
 			mxapp.prFind( cable.outlet )
 		}
+	}
+	printOn { arg stream;
+		stream << mxapp.prFind(model.unit) << "::";
+		model.printOn(stream)
 	}
 	// cables
 }
@@ -367,6 +385,10 @@ MxOutletApp : AbsApp {
 		^this.mx.cables.fromInlet(model).collect { arg cable;
 			mxapp.prFind( cable.inlet )
 		}
+	}
+	printOn { arg stream;
+		stream << mxapp.prFind(model.unit) << "::";
+		model.printOn(stream)
 	}
 }
 
