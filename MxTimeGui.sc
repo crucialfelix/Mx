@@ -106,7 +106,8 @@ MxTimeGui : ObjectGui {
 						// gui
 						// ActionButton(s,"gui",{unit.gui});
 						if(unit.canRecord,{
-							ToggleButton(s,"(*)",{unit.record(true)},{unit.record(false)},false);
+							ToggleButton(s,"Record",{unit.record(true)},{unit.record(false)},
+								false,20,nil,Color.red,Color.yellow);
 						});
 					},{ arg v;
 						unit.timeGui(v,v.bounds,maxTime);
