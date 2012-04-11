@@ -97,6 +97,13 @@ MxApp : AbsApp {
 			app
 		}
 	}
+	printOn { arg stream;
+		if(model.name.notNil,{
+			stream << model
+		},{
+			stream << "an MxApp"
+		})
+	}
 }
 
 
@@ -266,7 +273,7 @@ MxUnitApp : AbsApp {
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
 		var p;
-		p = this.point;
+		p = this.point ?? { stream << model << "(" << this.name << ")"; ^this };
 		stream << p.x << "@" << p.y << "(" << this.name << ")"
 	}
 }

@@ -368,6 +368,7 @@ Mx : AbstractPlayerProxy {
 				^Point(inf,ri)
 			})
 		}
+		^nil  // private channel unit, not on grid
 	}
 	unitAddFrameRateDevices { arg unit;
 		unit.handlers.use {
