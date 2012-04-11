@@ -7,63 +7,62 @@ MxTimeGui : ObjectGui {
 	var <>laneHeight=150;
 	var zoom,timeRuler,updater,units;
 	
-	writeName {}
 	guiBody { arg layout;
 		var i = 0,width, focusColor,kdr,makeSidebar;
-		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight;
+		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight,gap=GUI.skin.gap.x,currenty;
 		
 		layout.startRow;
 		width = layout.indentedRemaining.width;
 		focusColor = GUI.skin.focusColor ?? {Color.blue(alpha:0.4)};
-		
+
 		kdr = this.keyDownResponder;
 
 		makeSidebar = { arg side,main;
-			var s,m,minHeight,b;
+			var s,m,maxUsedHeight,b;
 			var lane;
 			
-			layout.flow({ arg layout;
-				lane = layout.comp({ arg l;
-					s = l.vert({ arg s;
-							side.value(s)
-					},Rect(0,0,sidebarSize,laneHeight));
-					
-					m = FlowView(l,Rect(sidebarSize,0,width - sidebarSize,laneHeight),0@0,0@0);
-					main.value(m);
-				},Rect(0,0,width,laneHeight));
-				
-				m.resizeToFit(true);
-				minHeight = s.bounds.height;
-				
-				b = m.bounds;
-				if(b.height < s.bounds.height,{
-					minHeight = b.height;
-				});
-				s.bounds = s.bounds.height_(minHeight);
-				lane.bounds = lane.bounds.height_(minHeight);
-	
-			}).resizeToFit			
-		};
+			lane = layout.comp({ arg l;
+				s = l.vert({ arg s;
+						side.value(s)
+				},Rect(0,0,sidebarSize,laneHeight));
+
+				m = FlowView(l,Rect(sidebarSize+gap,0,width - sidebarSize - gap,laneHeight),0@0,0@0);
+				main.value(m);
+			},Rect(0,0,width,laneHeight));
+
+			m.resizeToFit(true);
+			
+			maxUsedHeight = s.children.sum({arg c; c.bounds.height });
+			maxUsedHeight = max(maxUsedHeight,m.bounds.height);
+			
+			s.bounds = s.bounds.height_(maxUsedHeight);
+			lane.bounds = lane.bounds.height_(maxUsedHeight).top_(currenty);
+			currenty = currenty + maxUsedHeight + gap;
+		};	
 
 		maxTime = (model.endBeat ?? {model.beatDuration} ? 480) + 8;
-		CXLabel(layout,"End beat:");
+		SynthConsole(model,layout).play.stop.tempo;
+		CXLabel(layout,"Last beat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
 			timeRuler.refresh;
 			this.zoom(0,maxTime,true);
 		}).smallGui(layout);
-		ActionButton(layout,"Rec to disk",{
+		ActionButton(layout,"Rec to disk...",{
 			model.record(endBeat:maxTime);
 		}).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 
+		layout.startRow;
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
+
+		currenty = layout.view.decorator.top;
 
 		// zoom controls
 		makeSidebar.value({ arg s;
 			ActionButton(s,"<-zoom->",{this.zoom(0,maxTime,true)})
 		},{ arg m;
-			zoom = RangeSlider(m,m.bounds.width@buttonHeight);
+			zoom = RangeSlider(m,m.innerBounds.width@buttonHeight);
 		});
 		zoom.lo = 0.0;
 		zoom.hi = 1.0;
@@ -78,11 +77,14 @@ MxTimeGui : ObjectGui {
 				ActionButton(s,"|<",{model.gotoBeat(0,1)})
 			},
 			{ arg m;
-				timeRuler = TimeRuler(m,Rect(0,0,m.bounds.width,buttonHeight * 2),maxTime);
+				timeRuler = TimeRuler(m,Rect(0,0,m.innerBounds.width,buttonHeight * 2),maxTime);
 			});
 		timeRuler.keyDownAction = kdr;
 		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
 			model.gotoBeat( beat.trunc(4)  )		
+		};
+		timeRuler.shiftSwipeAction = { arg start,end;
+			this.zoom(start,end,true)
 		};
 		this.prSetFromTo(0.0,maxTime);
 		
@@ -104,7 +106,8 @@ MxTimeGui : ObjectGui {
 						// gui
 						// ActionButton(s,"gui",{unit.gui});
 						if(unit.canRecord,{
-							ToggleButton(s,"(*)",{unit.record(true)},{unit.record(false)},false);
+							ToggleButton(s,"Record",{unit.record(true)},{unit.record(false)},
+								false,20,nil,Color.red,Color.yellow);
 						});
 					},{ arg v;
 						unit.timeGui(v,v.bounds,maxTime);
@@ -198,6 +201,18 @@ MxTimeGui : ObjectGui {
 			this.moveBy(0.01,1)
 		});
 		^k		
+	}
+	writeName {}
+	//background { ^Color(0.81176470588235, 0.80392156862745, 0.79607843137255) }
+	background { ^Color.clear }
+	guify { arg parent,bounds,title;
+		var mine,w;
+		mine = parent.isNil;
+		w = super.guify(parent,bounds,title ? "Timeline");
+		if(mine,{
+			w.window.background = this.background
+		});
+		^w
 	}
 }
 

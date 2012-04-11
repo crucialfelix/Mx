@@ -17,7 +17,8 @@ TimeRuler {
 	var <maxTime;	
 	var view,zoomCalc,gridLines;
 	var <position;
-	
+	var <>shiftSwipeAction,swipeStart,lastx;
+
 	*new { arg layout,bounds,maxTime;
 		^super.new.init(layout,bounds,maxTime)
 	}
@@ -47,7 +48,33 @@ TimeRuler {
 					pen.lineTo( x@bounds.height );
 					pen.stroke;
 				}
+			});
+			if(swipeStart.notNil,{
+				pen.use {
+					pen.color = Color.blue(alpha:0.3);
+					pen.fillRect( Rect(min(swipeStart,lastx),0,(lastx - swipeStart).abs, bounds.height) )
+				}
+			});
+		};
+		view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+			lastx = x;
+			if(modifiers.isShift,{
+				if(clickCount == 2,{
+					shiftSwipeAction.value(0,maxTime)
+				},{
+					swipeStart = x;
+				})
 			})
+		};
+		view.mouseUpAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+			if(modifiers.isShift and: swipeStart.notNil,{
+				shiftSwipeAction.value(zoomCalc.displayToModel(swipeStart),zoomCalc.displayToModel(x))
+			});
+			swipeStart = nil;
+		};
+		view.mouseMoveAction = { arg view,x;
+			lastx = x;
+			view.refresh;
 		};
 		view.focusColor = GUI.skin.focusColor ? Color.clear;
 	}
@@ -73,7 +100,16 @@ TimeRuler {
 	}
 	mouseDownAction_ { arg f;
 		view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
-			f.value( zoomCalc.displayToModel(x), modifiers,buttonNumber,clickCount )
+			lastx = x;
+			if(modifiers.isShift.not,{
+				f.value( zoomCalc.displayToModel(x), modifiers,buttonNumber,clickCount )
+			},{
+				if(clickCount == 2,{
+					shiftSwipeAction.value(0,maxTime)
+				},{
+					swipeStart = x;
+				})
+			})
 		}
 	}
 	isClosed {
