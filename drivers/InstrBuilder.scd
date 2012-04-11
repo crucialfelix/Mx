@@ -115,7 +115,6 @@ MxUnit.register('InstrBuilder',(
 		});
 		[builder,inps]
 	},
-	copy: { [~source,~patch.inputs.deepCopy] },
 	name: { 
 		if(~source.path.notNil,{
 			PathName(~source.path).fileNameWithoutExtension

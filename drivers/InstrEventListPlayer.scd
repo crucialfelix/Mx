@@ -69,7 +69,6 @@ MxUnit.register('InstrEventListPlayer',(
 		// does not save its postFilter, those are the inlets
 		InstrEventListPlayer(args[0],args[1]);
 	},
-	copy: { ~save.value },
 	name: { ~source.name ? "InstrEventListPlayer "},
 	
 	gui: { arg layout;

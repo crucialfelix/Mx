@@ -4,7 +4,7 @@ MxUnit.register('Object',
 	make: { arg object; ~source = object; MxUnit(object) },
 	save: { ~source.asCompileString },
 	load: { arg string; string.compile.value() },
-	copy: { ~source.deepCopy },
+	copy: { ~load.value(~save.value()) },
 
 	// methods that the driver can implement, called after make
 	didLoad: {},
