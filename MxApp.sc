@@ -297,10 +297,10 @@ MxUnitApp : AbsApp {
 
 MxIOletsApp : AbsApp {
 	
-	var <unit,desc;
+	var <unit;
 	
 	*new { arg model,mxapp,unit,desc;
-		^super.newCopyArgs(model,mxapp,unit,desc).prInit
+		^super.newCopyArgs(model,mxapp,unit).prInit
 	}
 	
 	at { arg key;
