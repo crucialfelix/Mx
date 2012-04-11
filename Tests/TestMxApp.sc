@@ -5,7 +5,7 @@ MxAppTester : UnitTest {
 	
 	setUp {
 		x = MxApp(Mx.new);
-		instr = Instr("_test.SinOsc",{ arg freq=440; SinOsc.ar(freq) });
+		instr = Instr("_test.SinOsc",{ arg freq=440; SinOsc.ar(freq) },[],\audio);
 		super.setUp()
 	}
 }
