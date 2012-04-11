@@ -109,7 +109,6 @@ MxUnit.register('Instr',(
 
 		[instr,inps]
 	},
-	copy: { ~save.value },
 	name: { ~patch.instr.dotNotation },
 	
 	gui: { arg layout;

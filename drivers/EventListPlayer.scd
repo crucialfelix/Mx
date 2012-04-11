@@ -62,7 +62,6 @@ MxUnit.register('EventListPlayer',(
 	load: { arg args;
 		args.first
 	},
-	copy: { ~save.value },
 	name: { ~source.name ? "EventListPlayer "},
 	
 	gui: { arg layout;

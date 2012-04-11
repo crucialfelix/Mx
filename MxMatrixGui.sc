@@ -55,7 +55,10 @@ MxMatrixGui : SCViewHolder {
 			if(message == 'grid',{
 				this.calcNumRows;
 				this.updatePoints;
-			})
+			});
+			if(message == 'mixer',{
+				this.refresh;
+			});
 		}).removeOnClose(w);
 		
 		bounds = Rect(bounds.left+1, bounds.top+1, bounds.width, bounds.height);
@@ -222,7 +225,7 @@ MxMatrixGui : SCViewHolder {
 				chan = mx.channels.at(focusedPoint.x)	 ?? { if(focusedPoint.x == masterCol,{mx.master},nil) };
 				if(chan.notNil,{
 					chan.fader.db = chan.fader.db + 1.0;
-					this.refresh;
+					mx.changed('mixer');
 				});
 			},{
 				selected.do { arg obj;
@@ -230,7 +233,7 @@ MxMatrixGui : SCViewHolder {
 						obj.fader.db = obj.fader.db + 1.0
 					})
 				};
-				this.refresh;
+				mx.changed('mixer');
 			});
 		});
 		k.register('down',true, false, false, false,{
@@ -239,7 +242,7 @@ MxMatrixGui : SCViewHolder {
 				chan = mx.channels.at(focusedPoint.x)	 ?? { if(focusedPoint.x == masterCol,{mx.master},nil) };
 				if(chan.notNil,{
 					chan.fader.db = chan.fader.db - 1.0;
-					this.refresh;
+					mx.changed('mixer');
 				});
 			},{
 				selected.do { arg obj;
@@ -247,7 +250,7 @@ MxMatrixGui : SCViewHolder {
 						obj.fader.db = obj.fader.db + 1.0
 					})
 				};
-				this.refresh;
+				mx.changed('mixer');
 			});
 		});
 		//  m
@@ -255,7 +258,7 @@ MxMatrixGui : SCViewHolder {
 			var chan;
 			if(view.isKindOf(GUI.userView) and: {focusedPoint.notNil},{
 				mx.mute(focusedPoint.x);
-				this.refresh;
+				mx.changed('mixer');
 			});
 		});
 		//  s
@@ -263,7 +266,7 @@ MxMatrixGui : SCViewHolder {
 			var chan;
 			if(view.isKindOf(GUI.userView) and: focusedPoint.notNil,{
 				mx.solo(focusedPoint.x);
-				this.refresh;
+				mx.changed('mixer');
 			})
 		});
 		^k
@@ -291,11 +294,13 @@ MxMatrixGui : SCViewHolder {
 		// to a unit
 		if(dragging.isKindOf(MxUnit) and: {target.isKindOf(MxChannel).not},{
 			// move it, copy it, replace it
+			dp = points[dragging];
 			if(modifiers.isAlt,{
-				this.put(this.asChannelIndex(targetPoint.x), targetPoint.y, dragging.copySource );
+				mx.copy( this.asChannelIndex(dp.x), dp.y,  
+					this.asChannelIndex(targetPoint.x), targetPoint.y );
 			},{
-				dp = points[dragging];
-				mx.move(this.asChannelIndex(dp.x), dp.y, this.asChannelIndex(targetPoint.x), targetPoint.y)
+				mx.move(this.asChannelIndex(dp.x), dp.y, 
+					this.asChannelIndex(targetPoint.x), targetPoint.y)
 			});
 			mx.update;
 		},{

@@ -24,10 +24,6 @@ MxUnit.register('MxDocument',(
 	load: { arg doc;
 		doc
 	},
-	// this might work: you would have two identical codes loaded from the same
-	// path, but running separately
-	// each with their own environment
-	copy: { ~save.value },
 
 	name: { 
 		~source.name

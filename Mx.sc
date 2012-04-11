@@ -14,6 +14,8 @@ Mx : AbstractPlayerProxy {
 	var <master;
 	var removing, adding, cableEndpoints;
 	var <>frameRate=24, sched, ticker, <position, frameRateDevices;
+	
+	var app;
 
 	*new { arg data,endBeat,loop=false,bpm;
 		^super.new.endBeat_(endBeat).loop_(loop).bpm_(bpm).init(data)
@@ -129,6 +131,13 @@ Mx : AbstractPlayerProxy {
 	channelAt { arg chan;
 		^if(chan == inf,{master},{channels[chan]});
 	}
+	indexOfChannel { arg channel;
+		var i;
+		if(channel === master,{ ^inf });
+		i = channels.indexOf(channel);
+		^i
+	}
+		
 	extendChannels { arg toSize;
 		// create more channels if needed
 		// such that there is a channel at forIndex
@@ -243,6 +252,14 @@ Mx : AbstractPlayerProxy {
 		});
 		^this.prPutToChannel(channels[chan],index,object)
 	}
+	copy { arg fromChan,fromIndex,toChan,toIndex;
+		var unit,copy,channel;
+		unit = this.at(fromChan,fromIndex) ?? { ^nil };
+		copy = MxUnit.make(unit.copySource,unit.source.class);
+		this.extendChannels(toChan);
+		channel = this.channelAt(toChan);
+		^this.prPutToChannel(channel,toIndex, copy);
+	}
 	prMakeUnit { arg object;
 		var unit;
 		unit = MxUnit.make(object);
@@ -335,18 +352,23 @@ Mx : AbstractPlayerProxy {
 		^unit
 	}
 	removeUnit { arg unit;
+		var p = this.pointForUnit(unit);
+		^this.remove(*p.asArray)
+	}
+	pointForUnit { arg unit;
 		channels.do { arg ch,ci;
 			ch.units.do { arg u,ri;
 				if(unit === u,{
-					^this.remove(ci,ri)
+					^Point(ci,ri)
 				})
 			}
 		};
 		master.units.do { arg u,ri;
 			if(unit === u,{
-				^this.remove(inf,ri)
+				^Point(inf,ri)
 			})
 		}
+		^nil  // private channel unit, not on grid
 	}
 	unitAddFrameRateDevices { arg unit;
 		unit.handlers.use {
@@ -755,7 +777,9 @@ Mx : AbstractPlayerProxy {
 		^super.gui(layout,bounds ?? {Rect(100,100,900,600)})
 	}
 	guiClass { ^MxGui }
-
+	app {
+		^app ?? { app = MxApp(this) }
+	}
 	draw { arg pen,bounds,style;
 		// odd
 		master.draw(pen,bounds,style)

@@ -50,7 +50,6 @@ MxUnit.register('SFP',(
 	load: { arg path;
 		SFP(*path)
 	},
-	copy: { ~source.soundFilePath },
 	name: { PathName(~source.soundFilePath).fileNameWithoutExtension },
 	beatDuration: { ~source.beatDuration },
 	

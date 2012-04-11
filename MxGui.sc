@@ -96,13 +96,22 @@ MxGui : AbstractPlayerGui {
 	}
 
 	guiBody { arg layout,bounds;
-		var bb;
+		var bb,updater;
 		bounds = bounds ?? {layout.innerBounds.moveTo(0,0)};
 		bb = bounds.resizeBy(-200,0);
 		boxes = MxMatrixGui(model, layout, bb );
 		boxes.transferFocus(0@0);
 		this.drawer(layout,(bounds - bb).resizeTo(200,bounds.height));
 		boxes.focus;
+
+		updater = SimpleController(model);
+		updater.put('grid',{
+			boxes.refresh
+		});
+		updater.put('mixer',{
+			boxes.refresh
+		});
+		layout.removeOnClose(updater)
 	}
 
 	drawer { arg layout,bounds;
