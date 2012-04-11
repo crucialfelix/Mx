@@ -51,7 +51,8 @@ Mx : AbstractPlayerProxy {
 			outlets = loader.outlets;
 			
 			this.allUnits.do { arg unit;
-				this.unitAddFrameRateDevices(unit)
+				unit.didLoad;
+				this.unitAddFrameRateDevices(unit);
 			};
 		});
 		source = master;
@@ -247,10 +248,7 @@ Mx : AbstractPlayerProxy {
 		unit = MxUnit.make(object);
 		if(unit.notNil,{ // nil object is nil unit which is legal
 			this.registerUnit(unit);
-			unit.use {
-				~didLoad.value();
-				unit.onLoad.value();
-			}
+			unit.didLoad;
 		});
 		^unit
 	}

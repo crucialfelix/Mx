@@ -141,7 +141,13 @@ MxUnit  {
 		status = newStatus;
 		NotificationCenter.notify(this,\didChangeStatus,newStatus)
 	}
-		
+	didLoad {
+		this.use {
+			~didLoad.value();
+			this.onLoad.value();
+		}
+	}
+	
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
 		bundle.addFunction({this.prSetStatus('isPrepared')});
