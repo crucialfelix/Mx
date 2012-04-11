@@ -14,6 +14,8 @@ Mx : AbstractPlayerProxy {
 	var <master;
 	var removing, adding, cableEndpoints;
 	var <>frameRate=24, sched, ticker, <position, frameRateDevices;
+	
+	var app;
 
 	*new { arg data,endBeat,loop=false,bpm;
 		^super.new.endBeat_(endBeat).loop_(loop).bpm_(bpm).init(data)
@@ -774,7 +776,9 @@ Mx : AbstractPlayerProxy {
 		^super.gui(layout,bounds ?? {Rect(100,100,900,600)})
 	}
 	guiClass { ^MxGui }
-
+	app {
+		^app ?? { app = MxApp(this) }
+	}
 	draw { arg pen,bounds,style;
 		// odd
 		master.draw(pen,bounds,style)
