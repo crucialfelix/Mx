@@ -53,3 +53,53 @@ TestMxChannelApp : MxAppTester {
 		this.assertEquals( x.master.channelNumber, inf );
 	}
 }
+
+TestMxUnitApp : MxAppTester {
+	
+	u {
+		^x.channel(0).put(0, instr );
+	}
+	test_remove {
+		this.u.remove
+	}
+	test_moveTo {
+		var u;
+		u = this.u;
+		u.moveTo(1@1);
+		u.moveTo(0@1);
+	}
+	test_inlets {
+		this.u.inlets
+	}
+	test_outlets {
+		this.u.outlets
+	}
+	test_i {
+		var u;
+		u = this.u;
+		this.assertEquals( u.i.at(\freq).class, MxInletApp );
+		this.assertEquals( u.i.at(0).class, MxInletApp );
+		this.assertEquals( u.i.freq.class, MxInletApp );
+	}
+	test_o {
+		var u;
+		u = this.u;
+		this.assertEquals( u.o.at('audio').class,MxOutletApp);
+		this.assertEquals( u.o.at(0).class,MxOutletApp);
+		this.assertEquals( u.o.out.class,MxOutletApp);
+	}
+	test_channel {
+		var chan;
+		chan = this.u.channel;
+		this.assertEquals(chan.class,MxChannelApp);
+		this.assertEquals(chan.channelNumber,0);
+	}
+	test_point {
+		var p;
+		p = this.u.point;
+		this.assertEquals(p,0@0);
+	}
+	test_asString {
+		this.u.asString
+	}
+}
