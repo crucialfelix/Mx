@@ -153,23 +153,23 @@ MxChannelApp : AbsApp {
 		^mxapp.prFind( unit )
 	}
 	mute {
-		model.fader.mute = true
+		this.mx.mute(this.channelNumber,true);
 		this.mx.changed('mixer');
 	}
 	unmute {
-		model.fader.mute = false
+		this.mx.mute(this.channelNumber,false);
 		this.mx.changed('mixer');
 	}
 	toggle {
-		model.fader.mute = model.fader.mute.not
+		this.mx.mute(this.channelNumber,model.fader.mute.not);
 		this.mx.changed('mixer');
 	}
 	solo {
-		model.fader.solo = true
+		this.mx.solo(this.channelNumber,true);
 		this.mx.changed('mixer');
 	}
 	unsolo {
-		model.fader.solo = false
+		this.mx.solo(this.channelNumber,false);
 		this.mx.changed('mixer');
 	}
 	db {
