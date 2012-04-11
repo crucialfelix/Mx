@@ -253,7 +253,7 @@ MxUnitApp : AbsApp {
 		^this.prFindIOlet(i,model.outlet)
 	}
 	channel {
-		mxapp.prFind( this.mx.channelAt( this.point.x ) )
+		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
 	
 	point { ^this.mx.pointForUnit(model) }
