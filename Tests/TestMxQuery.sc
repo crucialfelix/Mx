@@ -168,7 +168,6 @@ TestMxQuery : MxAppTester {
 		this.q.moveBy(v);
 		//uu.insp("uu after move");
 		// it is not found in channels ?
-		x.source.gui;
 		
 		newPoint = p + v;
 		moved = x.at(newPoint);
@@ -193,7 +192,7 @@ TestMxQuery : MxAppTester {
 	test_mute {
 		var c,u;
 		u = this.u;
-		c = x.channel(u.point.x).insp;
+		c = x.channel(u.point.x);
 		this.q.mute;
 		this.assertEquals( c.muted, true );
 		this.q.mute(false);

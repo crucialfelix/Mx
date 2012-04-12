@@ -149,7 +149,7 @@ MxQuery : AbsApp {
 		this.prChannelsDo({ arg chan; chan.solo(boo) })
 	}
 	db_ { arg db;
-		this.prChannelsDo({ arg chan; chan.insp("db chan").db = db })
+		this.prChannelsDo({ arg chan; chan.db = db })
 	}
 
 
