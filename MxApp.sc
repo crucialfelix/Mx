@@ -12,6 +12,8 @@ AbsApp {
 	printOn { arg stream;
 		stream << model
 	}
+	source { ^model }
+	dereference { ^this.source }
 }
 
 
@@ -27,6 +29,12 @@ MxApp : AbsApp {
 	}
 	put { arg point,object;
 		^this.prFind( model.put(point.x,point.y,object) )
+	}
+	units {
+		^MxQuery(model.allUnits(false).all.collect(this.prFind(_)),this)
+	}
+	channels {
+		^MxQuery(model.channels.collect(this.prFind(_)),this)
 	}
 	channel { arg i;
 		var c;
@@ -150,6 +158,9 @@ MxChannelApp : AbsApp {
 	}
 	
 	//unit
+	units {
+		^model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) })
+	}
 	fader {
 		// the audio inlet to the fader
 		^mxapp.prFind(model.myUnit.inlets.first)
@@ -349,6 +360,9 @@ MxIOletsApp : AbsApp {
 		outlet = (this.out ?? { (this.asString ++ "has no out").error; ^this });
 		^outlet >> inlet
 	}
+	do { arg function;
+		model.do { arg io,i; function.value(mxapp.prFind(io),i) }
+	}
 	// finds iolet by name
 	doesNotUnderstand { arg selector ... args;
 		^this.prFindIOlet(selector) ?? {
@@ -472,10 +486,3 @@ MxOutletApp : AbsApp {
 }
 
 
-MxQs {
-	
-	
-}
-
-
-	
