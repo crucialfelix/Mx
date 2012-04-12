@@ -195,6 +195,9 @@ MxChannelApp : AbsApp {
 		this.mx.mute(this.channelNumber,true);
 		this.mx.changed('mixer');
 	}
+	muted {
+		^model.fader.mute
+	}
 	unmute {
 		this.mx.mute(this.channelNumber,false);
 		this.mx.changed('mixer');
@@ -211,6 +214,10 @@ MxChannelApp : AbsApp {
 		this.mx.solo(this.channelNumber,false);
 		this.mx.changed('mixer');
 	}
+	soloed {
+		^model.fader.solo
+	}
+	
 	db {
 		^model.fader.db
 	}
