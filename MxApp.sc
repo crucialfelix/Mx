@@ -267,6 +267,27 @@ MxUnitApp : AbsApp {
 		this.mx.move(me.x,me.y,point.x,point.y);
 		mxapp.commit;
 	}
+	dup {
+		// insert below self
+		var p,below,bp,cop;
+		p = this.point;
+		bp = Point(p.x,p.y+1);
+		below = this.mx.at(bp.x,bp.y);
+		^mxapp.transaction({
+			if(below.notNil,{
+				this.channel.insertAt(bp,nil);
+			});
+			this.copy(bp);
+		})
+	}
+	copy { arg toPoint;
+		// toIndex defaults to the next slot, pushing any others further down		
+		var unit,ci,p;
+		p = this.point;
+		unit = this.mx.copy( p.x, p.y, toPoint.x, toPoint.y );
+		mxapp.commit;
+		^mxapp.prFind( unit )
+	}
 	//replaceWith { arg source; // or unit or point
 	//}
 	//replace(other)

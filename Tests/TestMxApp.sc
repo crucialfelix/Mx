@@ -120,6 +120,27 @@ TestMxUnitApp : MxAppTester {
 	test_asString {
 		this.u.asString
 	}
+	test_dup {
+		var u,v;
+		u = this.u;
+		v = u.dup;
+		this.assert(v.notNil);
+	}
+	test_dup_in_transaction {
+		var u,v;
+		u = this.u;
+		x.transaction {
+			v = u.dup;
+			this.assert(v.notNil);
+		};
+		//x.source. removing adding should be empty
+	}
+	test_copy {
+		var u,v;
+		u = this.u;
+		v = u.copy(u.point + Point(1,1));
+		this.assert(v.notNil);
+	}
 }
 
 TestMxInletApp : MxAppTester {
