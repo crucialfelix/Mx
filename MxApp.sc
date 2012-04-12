@@ -17,7 +17,7 @@ AbsApp {
 
 MxApp : AbsApp {
 	
-	var cache,convertor;
+	var cache,convertor,transactionCount = 0;
 
 	mx { ^model }
 	at { arg point;
@@ -48,8 +48,7 @@ MxApp : AbsApp {
 		// returns a channel filled with object(s)
 		var chan;
 		chan = this.prFind( model.add(*sources) );
-		model.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^chan
 	}
 	
@@ -83,6 +82,21 @@ MxApp : AbsApp {
 	}
 	
 	//select
+
+	transaction { arg function;
+		var result;
+		transactionCount = transactionCount + 1;
+		result = function.value;
+		transactionCount = max(transactionCount - 1,0);
+		this.commit;
+		^result
+	}
+	commit {
+		if(transactionCount == 0,{
+			this.mx.update;
+			this.mx.changed('grid')
+		})
+	}
 	
 	//copy to an app buffer
 	//paste
@@ -121,20 +135,17 @@ MxChannelApp : AbsApp {
 	}
 	put { arg i,source;
 		this.mx.put( this.channelNumber, i, source );
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^this.at(i)
 	}
 	removeAt { arg i;
 		this.mx.remove( this.channelNumber, i );
-		this.mx.changed('grid');
-		this.mx.update
+		mxapp.commit;
 	}
 	insertAt { arg i,source;
 		// source.asArray.do
 		this.mx.insert( this.channelNumber, i, source );
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^this.at(i)
 	}
 	
@@ -153,8 +164,7 @@ MxChannelApp : AbsApp {
 			this.mx.put( ci,start + i, source );
 			this.at(i)
 		};
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		if(apps.size == 1,{
 			^apps.first
 		},{
@@ -166,8 +176,7 @@ MxChannelApp : AbsApp {
 		var unit,ci;
 		ci = this.channelNumber;
 		unit = this.mx.copy( ci, fromIndex, ci, 	toIndex ?? {fromIndex + 1} );
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		if(unit.isNil, { ^nil });
 		^mxapp.prFind( unit )
 	}
@@ -248,15 +257,15 @@ MxUnitApp : AbsApp {
 	}
 	
 	remove {
-		this.mx.remove(*this.point.asArray).update;
-		this.mx.changed('grid');
+		this.mx.remove(*this.point.asArray);
+		mxapp.commit;
 		// should mark self as dead
 	}
 	moveTo { arg point;
 		var me;
 		me = this.point;
-		this.mx.move(me.x,me.y,point.x,point.y).update;
-		this.mx.changed('grid');
+		this.mx.move(me.x,me.y,point.x,point.y);
+		mxapp.commit;
 	}
 	//replaceWith { arg source; // or unit or point
 	//}
@@ -268,8 +277,7 @@ MxUnitApp : AbsApp {
 		model.outlets.do { arg io;
 			this.mx.disconnectOutlet(io);
 		};
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	
 	i { ^this.inlets }
@@ -284,7 +292,9 @@ MxUnitApp : AbsApp {
 		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
 	>> { arg that;
-		^(this.outlets >> that)
+		^mxapp.transaction({
+			^this.outlets >> that
+		})
 	}
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
@@ -314,7 +324,9 @@ MxIOletsApp : AbsApp {
 		^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
 	}
 	>> { arg inlet;
-		^(this.out ?? { (this.asString ++ "has no out").error; ^this }) >> inlet
+		var outlet;
+		outlet = (this.out ?? { (this.asString ++ "has no out").error; ^this });
+		^outlet >> inlet
 	}
 	// finds iolet by name
 	doesNotUnderstand { arg selector ... args;
@@ -330,8 +342,7 @@ MxIOletsApp : AbsApp {
 				this.mx.disconnectInlet(io);
 			})
 		};
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	prFindIOlet { arg i,warn=false;
 		if(i.isNumber,{
@@ -366,14 +377,12 @@ MxInletApp : AbsApp {
 
 	<< { arg outlet;
 		this.mx.connect(outlet.model.unit,outlet.model,model.unit,model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^outlet
 	}
 	disconnect {
 		this.mx.disconnectInlet(model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	spec {
 		^model.spec
@@ -410,14 +419,12 @@ MxOutletApp : AbsApp {
 			inlet = inlet.fader
 		}); */
 		this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^inlet // or magically find the outlet of that unit; or return that unit
 	}
 	disconnect {
 		this.mx.disconnectOutlet(model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	
 	spec {
