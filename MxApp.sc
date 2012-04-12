@@ -349,7 +349,7 @@ MxUnitApp : AbsApp {
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
 		var p;
-		p = this.point ?? { stream << model << "(" << this.name << ")"; ^this };
+		p = this.point ? Point(nil,nil);
 		stream << p.x << "@" << p.y << "(" << this.name << ")"
 	}
 }
