@@ -72,6 +72,17 @@ TestMx : TestAbstractPlayer {
 		p = Instr("_test_.Sin",{ SinOsc.ar });
 		x.put(0,0,p);
 	}
+	test_move {
+		var x,p,moved,was;
+		x = this.makePlayer;
+		p = Instr("_test_.Sin",{ SinOsc.ar });
+		x.put(0,0,p);
+		was = x.at(0,0);
+		x.move(0,0,1,1);
+		moved = x.at(1,1);
+		this.assert( moved === was , "should be in new position now");
+		this.assert(x.at(0,0).isNil,"old position should be nil");
+	}
 	test_mx_is_set {
 		var x,p,unit;
 		x = Mx.new;
