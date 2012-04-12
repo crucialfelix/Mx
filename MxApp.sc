@@ -285,6 +285,13 @@ MxUnitApp : AbsApp {
 		this.mx.move(me.x,me.y,point.x,point.y);
 		mxapp.commit;
 	}
+	moveBy { arg vector;
+		var me,dort;
+		me = this.point;
+		dort = me + vector;
+		this.mx.move(me.x,me.y,dort.x,dort.y);
+		mxapp.commit;
+	}
 	dup {
 		// insert below self
 		var p,below,bp,cop;
@@ -305,6 +312,10 @@ MxUnitApp : AbsApp {
 		unit = this.mx.copy( p.x, p.y, toPoint.x, toPoint.y );
 		mxapp.commit;
 		^mxapp.prFind( unit )
+	}
+	copyBy { arg vector;
+		// copy relative to self
+		^this.copy(this.point + vector)
 	}
 	//replaceWith { arg source; // or unit or point
 	//}
