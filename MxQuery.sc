@@ -119,8 +119,8 @@ MxQuery : AbsApp {
 	}
 
 	// units
-	dup {
-		this.prUnitsDo({ arg unit; unit.dup })
+	dup { arg num=1;
+		this.prUnitsDo({ arg unit; unit.dup(num) })
 	}
 	moveBy { arg vector;
 		this.prUnitsDo({ arg unit; unit.moveBy(vector) })

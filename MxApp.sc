@@ -292,17 +292,25 @@ MxUnitApp : AbsApp {
 		this.mx.move(me.x,me.y,dort.x,dort.y);
 		mxapp.commit;
 	}
-	dup {
-		// insert below self
+	dup { arg num=1;
+		// insert copies below self
 		var p,below,bp,cop;
 		p = this.point;
-		bp = Point(p.x,p.y+1);
-		below = this.mx.at(bp.x,bp.y);
 		^mxapp.transaction({
-			if(below.notNil,{
-				this.channel.insertAt(bp,nil);
-			});
-			this.copy(bp);
+			var results;
+			results = Array.fill(num,{ arg i;
+				bp = Point(p.x,p.y+(i+1));
+				below = this.mx.at(bp.x,bp.y);
+					if(below.notNil,{
+						this.channel.insertAt(bp,nil);
+					});
+					this.copy(bp);
+				});
+			if(num == 1,{
+				results.first
+			},{
+				results
+			})
 		})
 	}
 	copy { arg toPoint;
