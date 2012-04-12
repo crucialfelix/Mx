@@ -157,7 +157,6 @@ MxChannelApp : AbsApp {
 		^this.at(i)
 	}
 	
-	//unit
 	units {
 		^model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) })
 	}
@@ -165,6 +164,8 @@ MxChannelApp : AbsApp {
 		// the audio inlet to the fader
 		^mxapp.prFind(model.myUnit.inlets.first)
 	}
+	//next
+	//prev
 	
 	//select
 	add { arg ... sources; // add 1 or more to the end
@@ -226,7 +227,7 @@ MxChannelApp : AbsApp {
 		this.mx.changed('mixer');
 	}
 	//fade { arg db,seconds=5; // easing
-		// will need a little engine
+		// will need a little engine in the frame rate engine
 	//}
 	
 	channelNumber {
@@ -234,7 +235,7 @@ MxChannelApp : AbsApp {
 	}
 	printOn { arg stream;
 		stream << "Channel" << this.channelNumber
-	}	
+	}
 }
 
 
@@ -328,6 +329,10 @@ MxUnitApp : AbsApp {
 	//replaceWith { arg source; // or unit or point
 	//}
 	//replace(other)
+	// below
+	// above
+	// left
+	// right
 	disconnect {
 		model.inlets.do { arg io;
 			this.mx.disconnectInlet(io);
