@@ -367,7 +367,7 @@ Mx : AbstractPlayerProxy {
 			if(unit === u,{
 				^Point(inf,ri)
 			})
-		}
+		};
 		^nil  // private channel unit, not on grid
 	}
 	unitAddFrameRateDevices { arg unit;
@@ -665,10 +665,10 @@ Mx : AbstractPlayerProxy {
 			};
 		}
 	}
-	allUnits {
+	allUnits { arg includeChanUnit = true;
 		^Routine({
 			channels.do({ arg c;
-				c.myUnit.yield;
+				if(includeChanUnit,{ c.myUnit.yield; });
 				c.units.do({ arg u;
 					if(u.notNil,{
 						u.yield

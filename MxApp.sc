@@ -12,12 +12,14 @@ AbsApp {
 	printOn { arg stream;
 		stream << model
 	}
+	source { ^model }
+	dereference { ^this.source }
 }
 
 
 MxApp : AbsApp {
 	
-	var cache,convertor;
+	var cache,convertor,transactionCount = 0;
 
 	mx { ^model }
 	at { arg point;
@@ -27,6 +29,12 @@ MxApp : AbsApp {
 	}
 	put { arg point,object;
 		^this.prFind( model.put(point.x,point.y,object) )
+	}
+	units {
+		^MxQuery(model.allUnits(false).all.collect(this.prFind(_)),this)
+	}
+	channels {
+		^MxQuery(model.channels.collect(this.prFind(_)),this)
 	}
 	channel { arg i;
 		var c;
@@ -48,8 +56,7 @@ MxApp : AbsApp {
 		// returns a channel filled with object(s)
 		var chan;
 		chan = this.prFind( model.add(*sources) );
-		model.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^chan
 	}
 	
@@ -83,6 +90,21 @@ MxApp : AbsApp {
 	}
 	
 	//select
+
+	transaction { arg function;
+		var result;
+		transactionCount = transactionCount + 1;
+		result = function.value;
+		transactionCount = max(transactionCount - 1,0);
+		this.commit;
+		^result
+	}
+	commit {
+		if(transactionCount == 0,{
+			this.mx.update;
+			this.mx.changed('grid')
+		})
+	}
 	
 	//copy to an app buffer
 	//paste
@@ -121,28 +143,29 @@ MxChannelApp : AbsApp {
 	}
 	put { arg i,source;
 		this.mx.put( this.channelNumber, i, source );
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^this.at(i)
 	}
 	removeAt { arg i;
 		this.mx.remove( this.channelNumber, i );
-		this.mx.changed('grid');
-		this.mx.update
+		mxapp.commit;
 	}
 	insertAt { arg i,source;
 		// source.asArray.do
 		this.mx.insert( this.channelNumber, i, source );
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^this.at(i)
 	}
 	
-	//unit
+	units {
+		^model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) })
+	}
 	fader {
 		// the audio inlet to the fader
 		^mxapp.prFind(model.myUnit.inlets.first)
 	}
+	//next
+	//prev
 	
 	//select
 	add { arg ... sources; // add 1 or more to the end
@@ -153,8 +176,7 @@ MxChannelApp : AbsApp {
 			this.mx.put( ci,start + i, source );
 			this.at(i)
 		};
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		if(apps.size == 1,{
 			^apps.first
 		},{
@@ -166,14 +188,16 @@ MxChannelApp : AbsApp {
 		var unit,ci;
 		ci = this.channelNumber;
 		unit = this.mx.copy( ci, fromIndex, ci, 	toIndex ?? {fromIndex + 1} );
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		if(unit.isNil, { ^nil });
 		^mxapp.prFind( unit )
 	}
 	mute {
 		this.mx.mute(this.channelNumber,true);
 		this.mx.changed('mixer');
+	}
+	muted {
+		^model.fader.mute
 	}
 	unmute {
 		this.mx.mute(this.channelNumber,false);
@@ -191,6 +215,10 @@ MxChannelApp : AbsApp {
 		this.mx.solo(this.channelNumber,false);
 		this.mx.changed('mixer');
 	}
+	soloed {
+		^model.fader.solo
+	}
+	
 	db {
 		^model.fader.db
 	}
@@ -199,7 +227,7 @@ MxChannelApp : AbsApp {
 		this.mx.changed('mixer');
 	}
 	//fade { arg db,seconds=5; // easing
-		// will need a little engine
+		// will need a little engine in the frame rate engine
 	//}
 	
 	channelNumber {
@@ -207,7 +235,7 @@ MxChannelApp : AbsApp {
 	}
 	printOn { arg stream;
 		stream << "Channel" << this.channelNumber
-	}	
+	}
 }
 
 
@@ -248,19 +276,63 @@ MxUnitApp : AbsApp {
 	}
 	
 	remove {
-		this.mx.remove(*this.point.asArray).update;
-		this.mx.changed('grid');
+		this.mx.remove(*this.point.asArray);
+		mxapp.commit;
 		// should mark self as dead
 	}
 	moveTo { arg point;
 		var me;
 		me = this.point;
-		this.mx.move(me.x,me.y,point.x,point.y).update;
-		this.mx.changed('grid');
+		this.mx.move(me.x,me.y,point.x,point.y);
+		mxapp.commit;
+	}
+	moveBy { arg vector;
+		var me,dort;
+		me = this.point;
+		dort = me + vector;
+		this.mx.move(me.x,me.y,dort.x,dort.y);
+		mxapp.commit;
+	}
+	dup { arg num=1;
+		// insert copies below self
+		var p,below,bp,cop;
+		p = this.point;
+		^mxapp.transaction({
+			var results;
+			results = Array.fill(num,{ arg i;
+				bp = Point(p.x,p.y+(i+1));
+				below = this.mx.at(bp.x,bp.y);
+					if(below.notNil,{
+						this.channel.insertAt(bp,nil);
+					});
+					this.copy(bp);
+				});
+			if(num == 1,{
+				results.first
+			},{
+				results
+			})
+		})
+	}
+	copy { arg toPoint;
+		// toIndex defaults to the next slot, pushing any others further down		
+		var unit,ci,p;
+		p = this.point;
+		unit = this.mx.copy( p.x, p.y, toPoint.x, toPoint.y );
+		mxapp.commit;
+		^mxapp.prFind( unit )
+	}
+	copyBy { arg vector;
+		// copy relative to self
+		^this.copy(this.point + vector)
 	}
 	//replaceWith { arg source; // or unit or point
 	//}
 	//replace(other)
+	// below
+	// above
+	// left
+	// right
 	disconnect {
 		model.inlets.do { arg io;
 			this.mx.disconnectInlet(io);
@@ -268,8 +340,7 @@ MxUnitApp : AbsApp {
 		model.outlets.do { arg io;
 			this.mx.disconnectOutlet(io);
 		};
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	
 	i { ^this.inlets }
@@ -284,12 +355,14 @@ MxUnitApp : AbsApp {
 		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
 	>> { arg that;
-		^(this.outlets >> that)
+		^mxapp.transaction({
+			^this.outlets >> that
+		})
 	}
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
 		var p;
-		p = this.point ?? { stream << model << "(" << this.name << ")"; ^this };
+		p = this.point ? Point(nil,nil);
 		stream << p.x << "@" << p.y << "(" << this.name << ")"
 	}
 }
@@ -314,7 +387,12 @@ MxIOletsApp : AbsApp {
 		^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
 	}
 	>> { arg inlet;
-		^(this.out ?? { (this.asString ++ "has no out").error; ^this }) >> inlet
+		var outlet;
+		outlet = (this.out ?? { (this.asString ++ "has no out").error; ^this });
+		^outlet >> inlet
+	}
+	do { arg function;
+		model.do { arg io,i; function.value(mxapp.prFind(io),i) }
 	}
 	// finds iolet by name
 	doesNotUnderstand { arg selector ... args;
@@ -330,8 +408,7 @@ MxIOletsApp : AbsApp {
 				this.mx.disconnectInlet(io);
 			})
 		};
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	prFindIOlet { arg i,warn=false;
 		if(i.isNumber,{
@@ -366,14 +443,12 @@ MxInletApp : AbsApp {
 
 	<< { arg outlet;
 		this.mx.connect(outlet.model.unit,outlet.model,model.unit,model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^outlet
 	}
 	disconnect {
 		this.mx.disconnectInlet(model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	spec {
 		^model.spec
@@ -410,14 +485,12 @@ MxOutletApp : AbsApp {
 			inlet = inlet.fader
 		}); */
 		this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 		^inlet // or magically find the outlet of that unit; or return that unit
 	}
 	disconnect {
 		this.mx.disconnectOutlet(model);
-		this.mx.update;
-		this.mx.changed('grid');
+		mxapp.commit;
 	}
 	
 	spec {
@@ -444,10 +517,3 @@ MxOutletApp : AbsApp {
 }
 
 
-MxQs {
-	
-	
-}
-
-
-	
