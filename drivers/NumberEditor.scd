@@ -9,7 +9,7 @@ MxUnit.register('NumberEditor',
 		var inlets,outlets,sips,ne;
 		ne = NumberEditor(num.value,\unipolar);
 		~source = ne;
-		inlets  = [];
+		inlets  = [ MxInlet("in",0,ne.spec,MxSetter({ arg v; ne.valueAction = v })) ];
 		outlets = [ MxOutlet("action", 0, ne.spec ,
 						MxHasAction({arg action; ne.action = action  }) ) 
 				];
