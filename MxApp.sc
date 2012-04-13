@@ -165,7 +165,7 @@ MxChannelApp : AbsApp {
 	}
 	
 	units {
-		^model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) })
+		^MxQuery(model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) }),mxapp)
 	}
 	fader {
 		// the audio inlet to the fader
