@@ -14,6 +14,9 @@ AbsApp {
 	}
 	source { ^model }
 	dereference { ^this.source }
+	checkThat { arg that;
+		if(that.isKindOf(AbsApp).not,{ (this.asString + "cannot >> to" + that).error });
+	}
 }
 
 
@@ -366,6 +369,7 @@ MxUnitApp : AbsApp {
 		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
 	>> { arg that;
+		this.checkThat(that);
 		^mxapp.transaction({
 			^this.outlets >> that
 		})
@@ -399,6 +403,7 @@ MxIOletsApp : AbsApp {
 	}
 	>> { arg inlet;
 		var outlet;
+		this.checkThat(inlet);
 		outlet = (this.out ?? { (this.asString ++ "has no out").error; ^this });
 		^outlet >> inlet
 	}
@@ -425,7 +430,7 @@ MxIOletsApp : AbsApp {
 		if(i.isNumber,{
 			if(i >= model.size,{
 				if(warn,{
-					("In/Out index out of range:"+ i.asCompileString + this).warn;
+					("IOlet index out of range:"+ i.asCompileString + this).warn;
 				});
 				^nil
 			},{
@@ -440,7 +445,7 @@ MxIOletsApp : AbsApp {
 			}
 		});
 		if(warn,{
-			("In/Out index not found:"+ i.asCompileString + this).warn;
+			("IOlet index not found:"+ i.asCompileString + "in:" + this).warn;
 		});
 		^nil
 	}
@@ -453,6 +458,7 @@ MxIOletsApp : AbsApp {
 MxInletApp : AbsApp {
 
 	<< { arg outlet;
+		//this.checkThat(outlet);
 		this.mx.connect(outlet.model.unit,outlet.model,model.unit,model);
 		mxapp.commit;
 		^outlet
@@ -495,6 +501,12 @@ MxOutletApp : AbsApp {
 		if(inlet.isKindOf(MxChannelApp),{
 			inlet = inlet.fader
 		}); */
+		//this.checkThat(inlet);
+		if(inlet.isKindOf(MxInletApp).not,{
+			//[model,inlet,inlet.model].insp("connect these");
+			// will support this later: connect to unit by finding first usable inlet
+			Error("" + this + "cannot >> to" + inlet).throw;
+		});
 		this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
 		mxapp.commit;
 		^inlet // or magically find the outlet of that unit; or return that unit
