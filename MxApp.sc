@@ -67,12 +67,14 @@ MxApp : AbsApp {
 	
 	play { arg then;
 		if(model.isPlaying.not,{
-			model.onPlay(then).play
+			if(then.notNil,{ model.onPlay(then) });
+			model.play
 		},then)
 	}
 	stop { arg then;
 		if(model.isPlaying,{
-			model.onFree(then).free
+			if(then.notNil,{ model.onFree(then) });
+			model.free
 		},then)
 	}
 
