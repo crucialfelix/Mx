@@ -39,9 +39,9 @@ MxApp : AbsApp {
 	channel { arg i;
 		var c;
 		c = model.channelAt(i) ?? {
-				model.extendChannels(i);
+				c = model.insertChannel(i);
 				model.update;
-				model.channelAt(i)
+				c
 			};
 		^this.prFind( c )
 	}
