@@ -180,8 +180,9 @@ MxChannelApp : AbsApp {
 		start = model.units.size;
 		ci = this.channelNumber;
 		apps = sources.collect { arg source,i;
-			this.mx.put( ci,start + i, source );
-			this.at(i)
+			var unit;
+			unit = this.mx.put( ci,start + i, source );
+			mxapp.prFind(unit)
 		};
 		mxapp.commit;
 		if(apps.size == 1,{
