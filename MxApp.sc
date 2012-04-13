@@ -53,11 +53,16 @@ MxApp : AbsApp {
 		^this.channel( model.channels.size )
 	}
 	add { arg ... sources;
-		// returns a channel filled with object(s)
+		// if one object supplied then adds it to a new channel and returns a single unit 
+		// if many then returns a channel filled with object(s)
 		var chan;
 		chan = this.prFind( model.add(*sources) );
-		mxapp.commit;
-		^chan
+		this.commit;
+		if(sources.size == 1,{
+			^chan.units.first
+		},{
+			^chan
+		})
 	}
 	
 	play { arg then;
