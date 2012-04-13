@@ -359,6 +359,9 @@ MxUnitApp : AbsApp {
 	outlets {
 		^MxIOletsApp(model.outlets,mxapp,model)
 	}
+	out {
+		^this.outlets.out
+	}
 	channel {
 		^mxapp.prFind( this.mx.channelAt( this.point.x ) )
 	}
