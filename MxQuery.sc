@@ -90,6 +90,12 @@ MxQuery : AbsApp {
 	at { arg i;
 		^this.objects.at(i)
 	}
+	first {
+		^this.at(0)
+	}
+	asArray {
+		^Array.fill(this.size,{ arg i; this.at(i) })
+	}
     // includes
 	// every
 	// any
@@ -185,5 +191,4 @@ MxQuery : AbsApp {
 	
 	*/
 	objects { ^model }
-
 }
