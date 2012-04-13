@@ -13,6 +13,9 @@ MxUnit.register('Instr',(
 			instr = instr.asInstr;
 			inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,instr.defArgAt(i) ) });
 		});
+		if(instr.outSpec.isNil,{
+			instr.outSpec = \audio.asSpec
+		});
 		patch = Patch(instr,inps );
 		connectors = patch.inputs.collect({ arg inp,i; 
 			if(inp.isKindOf(MxArJack),{
