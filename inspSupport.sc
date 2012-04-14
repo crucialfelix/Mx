@@ -4,10 +4,9 @@
 	
 	*initClass {
 		var busf;
-		if(Insp.notNil,{
+		if(\Insp.asClass.notNil,{
 			Class.initClassTree(ObjectInsp);
 			ObjectInsp.registerHook(MxCable,{ arg cable,layout;
-				
 
 				InspButton.captioned("Out",cable.outlet.unit.source,layout.startRow);
 				InspButton(cable.outlet.adapter,layout);
@@ -17,10 +16,18 @@
 
 				layout.startRow;
 				try {
-					InspButton.captioned("Strategy",cable.strategy,layout);
+					var name = MxCable.strategies.findKeyForValue(cable.strategy);
+					InspButton.captioned(name.asString ? "MxCableStrategy",cable.strategy,layout);
 				} {
 					SimpleLabel(layout,"NO STRATEGY FOR CABLE");
 				}
+			});
+			
+			ObjectInsp.registerHook(MxCableStrategy,{ arg strategy,layout;
+				var name = MxCable.strategies.findKeyForValue(strategy);
+				SimpleLabel(layout,name.asString ? "Strategy was not registered");
+				//connectf sourceGui
+				//disconnectf
 			});
 			
 			busf = { arg pob,layout;

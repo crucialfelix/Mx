@@ -2,7 +2,7 @@
 
 MxCable {
 	
-	classvar strategies;
+	classvar <strategies;
 	
 	var <>outlet,<>inlet,<>mapping,<>active=true,<>pending=false;
 	var <state;
