@@ -15,7 +15,7 @@ MxUnit.register('CCBank', // cruciallib
 	prepareToBundle:  { arg agroup, bundle, private, bus; 
 		~source.sets.do { arg set,i;
 			var ccr;
-			ccr = ~source.responder(set.key,{ arg val; ccr.changed(val) });
+			ccr = ~source.responder(set.key,{ arg val; {ccr.changed(val)}.defer });
 		};
 	},
 	spawnToBundle: { arg bundle; },
