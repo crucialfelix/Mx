@@ -103,7 +103,6 @@ MxUnit.register('InstrGateSpawner',(
 	load: { arg args;
 		args.first
 	},
-	copy: { ~save.value },
 	name: { ~igs.instr.dotNotation },
 	
 	gui: { arg layout;

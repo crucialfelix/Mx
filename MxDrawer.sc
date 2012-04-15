@@ -86,12 +86,12 @@ MxDrawerSubItem {
 
 MxDrawerGui : ObjectGui {
 
-    var lv,keys,items,currentItemGroup,searchBox;
+    var lv,keys,items,currentItemGroup,searchBox,bg,fg;
 
     writeName {}
 
     guiBody { arg layout,bounds;
-        var bg,fg,width,action;
+        var width,action;
         bg = Color(0.21652929382936, 0.23886961779588, 0.26865671641791);
         fg = Color(0.94029850746269, 0.96588486140725, 1.0);
         width = min(layout.bounds.width,200);
@@ -108,7 +108,7 @@ MxDrawerGui : ObjectGui {
 
         // using ListView, though it cannot drag directly into a unit yet
         lv = ListView(layout,width@(layout.bounds.height-17-4));
-
+		lv.background = bg;
         // all top level items, nothing unfolded
         this.drillUp;
 
@@ -126,7 +126,7 @@ MxDrawerGui : ObjectGui {
             // double click on a top level single item or unfolded sub-item => select
             if(clickCount == 2,action)
         };
-        lv.background = bg;
+        
         lv.stringColor = fg;
         lv.focusColor = Color.clear;
         lv.font = GUI.font.new(GUI.skin.fontSpecs[0],9);
@@ -160,6 +160,7 @@ MxDrawerGui : ObjectGui {
         items = itemGroup.drill; // title, data
         keys = items.collect(_.title);
         lv.items = keys;
+        this.prSetColors;
         lv.refresh
     }
     drillUp {
@@ -177,6 +178,14 @@ MxDrawerGui : ObjectGui {
 	    };
         currentItemGroup = nil;
         lv.items = labels;
+        this.prSetColors;
+    }
+    prSetColors {
+        if(GUI.scheme.id == 'qt',{
+	        lv.colors = bg ! items.size;
+        },{
+			lv.background = bg;
+        });
     }
     nextItem {
 	    lv.value = min(lv.value + 1,lv.items.size-1)
@@ -200,28 +209,28 @@ MxDrawerGui : ObjectGui {
     }
     keyDownResponder {
         var k;
-        k = UnicodeResponder.new;
-		//  option 63232
-		k.register(   63232  ,   false, false, true, false, {
+        k = KeyResponder.new;
+		//  option
+		k.register(   \left  ,   false, false, true, false, {
 			this.prevItem
 		
 		});
-		//  option 63233
-		k.register(   63233  ,   false, false, true, false, {
+		//  option
+		k.register(   \right  ,   false, false, true, false, {
 			this.nextItem
 		
 		});
-		//  option 63234
-		k.register(   63234  ,   false, false, true, false, {
+		//  option
+		k.register(   \up  ,   false, false, true, false, {
             this.drillUp
 		
 		});
-		//  option 63235
-		k.register(   63235  ,   false, false, true, false, {
+		//  option
+		k.register(   \down  ,   false, false, true, false, {
             this.drillDown
 		
 		});
-		//  option 3
+		//  option enter
 		k.register(   3  ,   false, false, true, false, {
 			lv.enterKeyAction.value
 		
@@ -229,15 +238,14 @@ MxDrawerGui : ObjectGui {
         //  option 223
 		k.register(   223  ,   false, false, true, false, {
             searchBox.focus
-		
 		});
 
         
-//        //  shift-control arrow up 63232
-//        k.register(   63232  ,   false, false, false, false, {
+//        //  shift-control arrow up 
+//        k.register(   \up  ,   false, false, false, false, {
 //            this.drillUp
 //        });
-//        //  shift-control arrow down 63233
+//        //  shift-control arrow down
 //        k.register(   63233  ,   true, false, false, true, {
 //            this.drillDown
 //        });
@@ -245,11 +253,11 @@ MxDrawerGui : ObjectGui {
 //        k.register(   19  ,   false, false, false, true, {
 //            searchBox.focus
 //        });
-//		//  shift arrow down 63232 nav up
-//		k.register(   63232  ,   true, false, false, false, {
+//		//  shift arrow down  nav up
+//		k.register(   \up  ,   true, false, false, false, {
 //			this.prevItem
 //		});
-//		//  shift arrow down 63233 nav down
+//		//  shift arrow down nav down
 //		k.register(   63233  ,   true, false, false, false, {
 //			this.nextItem
 //		});		

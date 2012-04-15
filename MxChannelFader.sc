@@ -15,9 +15,7 @@ MxChannelInput : AbstractPlayerProxy {
 		currently making an extra bus and copying it
 	*/
 
-	classvar cInstr;
-
-	var instr,busJack,<>numChannels=2,inBus;	
+	var instr,busJack,<>numChannels=2,inBus;
 	
 	*new { ^super.new.init }
 	init {
@@ -33,22 +31,21 @@ MxChannelInput : AbstractPlayerProxy {
 	}
 	
 	*instr {
-		^cInstr ?? {
-			cInstr = Instr("MxChannelInput", { arg numChannels=2,bus;
-						In.ar(bus,numChannels)
-					},[
-						StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
-						ScalarSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
-					],AudioSpec.new);
-		}
-	}	
+		if(Instr.isDefined("MxChannelInput").not,{
+			Instr("MxChannelInput", { arg numChannels=2,bus;
+				In.ar(bus,numChannels)
+			},[
+				StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
+				ScalarSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
+			],AudioSpec.new);
+		});
+		^Instr.at("MxChannelInput")
+	}
 }
 
 
 MxChannelFader : AbstractPlayerProxy {
 
-	classvar cInstr;
-	
 	var <numChannels,<db=0, <mute=false, <solo=false;
 	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12,<>fuseBlown=false;
 	
@@ -137,50 +134,51 @@ MxChannelFader : AbstractPlayerProxy {
 	*channelInstr {
 		// or create it on the fly so the on trigs can be sent
 		// could also pass a responder function in
-		^cInstr ?? {
-			cInstr = Instr("MxChannelFader",{ arg numChannels=2,inBus=126,
-									db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12,onBad;
-						var ok,threshold,c,k,in;
-						in = In.ar(inBus,numChannels);
-						if(breakOnBadValues > 0,{
-							ok = BinaryOpUGen('==', CheckBadValues.kr(Mono(in), 0, 2), 0);
-							(1.0 - ok).onTrig({
-								"bad value, muting".inform;
-								onBad.value("bad value");
-							});
-							in = in * ok;
-						});
-						if(breakOnDbOver > 0,{
-							threshold = breakOnDbOver.dbamp;
-							c = max(0.0,(Amplitude.ar(Mono(in),0.001,0.001) - 2.0));
-							k = c > threshold;
-							A2K.kr(k).onTrig({
-								"amp > threshold, muting".inform;
-								onBad.value("over threshold");
-							});
-							k = 1.0 - k;
-							in = in * k; //Lag.kr(k,0.01);
-						});
-						if(limit > 0,{
-							Limiter.ar(
-								( in ) * db.dbamp,
-								limit
-							) // .clip2(1.0,-1.0)
-						},{
-							in = in * db.dbamp
-						});
-						NumChannels.ar(in,numChannels)
-				    },[
-						StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
-						ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"),
-						ControlSpec(-1000,24,'db',0.0,0.0,\db),
-						StaticSpec(0,1.0),
-						StaticSpec(0,1),
-						StaticSpec(0,100),
-						ObjectSpec.new
-					],AudioSpec(2))
-		}
-	}	
+		if(Instr.isDefined("MxChannelFader").not,{
+			Instr("MxChannelFader",{ arg numChannels=2,inBus=126,
+							db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12,onBad;
+				var ok,threshold,c,k,in;
+				in = In.ar(inBus,numChannels);
+				if(breakOnBadValues > 0,{
+					ok = BinaryOpUGen('==', CheckBadValues.kr(Mono(in), 0, 2), 0);
+					(1.0 - ok).onTrig({
+						"bad value, muting".inform;
+						onBad.value("bad value");
+					});
+					in = in * ok;
+				});
+				if(breakOnDbOver > 0,{
+					threshold = breakOnDbOver.dbamp;
+					c = max(0.0,(Amplitude.ar(Mono(in),0.001,0.001) - 2.0));
+					k = c > threshold;
+					A2K.kr(k).onTrig({
+						"amp > threshold, muting".inform;
+						onBad.value("over threshold");
+					});
+					k = 1.0 - k;
+					in = in * k; //Lag.kr(k,0.01);
+				});
+				if(limit > 0,{
+					Limiter.ar(
+						( in ) * db.dbamp,
+						limit
+					) // .clip2(1.0,-1.0)
+				},{
+					in = in * db.dbamp
+				});
+				NumChannels.ar(in,numChannels)
+		    },[
+				StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
+				ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"),
+				ControlSpec(-1000,24,'db',0.0,0.0,\db),
+				StaticSpec(0,1.0),
+				StaticSpec(0,1),
+				StaticSpec(0,100),
+				ObjectSpec.new
+			],AudioSpec(2))
+		});
+		^Instr("MxChannelFader")
+	}
 }
 
 	

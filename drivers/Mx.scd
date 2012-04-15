@@ -10,7 +10,7 @@ MxUnit.register('Mx',
 (
 	make: { arg mx;
 		var inlets,outlets,patch,inps,connectors,conn,handlers;
-		inlets = []
+		inlets = [];
 		outlets = [];
 		// MxOutlet("MxChannelOut", 0, AudioSpec(chan.numChannels),MxPlaysOnBus({chan.source.bus}) ) ];
 

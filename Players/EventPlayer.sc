@@ -5,7 +5,7 @@
 EventPlayer : AbstractPlayer {
 	
 	var <>postFilter,<>protoEvent,<>spec;
-	var postStream;
+	var postStream,<>verbose=false;
 	
 	*new { arg postFilter,protoEvent,spec=\audio;
 		^super.new.init(postFilter,protoEvent).spec_(spec.asSpec)
@@ -22,6 +22,7 @@ EventPlayer : AbstractPlayer {
 			e = postStream.next(e)
 		});
 		e.play;
+		if(verbose,{ e.debug });
 		^e
 	}
 	postFilterPut { arg k,v;
@@ -41,7 +42,7 @@ EventPlayer : AbstractPlayer {
 	spawnToBundle { arg b;
 		this.resetProtoStream;
 		b.addFunction({
-			status = \isPlaying	
+			this.prSetStatus(\isPlaying)
 		})
 	}
 	resetProtoStream {
@@ -54,7 +55,7 @@ EventPlayer : AbstractPlayer {
 	}
 	stopToBundle { arg b;
 		b.addFunction({
-			status = \isStopped
+			this.prSetStatus(\isStopped)
 		})
 	}
 	isPlaying { ^(status == \isPlaying) }
@@ -108,6 +109,12 @@ EventListPlayer : EventPlayer {
 			})
 		})
 	}
+	removeEvent { arg ev;
+		events.remove(ev);
+		if(ev['beat'].notNil and: {ev['beat'] >= sched.beat},{
+			this.schedAll;
+		})
+	}
 	playEventAt { arg i,inval;
 		var te;
 		te = events[i];
@@ -125,6 +132,7 @@ EventListPlayer : EventPlayer {
 			e.putAll(inval)
 		});
 		e.play;
+		if(verbose,{ e.asCompileString.postln; "".postln; });
 		^e
 	}
 	

@@ -17,7 +17,8 @@ TimeRuler {
 	var <maxTime;	
 	var view,zoomCalc,gridLines;
 	var <position;
-	
+	var <>shiftSwipeAction,swipeStart,lastx;
+
 	*new { arg layout,bounds,maxTime;
 		^super.new.init(layout,bounds,maxTime)
 	}
@@ -29,21 +30,51 @@ TimeRuler {
 	}
 		
 	gui { arg layout,bounds;
+		var pen,blue;
 		view = UserView(layout,bounds);
-		gridLines = GridLines(view,bounds,nil,[0.0,maxTime].asSpec,true,false);
+		view.background = Color.white;
+		gridLines = DrawGrid(bounds,GridLines([0.0,maxTime]),nil);
+		pen = GUI.pen;
+		blue = Color.blue;
 		view.drawFunc = {
 			gridLines.draw;
 			if((position ? -1).inclusivelyBetween(*zoomCalc.zoomedRange),{
-				Pen.use {
+				pen.use {
 					var x;
-					Pen.width = 1;
-					Pen.color = Color.blue;
+					pen.width = 1;
+					pen.color = blue;
 					x = zoomCalc.modelToDisplay(position);
-					Pen.moveTo( x@0 );
-					Pen.lineTo( x@bounds.height );
-					Pen.stroke;
+					pen.moveTo( x@0 );
+					pen.lineTo( x@bounds.height );
+					pen.stroke;
 				}
+			});
+			if(swipeStart.notNil,{
+				pen.use {
+					pen.color = Color.blue(alpha:0.3);
+					pen.fillRect( Rect(min(swipeStart,lastx),0,(lastx - swipeStart).abs, bounds.height) )
+				}
+			});
+		};
+		view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+			lastx = x;
+			if(modifiers.isShift,{
+				if(clickCount == 2,{
+					shiftSwipeAction.value(0,maxTime)
+				},{
+					swipeStart = x;
+				})
 			})
+		};
+		view.mouseUpAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+			if(modifiers.isShift and: swipeStart.notNil,{
+				shiftSwipeAction.value(zoomCalc.displayToModel(swipeStart),zoomCalc.displayToModel(x))
+			});
+			swipeStart = nil;
+		};
+		view.mouseMoveAction = { arg view,x;
+			lastx = x;
+			view.refresh;
 		};
 		view.focusColor = GUI.skin.focusColor ? Color.clear;
 	}
@@ -52,13 +83,13 @@ TimeRuler {
 	}
 	setZoom { arg from,to;
 		zoomCalc.setZoom(from,to);
-		gridLines.domainSpec = [from,to].asSpec;
+		gridLines.x.setZoom(from,to);
 		view.refresh;
 	}
 	maxTime_ { arg mt;
 		maxTime = mt;
 		zoomCalc.modelRange = [0.0,maxTime];
-		gridLines.domainSpec = [0.0,maxTime].asSpec;
+		gridLines.x.setZoom(0.0,maxTime);
 	}
 	position_ { arg p;
 		position = p;
@@ -69,7 +100,16 @@ TimeRuler {
 	}
 	mouseDownAction_ { arg f;
 		view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
-			f.value( zoomCalc.displayToModel(x), modifiers,buttonNumber,clickCount )
+			lastx = x;
+			if(modifiers.isShift.not,{
+				f.value( zoomCalc.displayToModel(x), modifiers,buttonNumber,clickCount )
+			},{
+				if(clickCount == 2,{
+					shiftSwipeAction.value(0,maxTime)
+				},{
+					swipeStart = x;
+				})
+			})
 		}
 	}
 	isClosed {

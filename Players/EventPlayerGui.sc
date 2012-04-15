@@ -3,10 +3,12 @@
 EventListPlayerGui : AbstractPlayerGui {
 	
 	var tg,zoomCalc,rs,hitAreas,selected,mouseDownPoint;
+	var manager;
 	
 	guiBody { arg layout,bounds;
 		// zoom control if top
 		// test buttons to click each one
+		ToggleButton(layout,"debug",{ model.verbose = true },{ model.verbose = false },model.verbose);
 		this.timeGui(layout,bounds ?? {Rect(0,0,layout.bounds.width,100)})
 	}
 	timeGui { arg layout,bounds,maxTime;
@@ -20,65 +22,79 @@ EventListPlayerGui : AbstractPlayerGui {
 			})
 		});
 		zoomCalc = ZoomCalc([0,maxTime],[0,bounds.width]);
-		rs = PenCommandList.new;
-		selected = List.new;
-		this.updateTimeGui;
-		tg.drawFunc = rs;
-
-		tg.mouseDownAction = { |uvw, x, y,modifiers, buttonNumber, clickCount|
-			var was;
-			mouseDownPoint = x@y;
-			hitAreas.any { arg ass;
-				var hit;
-				hit = ass.key.containsPoint(mouseDownPoint);
-				if(hit,{
-					was = selected.remove(ass.value);
-					if(was.isNil,{
-						selected.add(ass.value)
+		manager = UserViewObjectsManager(tg,bounds);
+		manager.bindAll;
+		manager.onDoubleClick = { arg obj;
+			Editor.for(obj).gui
+		};
+		manager.onMoved = { arg obj,by;
+			var r,pixelPos,beat;
+			pixelPos = zoomCalc.modelToDisplay(obj['beat']) + by.x;
+			beat = zoomCalc.displayToModel(pixelPos);
+			obj[\beat] = beat;
+			this.updateTimeGui;
+		};
+		manager.onCopy = { arg obj,by;
+			var nobj;
+			nobj = obj.copy;
+			nobj['beat'] = obj['beat'] + by;
+			model.addEvent(nobj);
+		};
+		manager.onDelete = { arg obj;
+			model.removeEvent(obj);
+		};
+		manager.onDoubleClick = { arg obj,p,modifiers;
+			if(modifiers.isCmd,{
+				DictionaryEditor(obj).gui(nil,nil,{ arg ev;
+					var beatChanged = ev['beat'] != obj['beat'];
+					ev.keysValuesDo { arg k,v;
+						obj.put(k,v)
+					};
+					if(beatChanged,{
+						model.schedAll
 					})
 				});
-				hit
-			};
-			// if none then deselect all
+			},{
+				model.playEvent(obj)
+			})
 		};
-			
-		tg.mouseMoveAction = { |uvw, x,y| 
-			if( selected.notEmpty ) { 
-				// how much in x direction have we moved ?
-				// add selected events in that position as ghosts
-				
-			}; 
-		};
-		tg.mouseUpAction = { |uvw,x,y|
-			if(selected.notEmpty) {
-				// how much in x direction have we moved ?
-				// move selected events to those positions and updateTimeGui
-				
-			}
-		}
+		// control would be mute it
+
+		this.updateTimeGui;
+		tg.drawFunc = manager;
 	}
 	updateTimeGui {
-		var h,r,black;
-		rs.clear;
-		hitAreas = List.new;
+		var h,black;
 		h = tg.bounds.height;
-		rs.add(\addRect,tg.bounds.moveTo(0,0));
-		rs.add('fillColor_',Color.white);
-		rs.add('fill');
 		black = Color.black;
 		model.events.do { arg ev,i;
-			var x;
+			var x,r,rs,endBeat,pixelStart,pixelEnd,remove=true;
 			if(ev['beat'].notNil,{
-				x = zoomCalc.modelToDisplay(ev['beat']);
-				if(x.notNil,{ // on screen
-					r = Rect(x,0,10,h);
+				endBeat = ev['beat'] + (ev['dur'] ? 1);
+				pixelStart = zoomCalc.modelToDisplay(ev['beat']);
+				pixelEnd = zoomCalc.modelToDisplay(endBeat);
+				if(pixelStart.notNil and: {pixelEnd.notNil},{ // on screen
+
+					r = Rect(0,0,pixelEnd - pixelStart,h);
+					rs = PenCommandList.new;
 					rs.add(\color_,Color.green);
 					rs.add(\addRect,r);
-					hitAreas.add(r -> i);
 					rs.add(\draw,3);
 					rs.add(\color_,black);
 					rs.add(\stringCenteredIn, i.asString,r);
-				})
+
+					if(manager.objects[ev].isNil,{
+						manager.add(ev,rs,r.moveTo(pixelStart,0));
+						remove = false;
+					},{
+						manager.setBounds(ev,r.moveTo(pixelStart,0));
+						manager.objects[ev].renderFunc = rs;
+						remove = false;
+					})
+				});
+			});
+			if(remove,{
+				manager.remove(ev)
 			})
 		};
 	}

@@ -14,6 +14,8 @@ Mx : AbstractPlayerProxy {
 	var <master;
 	var removing, adding, cableEndpoints;
 	var <>frameRate=24, sched, ticker, <position, frameRateDevices;
+	
+	var app;
 
 	*new { arg data,endBeat,loop=false,bpm;
 		^super.new.endBeat_(endBeat).loop_(loop).bpm_(bpm).init(data)
@@ -51,14 +53,16 @@ Mx : AbstractPlayerProxy {
 			outlets = loader.outlets;
 			
 			this.allUnits.do { arg unit;
-				this.unitAddFrameRateDevices(unit)
+				unit.didLoad;
+				this.unitAddFrameRateDevices(unit);
 			};
 		});
 		source = master;
 		sched = OSCSched.new;
 		position = Position.new;
+		this.updateVarPooling;
 	}
-			
+
 	nextID {
 		^allocator = allocator + 1;
 	}
@@ -92,6 +96,7 @@ Mx : AbstractPlayerProxy {
 	}
 	registerUnit { arg unit,uid;
 		uid = this.register(unit,uid);
+		unit.mx = this;
 		unit.inlets.do { arg inlet;
 			this.register(inlet); // already registered ?
 		};
@@ -126,6 +131,13 @@ Mx : AbstractPlayerProxy {
 	channelAt { arg chan;
 		^if(chan == inf,{master},{channels[chan]});
 	}
+	indexOfChannel { arg channel;
+		var i;
+		if(channel === master,{ ^inf });
+		i = channels.indexOf(channel);
+		^i
+	}
+		
 	extendChannels { arg toSize;
 		// create more channels if needed
 		// such that there is a channel at forIndex
@@ -146,17 +158,12 @@ Mx : AbstractPlayerProxy {
 	
 	insertChannel { arg index, objects;
 		// if adding a new channel it will insert it at the end
-		// so needs  will add one make sure at least that many channels
+		// so will add one tp make sure there are at least that many channels
 		var chan,units;
 		if(index > channels.size,{
 			this.extendChannels(index-1);
 		});
-		units = (objects ? []).collect({ arg obj; obj !? {MxUnit.make(obj)}});
-		units.do { arg unit;
-			if(unit.notNil,{
-				this.registerUnit(unit)
-			});
-		};
+		units = (objects ? []).collect({ arg obj; obj !? {this.prMakeUnit(obj)}});
 		chan = this.prMakeChannel(units);
 		this.registerChannel(chan);
 		channels = channels.insert(index,chan);
@@ -166,6 +173,7 @@ Mx : AbstractPlayerProxy {
 		if(autoCable,{
 			this.updateAutoCables
 		});
+		this.updateVarPooling;
 		this.changed('grid');
 		^chan
 	}
@@ -180,6 +188,7 @@ Mx : AbstractPlayerProxy {
 	}
 	removeChannel { arg index;
 		this.prRemoveChannel(index);
+		this.updateVarPooling;
 		this.changed('grid'); // this is why app should be separate
 	}
 	prRemoveChannel { arg index;
@@ -243,12 +252,26 @@ Mx : AbstractPlayerProxy {
 		});
 		^this.prPutToChannel(channels[chan],index,object)
 	}
-	prPutToChannel { arg channel,index,object;
-		var unit,old;
+	copy { arg fromChan,fromIndex,toChan,toIndex;
+		var unit,copy,channel;
+		unit = this.at(fromChan,fromIndex) ?? { ^nil };
+		copy = MxUnit.make(unit.copySource,unit.source.class);
+		this.extendChannels(toChan);
+		channel = this.channelAt(toChan);
+		^this.prPutToChannel(channel,toIndex, copy);
+	}
+	prMakeUnit { arg object;
+		var unit;
 		unit = MxUnit.make(object);
 		if(unit.notNil,{ // nil object is nil unit which is legal
 			this.registerUnit(unit);
+			unit.didLoad;
 		});
+		^unit
+	}
+	prPutToChannel { arg channel,index,object;
+		var unit,old;
+		unit = this.prMakeUnit(object);
 		old = channel.at(index);
 		if(old.notNil,{
 			// cut or take any cables
@@ -256,6 +279,7 @@ Mx : AbstractPlayerProxy {
 			this.unregister(this.findID(old));
 		});
 		channel.put(index, unit);
+		this.updateVarPooling;
 		this.changed('grid');
 		^unit
 	}
@@ -282,7 +306,7 @@ Mx : AbstractPlayerProxy {
 				this.extendChannels(toChan);
 				channel = channels[toChan];
 			},{
-				channel = master;	
+				channel = master;
 			});
 			
 			channel.insertAt(toIndex,unit,unitg);
@@ -296,6 +320,7 @@ Mx : AbstractPlayerProxy {
 				channel.move(index,toIndex);
 			})
 		};
+		this.updateVarPooling;
 		this.changed('grid');
 	}
 	remove { arg chan,index;
@@ -318,29 +343,32 @@ Mx : AbstractPlayerProxy {
 			if(channel.isNil,{
 				this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
 				^this
-			});				
+			});
 		});
-		unit = MxUnit.make(object);
-		if(unit.notNil,{ // nil object is nil unit which is legal
-			this.registerUnit(unit);
-		});		
+		unit = this.prMakeUnit(object);
 		channel.insert(index,unit);
+		this.updateVarPooling;
 		this.changed('grid');
 		^unit
-	}		
+	}
 	removeUnit { arg unit;
+		var p = this.pointForUnit(unit);
+		^this.remove(*p.asArray)
+	}
+	pointForUnit { arg unit;
 		channels.do { arg ch,ci;
 			ch.units.do { arg u,ri;
 				if(unit === u,{
-					^this.remove(ci,ri)
+					^Point(ci,ri)
 				})
 			}
 		};
 		master.units.do { arg u,ri;
 			if(unit === u,{
-				^this.remove(inf,ri)
+				^Point(inf,ri)
 			})
-		}
+		};
+		^nil  // private channel unit, not on grid
 	}
 	unitAddFrameRateDevices { arg unit;
 		unit.handlers.use {
@@ -622,10 +650,25 @@ Mx : AbstractPlayerProxy {
 		});
 		^b
 	}
-	allUnits {
+	updateVarPooling {
+		// set up parent chain of unit environments that participate in varPooling
+		var prevUnit;
+		this.allUnits.do { arg u;
+			u.parentEnvir = nil;
+			if(u.varPooling) {
+				if(prevUnit.notNil) {
+					// still worried that a timeGui will show up as implemented
+					// when its just a bleed through
+					u.parentEnvir = prevUnit.handlers
+				};
+				prevUnit = u
+			};
+		}
+	}
+	allUnits { arg includeChanUnit = true;
 		^Routine({
 			channels.do({ arg c;
-				c.myUnit.yield;
+				if(includeChanUnit,{ c.myUnit.yield; });
 				c.units.do({ arg u;
 					if(u.notNil,{
 						u.yield
@@ -734,7 +777,9 @@ Mx : AbstractPlayerProxy {
 		^super.gui(layout,bounds ?? {Rect(100,100,900,600)})
 	}
 	guiClass { ^MxGui }
-
+	app {
+		^app ?? { app = MxApp(this) }
+	}
 	draw { arg pen,bounds,style;
 		// odd
 		master.draw(pen,bounds,style)
@@ -742,5 +787,4 @@ Mx : AbstractPlayerProxy {
 }
 
 
-			
 

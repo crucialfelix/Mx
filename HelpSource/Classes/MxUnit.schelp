@@ -1,0 +1,425 @@
+CLASS:: MxUnit
+summary:: (put short description here)
+categories:: Mx
+related:: 
+
+DESCRIPTION::
+(put long description here)
+
+
+CLASSMETHODS::
+
+METHOD:: protoHandler
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: make
+(describe method here)
+
+argument:: source
+(describe argument here)
+
+argument:: class
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: loadData
+(describe method here)
+
+argument:: data
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: new
+
+argument:: source
+(describe argument here)
+
+argument:: inlets
+(describe argument here)
+
+argument:: outlets
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: handlersFor
+(describe method here)
+
+argument:: class
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: handlersForClass
+(describe method here)
+
+argument:: class
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: register
+(describe method here)
+
+argument:: classname
+(describe argument here)
+
+argument:: handlers
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: initClass
+(describe method here)
+
+returns:: (returnvalue)
+
+
+INSTANCEMETHODS::
+
+METHOD:: source
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: inlets
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: outlets
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: handlers
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: varPooling
+This is of interest if you are adding live coding documents.  Each unit has an environment that is active when your document is active.  If varPooling is turned on then the parent of the units environment is the environment of the first upstream unit that also has varPooling turned on.  That in turn may get variables from further upstream units.  
+
+So Units with varPooling on share environment variable space, but this variable space flows down the graph (channels, units).   You may however explicitly find an upstream unit and set its values or use its environment.
+
+argument:: boo
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: onLoad
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: group
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: saveData
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: init
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: getInlet
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: getOutlet
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: mx
+(describe method here)
+
+argument:: mx
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: parentEnvir
+(describe method here)
+
+argument:: env
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: isPrepared
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: prSetStatus
+(describe method here)
+
+argument:: newStatus
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: didLoad
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: prepareToBundle
+(describe method here)
+
+argument:: agroup
+(describe argument here)
+
+argument:: bundle
+MixedBundle
+
+argument:: private
+(describe argument here)
+
+argument:: bus
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: spawnToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: stopToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: freeToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: respawnToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: moveToHead
+(describe method here)
+
+argument:: aGroup
+(describe argument here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: use
+(describe method here)
+
+argument:: function
+(describe argument here)
+
+argument:: rollback
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: delegate
+(describe method here)
+
+argument:: handlerName
+(describe argument here)
+
+argument::  ... args
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: callHandler
+(describe method here)
+
+argument:: method
+(describe argument here)
+
+argument::  ... args
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: play
+(describe method here)
+
+argument:: group
+(describe argument here)
+
+argument:: atTime
+(describe argument here)
+
+argument:: bus
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: stop
+(describe method here)
+
+argument:: atTime
+(describe argument here)
+
+argument:: andFreeResources
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: respawn
+(describe method here)
+
+argument:: atTime
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: isPlaying
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: numChannels
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: spec
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: beatDuration
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: copySource
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: name
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: gui
+(describe method here)
+
+argument:: parent
+(describe argument here)
+
+argument:: bounds
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: draw
+(describe method here)
+
+argument:: pen
+(describe argument here)
+
+argument:: bounds
+(describe argument here)
+
+argument:: style
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: timeGui
+(describe method here)
+
+argument:: parent
+(describe argument here)
+
+argument:: bounds
+(describe argument here)
+
+argument:: maxTime
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: zoomTime
+(describe method here)
+
+argument:: fromTime
+(describe argument here)
+
+argument:: toTime
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: gotoBeat
+(describe method here)
+
+argument:: beat
+(describe argument here)
+
+argument:: atBeat
+(describe argument here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: canRecord
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: record
+(describe method here)
+
+argument:: boo
+(describe argument here)
+
+argument:: atTime
+(describe argument here)
+
+returns:: (returnvalue)
+
+
+EXAMPLES::
+
+code::
+(some example code)
+::

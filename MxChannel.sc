@@ -187,21 +187,23 @@ MxChannel : AbstractPlayerProxy {
 	spawnToBundle { arg bundle;
 		units.do { arg u,i;
 			var g;
-			if(u.isPlaying.not,{
-				// messy. this is if the channel is spawning in an mx already playing
-				//if(u.notNil and: {u.isPrepared.not and: {u.status != \isPreparing}},{
-				//	u.prepareToBundle(this.groupForIndex(i,bundle),bundle,true)
-				//});
-				u.spawnToBundle(bundle);
-			},{
-				g = this.groupForIndex(i,bundle);
-				if(u.group !== g,{ // not sure about this
-					u.moveToHead(g,bundle)
+			if(u.notNil,{
+				if(u.isPlaying.not,{
+					// messy. this is if the channel is spawning in an mx already playing
+					//if(u.notNil and: {u.isPrepared.not and: {u.status != \isPreparing}},{
+					//	u.prepareToBundle(this.groupForIndex(i,bundle),bundle,true)
+					//});
+					u.spawnToBundle(bundle);
+				},{
+					g = this.groupForIndex(i,bundle);
+					if(u.group !== g,{ // not sure about this
+						u.moveToHead(g,bundle)
+					});
+					// but is that group inside my group ?
+					// cheapest to assume its not and issue a move command
+					bundle.add( this.moveUnitGroupMsg(i,g) );
 				});
-				// but is that group inside my group ?
-				// cheapest to assume its not and issue a move command
-				bundle.add( this.moveUnitGroupMsg(i,g) );
-			});
+			})
 		};
 		super.spawnToBundle(bundle);
 		adding = removing = nil;

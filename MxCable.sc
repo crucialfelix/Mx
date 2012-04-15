@@ -2,7 +2,7 @@
 
 MxCable {
 	
-	classvar strategies;
+	classvar <strategies;
 	
 	var <>outlet,<>inlet,<>mapping,<>active=true,<>pending=false;
 	var <state;
@@ -51,21 +51,24 @@ MxCable {
 	*register { arg outAdapterClassName,inAdapterClassName, strategy;
 		strategies[ [outAdapterClassName, inAdapterClassName] ] = strategy;
 	}
+	*instr {
+		if(Instr.isDefined("MxCable.cableAr").not,{
+			^Instr("MxCable.cableAr",{ arg inBus=126,outBus=126,inNumChannels=2,outNumChannels=2;
+				Out.ar(outBus,
+					NumChannels.ar( In.ar(inBus,inNumChannels), outNumChannels )
+				)
+			},[
+				ControlSpec(0,127),
+				ControlSpec(0,127),
+				StaticIntegerSpec(1,128),
+				StaticIntegerSpec(1,128)
+			],\audio);
+		});
+		^Instr.at("MxCable.cableAr")
+	}
 	*initClass {
 		strategies = Dictionary.new;
 
-		Instr("MxCable.cableAr",{ arg inBus=126,outBus=126,inNumChannels=2,outNumChannels=2;
-			Out.ar(outBus,
-				NumChannels.ar( In.ar(inBus,inNumChannels), outNumChannels )
-			)
-		},[
-			ControlSpec(0,127),
-			ControlSpec(0,127),
-			StaticIntegerSpec(1,128),
-			StaticIntegerSpec(1,128)
-		],\audio);
-			
-		
 		this.register(\MxPlaysOnBus,\MxHasJack,
 			MxCableStrategy({ arg cable,bundle;
 				var bus, jack;
@@ -78,7 +81,7 @@ MxCable {
 					// mono -> stereo audio requires a wire synth
 					~wireBus = Bus.audio(bus.server,jack.numChannels);
 					
-					~wireSynth = Instr("MxCable.cableAr").head(cable.inlet.adapter.group, [
+					~wireSynth = this.instr.head(cable.inlet.adapter.group, [
 												bus.index,
 												~wireBus.index,
 												bus.numChannels,
@@ -159,10 +162,10 @@ MxCable {
 			MxCableStrategy({ arg cable,bundle;
 				cable.state.use {
 					var inbus,outbus,def,group;
-					inbus = cable.outlet.adapter.value ?? {cable.inlet.insp("no inbus")};
-					outbus = cable.inlet.adapter.value ?? {cable.outlet.insp("no outbus")};
+					inbus = cable.outlet.adapter.value ?? {cable.inlet.debug("no inbus")};
+					outbus = cable.inlet.adapter.value ?? {cable.outlet.debug("no outbus")};
 					
-					def = Instr("MxCable.cableAr").asSynthDef([
+					def = this.instr.asSynthDef([
 								\kr,
 								\kr,
 								inbus.numChannels,
@@ -171,7 +174,7 @@ MxCable {
 					// loads if needed
 					InstrSynthDef.loadDefFileToBundle(def,bundle,inbus.server);
 							
-					group = cable.inlet.adapter.group;
+					group = cable.inlet.adapter.group ?? {cable.inlet.debug("no group")};
 					~synth = Synth.basicNew(def.name,group.server);
 					AbstractPlayer.annotate(~synth,cable.asString+"synth");
 					bundle.add( ~synth.addToHeadMsg(group,[\inBus,inbus.index,\outBus,outbus.index]) );

@@ -4,23 +4,30 @@
 	
 	*initClass {
 		var busf;
-		if(Insp.notNil,{
-			Class.initClassTree(CXObjectInspector);
-			CXObjectInspector.registerHook(MxCable,{ arg cable,layout;
-				
+		if(\Insp.asClass.notNil,{
+			Class.initClassTree(ObjectInsp);
+			ObjectInsp.registerHook(MxCable,{ arg cable,layout;
 
-				InspectorLink.captioned("Out",cable.outlet.unit.source,layout.startRow);
-				InspectorLink(cable.outlet.adapter,layout);
+				InspButton.captioned("Out",cable.outlet.unit.source,layout.startRow);
+				InspButton(cable.outlet.adapter,layout);
 
-				InspectorLink.captioned("In",cable.inlet.unit.source,layout.startRow);
-				InspectorLink(cable.inlet.adapter,layout);
+				InspButton.captioned("In",cable.inlet.unit.source,layout.startRow);
+				InspButton(cable.inlet.adapter,layout);
 
 				layout.startRow;
 				try {
-					InspectorLink.captioned("Strategy",cable.strategy,layout);
+					var name = MxCable.strategies.findKeyForValue(cable.strategy);
+					InspButton.captioned(name.asString ? "MxCableStrategy",cable.strategy,layout);
 				} {
-					CXLabel(layout,"NO STRATEGY FOR CABLE");
+					SimpleLabel(layout,"NO STRATEGY FOR CABLE");
 				}
+			});
+			
+			ObjectInsp.registerHook(MxCableStrategy,{ arg strategy,layout;
+				var name = MxCable.strategies.findKeyForValue(strategy);
+				SimpleLabel(layout,name.asString ? "Strategy was not registered");
+				//connectf sourceGui
+				//disconnectf
 			});
 			
 			busf = { arg pob,layout;
@@ -33,7 +40,7 @@
 						if(bus.rate == 'audio',{
 							listen = Patch({ In.ar( bus.index, bus.numChannels ) });
 							layout.startRow;
-							CXLabel( layout, bus.asString );
+							SimpleLabel( layout, bus.asString );
 							ToggleButton( layout,"listen",{
 								listen.play
 							},{
@@ -42,39 +49,39 @@
 						});	
 						layout.startRow.flow({ |f|
 							var ann;
-							CXLabel(f,"Annotations:");
+							SimpleLabel(f,"Annotations:");
 							ann = BusPool.getAnnotations(bus);
 	
 							if(ann.notNil,{
 								ann.keysValuesDo({ |client,name|
 									f.startRow;
 									Tile(client,f);
-									CXLabel(f,":"++name);
+									SimpleLabel(f,":"++name);
 								});
 							});
 						})
 					});
 				};
 			[MxPlaysOnBus,MxListensToBus,MxHasBus,MxPlaysOnKrBus].do { arg klass;
-				CXObjectInspector.registerHook(klass,busf);
+				ObjectInsp.registerHook(klass,busf);
 			};
 				
 						
 			/*
-			CXObjectInspector.registerHook(MxCableStrategy,{ arg strategy,layout;
+			ObjectInsp.registerHook(MxCableStrategy,{ arg strategy,layout;
 				
-				CXObjectInspector.sourceCodeGui
-				InspectorLink.captioned("connectf",cable.outlet.unit.source,layout.startRow);
-				InspectorLink.captioned("adapter",cable.outlet.adapter,layout.startRow);
+				ObjectInsp.sourceCodeGui
+				InspButton.captioned("connectf",cable.outlet.unit.source,layout.startRow);
+				InspButton.captioned("adapter",cable.outlet.adapter,layout.startRow);
 
-				InspectorLink.captioned("In",cable.inlet.unit.source,layout.startRow);
-				InspectorLink.captioned("adapter",cable.inlet.adapter,layout.startRow);
+				InspButton.captioned("In",cable.inlet.unit.source,layout.startRow);
+				InspButton.captioned("adapter",cable.inlet.adapter,layout.startRow);
 
 				layout.startRow;
 				try {
-					InspectorLink.captioned("Strategy",cable.strategy,layout);
+					InspButton.captioned("Strategy",cable.strategy,layout);
 				} {
-					CXLabel(layout,"NO STRATEGY FOR CABLE");
+					SimpleLabel(layout,"NO STRATEGY FOR CABLE");
 				}
 			})
 			*/

@@ -13,6 +13,9 @@ MxUnit.register('Instr',(
 			instr = instr.asInstr;
 			inps = instr.specs.collect({ arg spec,i; MxJack.forSpec(spec,instr.defArgAt(i) ) });
 		});
+		if(instr.outSpec.isNil,{
+			instr.outSpec = \audio.asSpec
+		});
 		patch = Patch(instr,inps );
 		connectors = patch.inputs.collect({ arg inp,i; 
 			if(inp.isKindOf(MxArJack),{
@@ -77,11 +80,14 @@ MxUnit.register('Instr',(
 		~patch.stop(atTime,andFreeResources)
 		},
 	respawn: {
-		var group,bus;
-		group = ~patch.group;
-		bus = ~patch.bus;
-		~patch.stop;
-		~patch.play(group,1,bus)
+		var group,bus,patch;
+		patch = ~patch;
+		group = patch.group;
+		bus = patch.bus;
+		patch.stop;
+		{
+			patch.play(group,1,bus)
+		}.defer(0.2)
 	},
 		
 	isPlaying: {
@@ -106,7 +112,6 @@ MxUnit.register('Instr',(
 
 		[instr,inps]
 	},
-	copy: { ~save.value },
 	name: { ~patch.instr.dotNotation },
 	
 	gui: { arg layout;

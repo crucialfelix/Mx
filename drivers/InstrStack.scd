@@ -71,7 +71,6 @@ MxUnit.register('InstrStack',(
 		// not working	
 	
 	},
-	copy: { ~source.instr },
 	name: { ~source.instr.asString },
 	
 	gui: { arg layout;

@@ -5,11 +5,15 @@
 
 MxUnit.register('NumberEditor',
 (
-	make: { arg num;
+	make: { arg num,spec=\unipolar;
 		var inlets,outlets,sips,ne;
-		ne = NumberEditor(num.value,\unipolar);
+		if(num.isKindOf(NumberEditor),{
+			ne = num
+		},{
+			ne = NumberEditor(num.value,spec ? \unipolar);
+		});
 		~source = ne;
-		inlets  = [];
+		inlets  = [ MxInlet("in",0,ne.spec,MxSetter({ arg v; ne.valueAction = v })) ];
 		outlets = [ MxOutlet("action", 0, ne.spec ,
 						MxHasAction({arg action; ne.action = action  }) ) 
 				];
@@ -26,11 +30,13 @@ MxUnit.register('NumberEditor',
 	},
 
 	save: {
-		// this just saves the value
-		~source.value
+		[~source.value,~source.spec]
 	},
 	load: { arg data;
-		// return args for make
-		data // NumberEditor(data,\unipolar)
+		if(data.isArray,{
+			data
+		},{
+			[data]
+		})
 	}
 ));

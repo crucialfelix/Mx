@@ -1,0 +1,688 @@
+CLASS:: Mx
+summary:: A mixer and dynamic patching
+categories:: Mx
+related:: 
+
+DESCRIPTION::
+This is the Mx class itself that implements patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects (see link::Classes/MxApp::).  
+
+The scripting objects (link::Classes/MxApp:: etc) are designed for efficiency, clarity and convienience.  The implementation classes like Mx, MxChannel, MxUnit etc. are designed for efficiency of internal implementation.
+
+Most internal commands for units or channels go through the Mx object which notes all changes like adding or removing of objects or cables in its removing and adding arrays and then performs all these changes on .update.  When using the gui or the scripting objects the .update is called automatically.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+argument:: data
+Mx saves a data dump that contains the objects that have been added to it, their connections and their saved state.  Each supported class defines its load and save methods in its drivers/ file.  The data dump is not especially readable and is not meant to be hand coded or read.  A binary format will be introduced later to support Mx with large amounts of data.
+
+argument:: endBeat
+Relavant to the timeline, this is the total length of the timeline in beats.
+
+argument:: loop
+Not yet implemented.  An Mx may in the future loop in the timeline.
+
+argument:: bpm
+The bpm as was set in (the global) Tempo when the Mx was saved.
+
+returns:: an Mx
+
+
+METHOD:: defaultFrameRate
+See frameRate instance method
+
+returns:: int
+
+INSTANCEMETHODS::
+
+METHOD:: app
+Returns the link::Classes/MxApp:: object which is used to communicate with the Mx.
+code::
+x = Mx.new.app
+::
+returns:: an link::Classes/MxApp::
+
+
+
+METHOD:: channels
+Graphically speaking, each channel is a vertical column in the mixer.
+
+returns:: an array of link::Classes/MxChannel:: objects
+
+METHOD:: cables
+MxCable objects connect the outlets and inlets of units together.  This is the collection of all cables.
+
+returns:: an MxCableCollection
+
+METHOD:: inlets
+Just like an individual unit, an Mx can have inlets and can be loaded inside another Mx.  (not yet fully implemented)
+
+returns:: array of MxInlet
+
+METHOD:: outlets
+Just like an individual unit, an Mx can have outlets and can be loaded inside another Mx.  (not yet fully implemented)  By default an Mx has one audio stereo output.  It will be able to have any number and type of outlets.  ie. multi channel audio, kr outputs, event stream outputs and even files, images or geometries.
+
+returns:: array of MxOutlet
+
+METHOD:: autoCable
+When adding audio rate objects, if autoCable is true (default: true) then a cable will be connected from the unit to its channel's fader.
+
+returns:: boolean
+
+METHOD:: endBeat
+Relavant to the timeline, this is the total length of the timeline in beats.
+
+returns:: float
+
+METHOD:: loop
+Not yet implemented.  An Mx may in the future loop in the timeline.
+
+returns:: boolean
+
+METHOD:: bpm
+The bpm that the Mx should play at.  This sets the global Tempo when play starts and is saved with the Mx document.
+
+returns:: float. beats per minute
+
+METHOD:: master
+The master link::Classes/MxChannel:: (on the right side), with channel number inf.  Each link::Classes/MxChannel:: is cabled to the input (top right) of the master channel.  Units may be placed in the master channel for master eq, compression etc.
+
+returns:: an link::Classes/MxChannel::
+
+METHOD:: frameRate
+Units in an Mx can declared Frame Rate Devices that will be ticked at this rate.  SplineFr is an example of a pure Frame Rate Device. Default is 24/beat.  The timeline engine uses a frame rate device for its automation.
+
+returns:: int
+
+METHOD:: position
+a Position object that holds the current play position for the timeline.  It updates at every frameRate tick
+
+returns:: a Position
+
+METHOD:: nextID
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: register
+(describe method here)
+
+argument:: object
+(describe argument here)
+
+argument:: uid
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: atID
+(describe method here)
+
+argument:: uid
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: findID
+(describe method here)
+
+argument:: object
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: unregister
+(describe method here)
+
+argument:: uid
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: registerUnit
+(describe method here)
+
+argument:: unit
+(describe argument here)
+
+argument:: uid
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: registerChannel
+(describe method here)
+
+argument:: channel
+(describe argument here)
+
+argument:: uid
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: findMasterInput
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: add
+(describe method here)
+
+argument::  ... objects
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: channelAt
+(describe method here)
+
+argument:: chan
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: indexOfChannel
+(describe method here)
+
+argument:: channel
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: extendChannels
+(describe method here)
+
+argument:: toSize
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: insertChannel
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: objects
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: putChannel
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: objects
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: removeChannel
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: prRemoveChannel
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: prMakeChannel
+(describe method here)
+
+argument:: units
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: addOutput
+(describe method here)
+
+argument:: rate
+(describe argument here)
+
+argument:: numChannels
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: at
+(describe method here)
+
+argument:: chan
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: put
+(describe method here)
+
+argument:: chan
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+argument:: object
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: copy
+(describe method here)
+
+argument:: fromChan
+(describe argument here)
+
+argument:: fromIndex
+(describe argument here)
+
+argument:: toChan
+(describe argument here)
+
+argument:: toIndex
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: prMakeUnit
+(describe method here)
+
+argument:: object
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: prPutToChannel
+(describe method here)
+
+argument:: channel
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+argument:: object
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: putMaster
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: object
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: move
+(describe method here)
+
+argument:: chan
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+argument:: toChan
+(describe argument here)
+
+argument:: toIndex
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: remove
+(describe method here)
+
+argument:: chan
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: insert
+(describe method here)
+
+argument:: chan
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+argument:: object
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: removeUnit
+(describe method here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: pointForUnit
+(describe method here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: unitAddFrameRateDevices
+(describe method here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: addFrameRateDevice
+(describe method here)
+
+argument:: func
+(describe argument here)
+
+argument:: forUnit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: removeFrameRateDeviceForUnit
+(describe method here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: initialTick
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: startTicker
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: stopTicker
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: beatDuration
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: getInlet
+(describe method here)
+
+argument:: point
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: getOutlet
+(describe method here)
+
+argument:: point
+(describe argument here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: connect
+(describe method here)
+
+argument:: fromUnit
+(describe argument here)
+
+argument:: outlet
+(describe argument here)
+
+argument:: toUnit
+(describe argument here)
+
+argument:: inlet
+(describe argument here)
+
+argument:: mapping
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: disconnect
+(describe method here)
+
+argument:: fromUnit
+(describe argument here)
+
+argument:: outlet
+(describe argument here)
+
+argument:: toUnit
+(describe argument here)
+
+argument:: inlet
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: disconnectCable
+(describe method here)
+
+argument:: cable
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: disconnectUnit
+(describe method here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: disconnectInlet
+(describe method here)
+
+argument:: inlet
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: disconnectOutlet
+(describe method here)
+
+argument:: outlet
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: mute
+(describe method here)
+
+argument:: channel
+(describe argument here)
+
+argument:: boo
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: solo
+(describe method here)
+
+argument:: channel
+(describe argument here)
+
+argument:: boo
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: gotoBeat
+(describe method here)
+
+argument:: beat
+(describe argument here)
+
+argument:: q
+(describe argument here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: update
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: updateVarPooling
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: allUnits
+(describe method here)
+
+argument:: includeChanUnit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: clearPending
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: children
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: loadDefFileToBundle
+(describe method here)
+
+argument:: b
+(describe argument here)
+
+argument:: server
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: prepareChildrenToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: spawnToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: spawnCablesToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: updateAutoCables
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: stopToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: gui
+(describe method here)
+
+argument:: parent
+(describe argument here)
+
+argument:: bounds
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: guiClass
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: draw
+(describe method here)
+
+argument:: pen
+(describe argument here)
+
+argument:: bounds
+(describe argument here)
+
+argument:: style
+(describe argument here)
+
+returns:: (returnvalue)
+
+
+EXAMPLES::
+
+code::
+x = Mx.new.app;
+x.gui
+::

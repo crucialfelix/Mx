@@ -31,12 +31,13 @@ MxUnit.register('TotalTracker',
 						switcher.wrapSelect(v.asInteger);
 					}));
 		sips = sips.insert(0,patter);
+		sips = sips.add( MxInlet("audio",5,AudioSpec(2),MxListensToBus({ player.song.efxBus },{player.server},{player.group}) ) );
 		inlets  = sips;
 		outlets = [ MxOutlet(player.name, 0, AudioSpec(2), MxPlaysOnBus({player.bus}) ) ];
 		player.numOuts.do { arg i;
 			outlets = outlets.add( MxOutlet((i+1).asString,i+1,AudioSpec(2),MxPlaysOnBus({ player.songBusses.at(i) }) ) );
 		};
-		outlets = outlets.add( MxOutlet("fx",player.numOuts + 2, AudioSpec(2), MxPlaysOnBus({ player.song.patchOut.busses[\efxBus] }) ) );
+		outlets = outlets.add( MxOutlet("fx",player.numOuts + 2, AudioSpec(2), MxPlaysOnBus({ player.song.efxBus }) ) );
 		MxUnit(player,inlets,outlets);
 	},
 	prepareToBundle:  { arg agroup, bundle, private, bus;

@@ -3,42 +3,53 @@
 MxMixerGui : ObjectGui {
 
 	var scope,lastScope,freqScope,meters;
-	var solos,mutes;
+	var faders,solos,mutes;
 
 	writeName {}
-	guiBody { arg layout;
+	guiBody { arg layout,bounds,showScope=true;
 		var scopeSize = 275,faderHeight,chans;
 		solos = Array.newClear(model.channels.size);
 		mutes = Array.newClear(model.channels.size + 1);
-		faderHeight = layout.bounds.height - scopeSize - 4;
-		layout.startRow;
-		if(model.isPlaying and: {model.server.inProcess},{
+		faders = Array.newClear(model.channels.size + 1);
+		bounds = bounds ?? {layout.bounds};
+		showScope = showScope and: {model.isPlaying and: {model.server.inProcess}};
+		if(showScope,{
+			faderHeight = bounds.height - scopeSize - 4;
+		},{
+			faderHeight = bounds.height
+		});
+
+		if(showScope,{
+			layout.startRow;
 			layout.flow({ arg layout;
-				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,view:layout);
+				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,zoom:1.0,rate:\audio,view:layout);
 				scope.xZoom = 16;
 			},scopeSize@scopeSize);
-			if(SCFreqScope.notNil,{
-				freqScope = SCFreqScope(layout,scopeSize@scopeSize);
-				freqScope.inBus = model.master.bus.index;
-				freqScope.dbRange_(24);
-				freqScope.freqMode = 1;
-				freqScope.active = true;
-			})
+			/*
+			freqScope = PlusFreqScope(layout,Rect(0,0,scopeSize,scopeSize));
+			freqScope.inBus = model.master.bus.index;
+			freqScope.dbRange = 18;
+			freqScope.freqMode = 1;
+			freqScope.active = true;
+			*/
 		});
 		layout.startRow;
 		chans = (model.channels ++ [model.master]);
-		if(model.isPlaying,{
-			meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus}));
+		if(model.isPlaying and: {\BusMeters.asClass.notNil},{
+			// else it doesnt have busses yet
+			// could allocate on demand
+			meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus }));
 		});
 		chans.do { arg chan,i;
 			var f,ab;
 			f = NumberEditor(chan.fader.db,ControlSpec(-80,12,default:0,units:"dB"));
 			f.action = {
-				chan.fader.db = f.value
+				chan.fader.db = f.value;
+				model.changed('mixer',this);
 			};
+			faders.put(i,f);
 			f.gui(layout,40@faderHeight);
-			// mute, solo
-			
+
 			// meter
 			if(meters.notNil,{
 				layout.comp({ arg layout;
@@ -74,11 +85,16 @@ MxMixerGui : ObjectGui {
 				});
 				if(chan !== model.master,{
 					layout.startRow;
-					solos.put(i, ToggleButton(layout,"S",{ arg button,bool; model.solo(i,bool); this.updateButtons }) );
+					solos.put(i, ToggleButton(layout,"S",{ arg button,bool; 
+									model.solo(i,bool); 
+									model.changed('mixer',this);
+									this.updateButtons 
+								}) );
 				});
 				layout.startRow;
 				mutes.put(i, ToggleButton(layout,"M",{ arg button,bool; 
 					if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); }); 
+					model.changed('mixer',this);
 					this.updateButtons 
 				}) );
 					
@@ -95,6 +111,18 @@ MxMixerGui : ObjectGui {
 			mutes[i].value = chan.fader.mute;
 		};
 		mutes.last.value = model.master.fader.mute;
+	}
+	updateFaders {
+		// needs to add remove, reorder faders
+		model.channels.do { arg chan,i;
+			faders[i].value = chan.fader.db
+		}
+	}
+	update { arg mx, what;
+		if(what == 'mixer',{
+			this.updateButtons;
+			this.updateFaders
+		})
 	}
 	remove {
 		meters.remove;

@@ -7,84 +7,87 @@ MxTimeGui : ObjectGui {
 	var <>laneHeight=150;
 	var zoom,timeRuler,updater,units;
 	
-	writeName {}
 	guiBody { arg layout;
 		var i = 0,width, focusColor,kdr,makeSidebar;
-		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight;
+		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight,gap=GUI.skin.gap.x,currenty;
 		
 		layout.startRow;
 		width = layout.indentedRemaining.width;
 		focusColor = GUI.skin.focusColor ?? {Color.blue(alpha:0.4)};
-		
+
 		kdr = this.keyDownResponder;
 
 		makeSidebar = { arg side,main;
-			var s,m,minHeight,b;
+			var s,m,maxUsedHeight,b;
 			var lane;
 			
 			lane = layout.comp({ arg l;
 				s = l.vert({ arg s;
 						side.value(s)
 				},Rect(0,0,sidebarSize,laneHeight));
-				
-				m = FlowView(l,Rect(sidebarSize,0,width - sidebarSize,laneHeight),0@0,0@0);
+
+				m = FlowView(l,Rect(sidebarSize+gap,0,width - sidebarSize - gap,laneHeight),0@0,0@0);
 				main.value(m);
 			},Rect(0,0,width,laneHeight));
-			
-			m.resizeToFit(true);
-			m.resizeToFit(true);
-			minHeight = s.bounds.height;
-			
-			b = m.bounds;
-			if(b.height < s.bounds.height,{
-				minHeight = b.height;
-			});
-			
-			s.bounds = s.bounds.height_(minHeight);
-			lane.bounds = lane.bounds.height_(minHeight);
-			
-		};
 
-		maxTime = (model.endBeat ?? {model.beatDuration} ? 480);
-		CXLabel(layout,"End beat:");
+			m.resizeToFit(true);
+			
+			maxUsedHeight = s.children.sum({arg c; c.bounds.height });
+			maxUsedHeight = max(maxUsedHeight,m.bounds.height);
+			
+			s.bounds = s.bounds.height_(maxUsedHeight);
+			lane.bounds = lane.bounds.height_(maxUsedHeight).top_(currenty);
+			currenty = currenty + maxUsedHeight + gap;
+		};	
+
+		maxTime = (model.endBeat ?? {model.beatDuration} ? 480) + 8;
+		SynthConsole(model,layout).play.stop.tempo;
+		CXLabel(layout,"Last beat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
 			timeRuler.refresh;
 			this.zoom(0,maxTime,true);
 		}).smallGui(layout);
-		ActionButton(layout,"Rec to disk",{
+		ActionButton(layout,"Rec to disk...",{
 			model.record(endBeat:maxTime);
 		}).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 
+		layout.startRow;
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
-		
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
-		makeSidebar.value({ arg s;
-			// goto start
-				ActionButton(s,"|<",{model.gotoBeat(0,1)})
-			},
-			{ arg m;
-				timeRuler = TimeRuler(m,Rect(0,0,m.bounds.width,buttonHeight * 2),maxTime);
-			});
-		timeRuler.keyDownAction = kdr;
-		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
-			model.gotoBeat( beat.trunc(4)  )		
-		};
-		this.prSetFromTo(0.0,maxTime);
-		
+
+		currenty = layout.view.decorator.top;
+
 		// zoom controls
 		makeSidebar.value({ arg s;
 			ActionButton(s,"<-zoom->",{this.zoom(0,maxTime,true)})
 		},{ arg m;
-			zoom = RangeSlider(m,m.bounds.width@buttonHeight);
+			zoom = RangeSlider(m,m.innerBounds.width@buttonHeight);
 		});
 		zoom.lo = 0.0;
 		zoom.hi = 1.0;
 		zoom.action = {this.zoom((zoom.lo * maxTime).round(4), (zoom.hi * maxTime).round(4),false)};
 		zoom.knobColor = Color.black;
+		zoom.background = Color.white;
 		zoom.keyDownAction = kdr;
 		zoom.focusColor = focusColor;
-
+		
+		makeSidebar.value({ arg s;
+			// goto start
+				ActionButton(s,"|<",{model.gotoBeat(0,1)})
+			},
+			{ arg m;
+				timeRuler = TimeRuler(m,Rect(0,0,m.innerBounds.width,buttonHeight * 2),maxTime);
+			});
+		timeRuler.keyDownAction = kdr;
+		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
+			model.gotoBeat( beat.trunc(4)  )		
+		};
+		timeRuler.shiftSwipeAction = { arg start,end;
+			this.zoom(start,end,true)
+		};
+		this.prSetFromTo(0.0,maxTime);
+		
 		updater = Updater(model.position,{ arg pos;
 			{
 				if(timeRuler.isClosed.not,{
@@ -103,7 +106,8 @@ MxTimeGui : ObjectGui {
 						// gui
 						// ActionButton(s,"gui",{unit.gui});
 						if(unit.canRecord,{
-							ToggleButton(s,"(*)",{unit.record(true)},{unit.record(false)},false);
+							ToggleButton(s,"Record",{unit.record(true)},{unit.record(false)},
+								false,20,nil,Color.red,Color.yellow);
 						});
 					},{ arg v;
 						unit.timeGui(v,v.bounds,maxTime);
@@ -167,40 +171,45 @@ MxTimeGui : ObjectGui {
 	keyDownResponder {
 		var k,default;
 		default = 0@0;
-		k = UnicodeResponder.new;
-		//  63232
-		k.register(   63232  ,   false, false, false, false, {
+		k = KeyResponder.new;
+		k.register(   \up  ,   false, false, false, false, {
 			this.zoomBy(1.1)
 		});
-		//  63233
-		k.register(   63233  ,   false, false, false, false, {
+		k.register(   \down  ,   false, false, false, false, {
 			this.zoomBy(0.9)
 		});
-		//  shift control 63232
-		k.register(   63232  ,   true, false, false, true, {
+		//  shift control \up
+		k.register(   \up  ,   true, false, false, true, {
 			this.zoomBy(1.01,1)
 		});
-		//  shift control 63233
-		k.register(   63233  ,   true, false, false, true, {
+		//  shift control
+		k.register(   \down  ,   true, false, false, true, {
 			this.zoomBy(0.99,1)
 		});
-		//  63234
-		k.register(   63234  ,   false, false, false, false, {
+		k.register(   \left  ,   false, false, false, false, {
 			this.moveBy(-0.1)
 		});
-		//  63235
-		k.register(   63235  ,   false, false, false, false, {
+		k.register(   \right  ,   false, false, false, false, {
 			this.moveBy(0.1)		
 		});
-		//  shift control 63234
-		k.register(   63234  ,   true, false, false, true, {
+		//  shift control 
+		k.register(   \left  ,   true, false, false, true, {
 			this.moveBy(-0.01,1)		
 		});
-		//  shift control 63235
-		k.register(   63235  ,   true, false, false, true, {
+		//  shift control 
+		k.register(   \right  ,   true, false, false, true, {
 			this.moveBy(0.01,1)
 		});
 		^k		
+	}
+	writeName {}
+	//background { ^Color(0.81176470588235, 0.80392156862745, 0.79607843137255) }
+	background { ^Color.clear }
+	guify { arg parent,bounds,title;
+		var mine,w;
+		mine = parent.isNil;
+		w = super.guify(parent,bounds,title ? "Timeline");
+		^w
 	}
 }
 

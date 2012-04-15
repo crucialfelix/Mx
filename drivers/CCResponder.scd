@@ -72,6 +72,10 @@ MxUnit.register('CCResponder',
 
 		CXLabel(l,"value");
 		ve = NumberEditor(~value ? 0,cs);
+		ve.action = { arg v;
+			// pretend to be midi input
+			~source.function.value(123,1,ne.value.asInteger,v);
+		}.inEnvir;
 		ve.gui(l);
 		
 		if(layout.isNil,{
