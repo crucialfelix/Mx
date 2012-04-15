@@ -4,9 +4,9 @@ categories:: Mx
 related:: Classes/MxApp
 
 DESCRIPTION::
-An MxApp can query its contents (units, channels, inlets, outlets) and operations can be called on these queries to perform them on all results.
+An link::Classes/MxApp:: can query its contents (units, channels, inlets, outlets) and operations can be called on these queries to perform them on all results.
 
-An initial query set is obtained from the MxApp and can then be filtered further.  Operations performed on the query are performed on all matching objects and all events (like connections or replacing units) will happen in a single update.
+An initial query set is obtained from the link::Classes/MxApp:: and can then be filtered further.  Operations performed on the query are performed on all matching objects and all events (like connections or replacing units) will happen in a single update.
 
 
 code::
@@ -15,10 +15,42 @@ x = Mx.new.app;
 // a query set of all units
 q = x.units
 
+// of those units, select all inlets
+q = q.inlets
+
+// of those inlets filter where name of inlet is \freq
+q = q.where(\name,\freq)
+
+// add a CC controller
+c = x.add( CCResponder(num:1) );
+// patch it to those freq inputs
+// spec is automaticaly matched
+c >> q
+
 // a query set of all channels
 q = x.channels
+
+// all units in one channel
+q = x.channel(0).units
+
+
+// better example coming !
+u = x.add( lfo );
+10.do {
+    x.add( tones )
+};
+// select all inlets of units, filter where name is \freq
+q = x.units.inlets.where(\name,\freq);
+// patch u to all of those inlets
+u >> q;
+
+// patch all of those tones to the channel fader
+q >> x.channel(0).fader
+
+
 ::
 
+More to come.  query to query patching will be possible with UGen-style multi channel array connections
 
 
 INSTANCEMETHODS::
@@ -130,7 +162,7 @@ Returns an item from the result set
 argument:: i
 index
 
-returns:: the app object: MxUnitApp, MxInletApp etc
+returns:: the app object: link::Classes/MxUnitApp::, link::Classes/MxInletApp:: etc
 
 METHOD:: >>
 Connects all matched items to that.  Units connect their first available out. 
@@ -213,7 +245,7 @@ METHOD:: free
 returns:: (returnvalue)
 
 METHOD:: respawn
-Respawns matched objects.  See MxUnitApp respawn
+Respawns matched objects.  See link::Classes/MxUnitApp:: respawn
 
 returns:: (returnvalue)
 
