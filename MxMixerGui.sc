@@ -35,7 +35,7 @@ MxMixerGui : ObjectGui {
 		});
 		layout.startRow;
 		chans = (model.channels ++ [model.master]);
-		if(model.isPlaying,{
+		if(model.isPlaying and: {\BusMeters.asClass.notNil},{
 			// else it doesnt have busses yet
 			// could allocate on demand
 			meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus }));
