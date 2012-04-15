@@ -1,0 +1,308 @@
+CLASS:: MxChannel
+summary:: (put short description here)
+categories:: Mx, UGens>Undocumented
+related:: 
+
+DESCRIPTION::
+(put long description here)
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+argument:: units
+(describe argument here)
+
+argument:: faderArgs
+(describe argument here)
+
+returns:: (returnvalue)
+
+
+INSTANCEMETHODS::
+
+METHOD:: units
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: fader
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: input
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: numChannels
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: pending
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: myUnit
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: unitsGroup
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: mixGroup
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: storeArgs
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: init
+(describe method here)
+
+argument:: argunits
+(describe argument here)
+
+argument:: argfader
+(describe argument here)
+
+argument:: nc
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: makeInput
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: at
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: put
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: insert
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: unit
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: extendUnits
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: removeAt
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: extractAt
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: insertAt
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: unit
+(describe argument here)
+
+argument:: unitGroup
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: move
+(describe method here)
+
+argument:: fromIndex
+(describe argument here)
+
+argument:: toIndex
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: children
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: prepareToBundle
+(describe method here)
+
+argument:: parentGroup
+(describe argument here)
+
+argument:: bundle
+MixedBundle
+
+argument:: private
+(describe argument here)
+
+argument:: bus
+(describe argument here)
+
+argument:: groupToUse
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: prepareChildrenToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: loadDefFileToBundle
+(describe method here)
+
+argument:: b
+(describe argument here)
+
+argument:: server
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: spawnToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: stopToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: freeToBundle
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: update
+(describe method here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: bus
+(describe method here)
+
+argument:: b
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: groupForIndex
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: bundle
+MixedBundle
+
+returns:: (returnvalue)
+
+METHOD:: addUnitGroupMsg
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: g
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: moveUnitGroupMsg
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+argument:: g
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: findGroupPreviousTo
+(describe method here)
+
+argument:: index
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: inlets
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: outlets
+(describe method here)
+
+returns:: (returnvalue)
+
+
+EXAMPLES::
+
+code::
+(some example code)
+::

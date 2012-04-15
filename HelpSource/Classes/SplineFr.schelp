@@ -1,0 +1,143 @@
+CLASS:: SplineFr
+summary:: Mx frame rate driven time domain spline for automation curves
+categories:: Mx
+related:: Classes/MultiSplineFr
+
+DESCRIPTION::
+Mx supports Frame Rate Devices which are called at frame rate (24/beat by default).  This object translates a spline into a of stream of time domain interpolated values for use as an automation control to be patched to other units.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+argument:: spline
+(describe argument here)
+
+argument:: dimension
+(describe argument here)
+
+argument:: loop
+(describe argument here)
+
+argument:: spec
+(describe argument here)
+
+argument:: frameRate
+(describe argument here)
+
+returns:: (returnvalue)
+
+
+INSTANCEMETHODS::
+
+METHOD:: spline
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: dimension
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: loop
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: spec
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: frameRate
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: interpolationDensity
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: storeArgs
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: init
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: initTable
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: update
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: free
+(describe method here)
+
+returns:: (returnvalue)
+
+METHOD:: value
+(describe method here)
+
+argument:: time
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: setValueOnNextTick
+(describe method here)
+
+argument:: value
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: setValue
+(describe method here)
+
+argument:: value
+(describe argument here)
+
+argument:: time
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: findInsertIndex
+(describe method here)
+
+argument:: time
+(describe argument here)
+
+returns:: (returnvalue)
+
+METHOD:: gui
+(describe method here)
+
+argument:: parent
+(describe argument here)
+
+argument:: bounds
+(describe argument here)
+
+argument:: maxTime
+(describe argument here)
+
+returns:: (returnvalue)
+
+
+EXAMPLES::
+
+code::
+(some example code)
+::
