@@ -90,13 +90,13 @@ MxApp : AbsApp {
 	}
 	gui { arg layout,bounds;
 		// detect and front
-		var open;
-		open = model.dependants.detect(_.isKindOf(MxGui));
-		if(open.notNil,{
-			open.front
-		},{
+		//var open;
+		//open = model.dependants.detect(_.isKindOf(MxGui));
+		//if(open.notNil and: { open.isClosed.not },{
+		//	open.front
+		//},{
 			model.gui(layout,bounds);
-		})
+		//})
 	}
 	
 	//select
@@ -507,6 +507,14 @@ MxOutletApp : AbsApp {
 			// will support this later: connect to unit by finding first usable inlet
 			Error("" + this + "cannot >> to" + inlet).throw;
 		});
+		if(inlet.isKindOf(MxQuery),{
+			mxapp.transaction {
+				inlet.do { arg in;
+					this >> in
+				}
+			}
+			^inlet // return query
+		});
 		this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
 		mxapp.commit;
 		^inlet // or magically find the outlet of that unit; or return that unit
@@ -539,4 +547,14 @@ MxOutletApp : AbsApp {
 	}
 }
 
+
+MxCableApp : AbsApp {
+	
+	// insert
+	// outlet
+	// inlet
+	// fromUnit
+	// toUnit
+
+}
 
