@@ -209,9 +209,6 @@ MxTimeGui : ObjectGui {
 		var mine,w;
 		mine = parent.isNil;
 		w = super.guify(parent,bounds,title ? "Timeline");
-		if(mine,{
-			w.window.background = this.background
-		});
 		^w
 	}
 }

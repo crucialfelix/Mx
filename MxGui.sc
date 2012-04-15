@@ -7,29 +7,11 @@ MxGui : AbstractPlayerGui {
 	writeName {}
 	saveConsole { arg layout;
 		super.saveConsole(layout);
-		InspButton.icon(model,layout);
 		ActionButton(layout,"Timeline",{
 			MxTimeGui(model).gui(nil,Rect(0,0,1000,800));
 		});
 		ActionButton(layout,"Mixer",{
 			MxMixerGui(model).gui(nil,Rect(0,0,1000,500));
-		});
-		// these will move into an MxAction
-		ActionButton(layout,"Insp selected",{
-			var inspMe,in,out,cable;
-			inspMe = boxes.selected;
-			if(boxes.selected.size == 2,{
-				out = boxes.selected.detect({ arg io; io.class === MxOutlet });
-				in = boxes.selected.detect({ arg io; io.class === MxInlet });
-				if(in.notNil and: out.notNil,{
-					cable = model.cables.detect({ arg cable; cable.inlet === in and: cable.outlet === out });
-					if(cable.notNil,{
-						inspMe = inspMe.add( cable );
-					});
-				})
-			});
-			inspMe.do(_.insp);
-			InspManager.front;
 		});
 		ActionButton(layout,"respawn",{
 			boxes.selected.do { arg obj;
@@ -92,6 +74,26 @@ MxGui : AbstractPlayerGui {
 					},nil,false).rate_(spec.rate).inputSpec_(spec).outputSpec_(spec).init.gui
 				})
 			})
+		});
+		if(\InspButton.asClass.notNil,{
+			InspButton.icon(model,layout);
+			// these will move into an MxAction
+			ActionButton(layout,"Insp selected",{
+				var inspMe,in,out,cable;
+				inspMe = boxes.selected;
+				if(boxes.selected.size == 2,{
+					out = boxes.selected.detect({ arg io; io.class === MxOutlet });
+					in = boxes.selected.detect({ arg io; io.class === MxInlet });
+					if(in.notNil and: out.notNil,{
+						cable = model.cables.detect({ arg cable; cable.inlet === in and: cable.outlet === out });
+						if(cable.notNil,{
+							inspMe = inspMe.add( cable );
+						});
+					})
+				});
+				inspMe.do(_.insp);
+				InspManager.front;
+			});
 		});
 	}
 
