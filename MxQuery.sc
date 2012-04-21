@@ -191,4 +191,5 @@ MxQuery : AbsApp {
 	
 	*/
 	objects { ^model }
+	sources { ^model.collect(_.source) }
 }
