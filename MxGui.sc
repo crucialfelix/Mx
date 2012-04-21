@@ -7,6 +7,7 @@ MxGui : AbstractPlayerGui {
 	writeName {}
 	saveConsole { arg layout;
 		super.saveConsole(layout);
+		layout.startRow;
 		ActionButton(layout,"Timeline",{
 			MxTimeGui(model).gui(nil,Rect(0,0,1000,800));
 		});

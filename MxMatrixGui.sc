@@ -708,7 +708,7 @@ MxMatrixGui : SCViewHolder {
 							c = Color(c.red,c.green,c.blue,0.6)
 						})
 					});
-					pen.color = Color(alpha:0.25);
+					pen.color = Color(alpha:0.5);
 					pen.width = 3;
 					fcenter = f.center;
 					tcenter = t.center;

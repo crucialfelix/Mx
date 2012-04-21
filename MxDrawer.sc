@@ -129,7 +129,7 @@ MxDrawerGui : ObjectGui {
         
         lv.stringColor = fg;
         lv.focusColor = Color.clear;
-        lv.font = GUI.font.new(GUI.skin.fontSpecs[0],9);
+        lv.font = GUI.font.new(GUI.skin.fontSpecs[0],10);
         lv.beginDragAction = {
             var key,item;
             item = items[lv.value];
