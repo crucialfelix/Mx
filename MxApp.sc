@@ -203,8 +203,8 @@ MxChannelApp : AbsApp {
 		if(unit.isNil, { ^nil });
 		^mxapp.prFind( unit )
 	}
-	mute {
-		this.mx.mute(this.channelNumber,true);
+	mute { arg boo=true;
+		this.mx.mute(this.channelNumber,boo);
 		this.mx.changed('mixer');
 	}
 	muted {
@@ -218,8 +218,8 @@ MxChannelApp : AbsApp {
 		this.mx.mute(this.channelNumber,model.fader.mute.not);
 		this.mx.changed('mixer');
 	}
-	solo {
-		this.mx.solo(this.channelNumber,true);
+	solo { arg boo=true;
+		this.mx.solo(this.channelNumber,boo);
 		this.mx.changed('mixer');
 	}
 	unsolo {
