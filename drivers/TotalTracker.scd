@@ -33,7 +33,7 @@ MxUnit.register('TotalTracker',
 		sips = sips.insert(0,patter);
 		sips = sips.add( MxInlet("audio",5,AudioSpec(2),MxListensToBus({ player.song.efxBus },{player.server},{player.group}) ) );
 		inlets  = sips;
-		outlets = [ MxOutlet(player.name, 0, AudioSpec(2), MxPlaysOnBus({player.bus}) ) ];
+		outlets = [ MxOutlet("out", 0, AudioSpec(2), MxPlaysOnBus({player.bus}) ) ];
 		player.numOuts.do { arg i;
 			outlets = outlets.add( MxOutlet((i+1).asString,i+1,AudioSpec(2),MxPlaysOnBus({ player.songBusses.at(i) }) ) );
 		};
