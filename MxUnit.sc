@@ -102,13 +102,16 @@ MxUnit  {
 		var inlet;
 		inlet = MxInlet(name,inlets.size,spec,adapter);
 		inlet.unit = this;
-		inlets = inlets.add(inlet)
+		inlets = inlets.add(inlet);
+		handlers.at(\mx).register(inlet);
 	}
 	addOutlet { arg name,spec,adapter;
 		var outlet;
 		outlet = MxOutlet(name,outlets.size,spec,adapter);
+
 		outlet.unit = this;
-		outlets = outlets.add(outlet)
+		outlets = outlets.add(outlet);
+		handlers.at(\mx).register(outlet);
 	}
 
 	*register { arg classname,handlers;
