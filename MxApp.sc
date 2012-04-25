@@ -552,7 +552,11 @@ MxOutletApp : AbsApp {
 		}
 	}
 	printOn { arg stream;
-		stream << mxapp.prFind(model.unit) << "::";
+		if(model.unit.isNil,{ 
+			stream << "Nil unit::";
+		},{
+			stream << mxapp.prFind(model.unit) << "::";
+		});
 		model.printOn(stream)
 	}
 }
