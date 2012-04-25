@@ -374,6 +374,12 @@ MxUnitApp : AbsApp {
 			^this.outlets >> that
 		})
 	}
+	addInlet { arg name,spec,adapter;
+		model.addInlet(name,spec,adapter)
+	}
+	addOutlet { arg name,spec,adapter;
+		model.addOutlet(name,spec,adapter)
+	}
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
 		var p;
