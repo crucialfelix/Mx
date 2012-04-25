@@ -25,7 +25,7 @@ MxUnit.register('TotalTracker',
 		~switcher = switcher;
 		// ok for midi note where you can choose
 		// but how to do a float that wanders over them ?
-		patter = MxInlet("pattern",0,ControlSpec(0,127,step:1),
+		patter = MxInlet("pattern",0,ControlSpec(0,player.app.numPatterns,step:1),
 					MxSetter({ arg v;
 						var p;
 						switcher.wrapSelect(v.asInteger);
