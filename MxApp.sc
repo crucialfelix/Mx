@@ -184,8 +184,12 @@ MxChannelApp : AbsApp {
 		ci = this.channelNumber;
 		apps = sources.collect { arg source,i;
 			var unit;
-			unit = this.mx.put( ci,start + i, source );
-			mxapp.prFind(unit)
+			if(source.notNil,{
+				unit = this.mx.put( ci,start + i, source );
+				mxapp.prFind(unit)
+			},{
+				nil
+			})
 		};
 		mxapp.commit;
 		if(apps.size == 1,{
