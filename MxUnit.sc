@@ -98,6 +98,22 @@ MxUnit  {
 		});
 		Error("Outlet not found:" + index).throw
 	}
+	addInlet { arg name,spec,adapter;
+		var inlet;
+		inlet = MxInlet(name,inlets.size,spec,adapter);
+		inlet.unit = this;
+		inlets = inlets.add(inlet);
+		handlers.at(\mx).register(inlet);
+	}
+	addOutlet { arg name,spec,adapter;
+		var outlet;
+		outlet = MxOutlet(name,outlets.size,spec,adapter);
+
+		outlet.unit = this;
+		outlets = outlets.add(outlet);
+		handlers.at(\mx).register(outlet);
+	}
+
 	*register { arg classname,handlers;
 		var e,class,superclassHandlers;
 		classname = classname.asSymbol;
