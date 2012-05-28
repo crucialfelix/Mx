@@ -63,7 +63,17 @@ MxUnit  {
 			if(File.exists(path),{
 				path.debug("Loading driver").load;
 				match = registery[class.name]
-			});
+			},{
+				path = Platform.userExtensionDir +/+ "quarks" +/+ "*"	+/+ "mxdrivers" +/+ class.name.asString ++ ".scd";
+				path.pathMatch.any { arg p;
+					p.debug("Loading mx driver").load;
+					(match = registery[class.name]).notNil
+				};
+				if(match.isNil and: {class !== Object},{
+					^this.handlersForClass(class.superclass)
+				});			
+				match
+			})
 		};
 		^match
 	}
