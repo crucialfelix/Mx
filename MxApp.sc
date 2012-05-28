@@ -184,8 +184,12 @@ MxChannelApp : AbsApp {
 		ci = this.channelNumber;
 		apps = sources.collect { arg source,i;
 			var unit;
-			unit = this.mx.put( ci,start + i, source );
-			mxapp.prFind(unit)
+			if(source.notNil,{
+				unit = this.mx.put( ci,start + i, source );
+				mxapp.prFind(unit)
+			},{
+				nil
+			})
 		};
 		mxapp.commit;
 		if(apps.size == 1,{
@@ -203,8 +207,8 @@ MxChannelApp : AbsApp {
 		if(unit.isNil, { ^nil });
 		^mxapp.prFind( unit )
 	}
-	mute {
-		this.mx.mute(this.channelNumber,true);
+	mute { arg boo=true;
+		this.mx.mute(this.channelNumber,boo);
 		this.mx.changed('mixer');
 	}
 	muted {
@@ -218,8 +222,8 @@ MxChannelApp : AbsApp {
 		this.mx.mute(this.channelNumber,model.fader.mute.not);
 		this.mx.changed('mixer');
 	}
-	solo {
-		this.mx.solo(this.channelNumber,true);
+	solo { arg boo=true;
+		this.mx.solo(this.channelNumber,boo);
 		this.mx.changed('mixer');
 	}
 	unsolo {
@@ -373,6 +377,12 @@ MxUnitApp : AbsApp {
 		^mxapp.transaction({
 			^this.outlets >> that
 		})
+	}
+	addInlet { arg name,spec,adapter;
+		model.addInlet(name,spec,adapter)
+	}
+	addOutlet { arg name,spec,adapter;
+		model.addOutlet(name,spec,adapter)
 	}
 	point { ^this.mx.pointForUnit(model) }
 	printOn { arg stream;
@@ -542,7 +552,11 @@ MxOutletApp : AbsApp {
 		}
 	}
 	printOn { arg stream;
-		stream << mxapp.prFind(model.unit) << "::";
+		if(model.unit.isNil,{ 
+			stream << "Nil unit::";
+		},{
+			stream << mxapp.prFind(model.unit) << "::";
+		});
 		model.printOn(stream)
 	}
 }

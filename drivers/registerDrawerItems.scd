@@ -4,6 +4,8 @@ MxDrawer.add("Slider",{ NumberEditor(1.0) });
 
 MxDrawer.add("CC",{ CCResponder.new });
 
+MxDrawer.add("MxControlRecorder",{ MxControlRecorder.new });
+
 if(\BezierSpline.asClass.notNil,{
 	MxDrawer.add("SplineKr",{ KrSplinePlayer.new });
 

@@ -16,7 +16,7 @@ MxQuery : AbsApp {
 		var all,h;
 		all = IdentitySet.new;
 		h = (
-				MxChannelApp: { arg app; all.addAll(app.units) },
+				MxChannelApp: { arg app; all.addAll(app.units.objects) },
 				MxOutletApp: { arg app; all.add(app.unit) },
 				MxInletApp: { arg app; all.add(app.unit) },
 				MxIOletsApp: { arg app; all.add(app.unit) },
@@ -26,7 +26,7 @@ MxQuery : AbsApp {
 		this.do { arg obj,i,app;
 			h[app.class.name].value(app)
 		};
-		^MxQuery(all,mxapp)
+		^MxQuery(all.as(Array),mxapp)
 	}
     channels {
 		var chans;
@@ -191,4 +191,5 @@ MxQuery : AbsApp {
 	
 	*/
 	objects { ^model }
+	sources { ^model.collect(_.source) }
 }
