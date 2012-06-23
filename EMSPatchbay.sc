@@ -57,8 +57,9 @@ EMSPatchbay {
 		outs = outlets.asArray.sort({ arg a,b; a.unit.point <= b.unit.point });
 	}
 	draw {
-		var b,black;
+		var b,black,blue;
 		black = Color.black;
+		blue = Color.yellow;
 		b = uv.bounds.moveTo(0,0);
 		pen.color = Color.grey(181/255.0);
 		pen.fillRect(b);
@@ -71,11 +72,20 @@ EMSPatchbay {
 		pen.font = font;
 		pen.use {
 			ins.do { arg in,ii;
-				var r;
+				var r,v;
 				r = Rect(width*ii+labelSize,0,width,17);
 				pen.color = in.spec.color;
 				pen.fillRect(r);
 				pen.stringInRect(in.name,r.moveBy(1,1),font,black);
+
+				// mark value of inlet value
+				if(in.canGet,{
+					v = in.spec.unmap(in.get);
+					pen.color = blue;
+					r = r.moveBy( v * width,0 );
+					r.width = 2;
+					pen.fillRect( r );
+				});
 			};
 		};
 		pen.use {
@@ -83,11 +93,18 @@ EMSPatchbay {
 			outs.do { arg out,oi;
 				var to;
 				pen.use {
-					var r;
+					var r,v;
 					r = Rect(1,1,labelSize,height);
 					pen.color = out.spec.color;
 					pen.fillRect(r);
 					pen.stringInRect(out.name,r,font,black);
+					if(out.canGet,{
+						v = out.spec.unmap(out.get);
+						pen.color = blue;
+						r = r.moveBy( v * width,0 );
+						r.width = 2;
+						pen.fillRect( r );
+					});
 					pen.translate(labelSize,0);
 					to = out.to.asArray;
 					ins.do { arg in,ii;
