@@ -48,38 +48,46 @@ EMSPatchbay {
 		off = Color.black;
 		cant = Color.grey;
 		font = Font.sansSerif(9);
+		this.update;
+		ins[0].mx.addDependant(this);
+	}
+	update {
+		// if what is 'grid'
+		ins = inlets.asArray.sort({ arg a,b; a.unit.point <= b.unit.point });
+		outs = outlets.asArray.sort({ arg a,b; a.unit.point <= b.unit.point });
 	}
 	draw {
-		var b;
-		ins = inlets.asArray;
-		outs = outlets.asArray;
+		var b,black;
+		black = Color.black;
 		b = uv.bounds.moveTo(0,0);
 		pen.color = Color.grey(181/255.0);
 		pen.fillRect(b);
-		gridRect = Rect(labelSize,labelSize,b.width - labelSize,b.height - labelSize);
+		gridRect = Rect(labelSize,17,b.width - labelSize,b.height - 17);
 
 		height = max(gridRect.height / outs.size.asFloat,0);
 		width = max(gridRect.width / ins.size.asFloat,0);
 
-		pen.color = Color.black;
+		pen.color = black;
 		pen.font = font;
-		if(width > labelSize,{
-			pen.use {
-				//pen.translate(labelSize,0);
-				//pen.rotateDeg(90);
-				ins.do { arg in,ii;
-					pen.stringAtPoint(in.name,
-						Point(width*ii+labelSize,0)
-						);
-				};
-			};
-		});
 		pen.use {
-			pen.translate(0,labelSize);
+			ins.do { arg in,ii;
+				var r;
+				r = Rect(width*ii+labelSize,0,width,17);
+				pen.color = in.spec.color;
+				pen.fillRect(r);
+				pen.stringInRect(in.name,r.moveBy(1,1),font,black);
+			};
+		};
+		pen.use {
+			pen.translate(0,17);
 			outs.do { arg out,oi;
 				var to;
 				pen.use {
-					pen.string(out.name);
+					var r;
+					r = Rect(1,1,labelSize,height);
+					pen.color = out.spec.color;
+					pen.fillRect(r);
+					pen.stringInRect(out.name,r,font,black);
 					pen.translate(labelSize,0);
 					to = out.to.asArray;
 					ins.do { arg in,ii;
@@ -87,16 +95,11 @@ EMSPatchbay {
 						r = Rect(0,0,width,height).insetAll(0,0,1,1);
 						can = out.unit !== in.unit;
 						if(can,{
-							pen.color = off;
-							pen.fillRect(r);
-							if(to.includes(in),{
-								pen.color = on;
-								pen.fillOval(r);
-							})
+							pen.color = if(to.includes(in),on,off);
 						},{
 							pen.color = cant;
-							pen.fillRect(r)
 						});
+						pen.fillRect(r);
 						pen.translate(width,0)
 					};
 				};
