@@ -126,7 +126,7 @@ EMSPatchbay {
 	}
 	mouseDownAction { arg view, x, y, modifiers, buttonNumber, clickCount;
 		var p,col,row;
-		var out,in;
+		var out,in,v;
 		p = x@y;
 		if(gridRect.contains(p),{
 			p = p - gridRect.origin;
@@ -142,6 +142,41 @@ EMSPatchbay {
 				});
 				this.refresh;
 			})
+		},{
+			// mouse move actually
+
+			// top or side ?
+			if(p.x < gridRect.left,{
+				row = ((p.y - gridRect.top) / height).asInteger;
+
+				if(clickCount == 2,{
+					outs.at(row).unit.gui
+				},{
+					this.refresh;
+				})
+
+			},{
+				if(p.y < gridRect.top,{
+					col = ((p.x - gridRect.left) / width).asInteger;
+					in = ins.at(col);
+					if(clickCount == 2,{
+						in.unit.gui
+					},{
+						if(modifiers.isCtrl,{
+							if(in.canSet,{
+								v = (p.x - gridRect.left).excess(col * width) / width;
+								in.set(v);
+								{this.refresh}.defer(0.05);
+							})
+						})
+					})
+				},{
+					// top corner
+					// this.refresh.debug("corner");
+					// could toggle auto-refresh
+				})
+			})
+
 		})
 	}
 	refresh { uv.refresh }
