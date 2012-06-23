@@ -14,6 +14,10 @@ MxGui : AbstractPlayerGui {
 		ActionButton(layout,"Mixer",{
 			MxMixerGui(model).gui(nil,Rect(0,0,1000,500));
 		});
+		ActionButton(layout,"SynthiX",{
+			SynthiX(model.outlets,model.inlets).gui(nil,Rect(0,0,1000,500))
+		});
+
 		ActionButton(layout,"respawn",{
 			boxes.selected.do { arg obj;
 				if(obj.isKindOf(MxUnit),{

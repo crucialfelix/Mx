@@ -17,16 +17,23 @@
 	should sort by execution order
 	thus for synths everything above the diagonal
 	is a precendence error
+
+	x = Mx.new.app;
+x.add( MultiSplineFr.new );
+x.add( TotalTracker.new );
+SynthiX(x.outlets,x.inlets).gui;
+
 */
 
 
-EMSPatchbay {
+SynthiX {
 
 	var <>outlets,<>inlets;
 	var uv,pen;
 	var <>labelSize = 50,<>on,<>off,<>cant,<>font;
 	var gridRect,width,height;
 	var ins,outs;
+	var <updateRate=1.0;
 
 	*new { arg outlets,inlets;
 		^super.newCopyArgs(outlets,inlets)
@@ -50,6 +57,10 @@ EMSPatchbay {
 		font = Font.sansSerif(9);
 		this.update;
 		ins[0].mx.addDependant(this);
+		if(updateRate.notNil,{
+
+
+		})
 	}
 	update {
 		// if what is 'grid'
