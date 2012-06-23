@@ -317,13 +317,20 @@ MxUnit  {
 
 
 MxInlet {
-	
+
 	var <>name,<>index,<>spec,<>adapter;
 	var <>unit;
-	
+
 	*new { arg name,index,spec,adapter;
 		^super.newCopyArgs(name.asSymbol,index,spec.asSpec,adapter)
 	}
+
+	// one-time adhoc get/set of a value, usually a float
+	canGet { ^adapter.canGet }
+	canSet { ^adapter.canSet }
+	set { arg v; adapter.set(v) }
+	get { ^adapter.get }
+
 	storeArgs {
 		// adapter: AbsMxAdapter subclass
 		// which is not really savable
