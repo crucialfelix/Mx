@@ -499,6 +499,11 @@ MxInletApp : AbsApp {
 		model.printOn(stream)
 	}
 	// cables
+
+	canGet { ^model.canGet }
+	canSet { ^model.canSet }
+	set { arg v; model.set(v) }
+	get { ^model.get }
 }
 
 
@@ -546,11 +551,17 @@ MxOutletApp : AbsApp {
 	unit {
 		^mxapp.prFind(model.unit)
 	}
-	to { // outlets that connect to me
-		^this.mx.cables.fromInlet(model).collect { arg cable;
+	to { // inlets that I connect to
+		^this.mx.cables.fromOutlet(model).collect { arg cable;
 			mxapp.prFind( cable.inlet )
 		}
 	}
+
+	canGet { ^model.canGet }
+	canSet { ^model.canSet }
+	set { arg v; model.set(v) }
+	get { ^model.get }
+
 	printOn { arg stream;
 		if(model.unit.isNil,{ 
 			stream << "Nil unit::";
