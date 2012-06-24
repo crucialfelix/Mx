@@ -15,7 +15,7 @@ MxGui : AbstractPlayerGui {
 			MxMixerGui(model).gui(nil,Rect(0,0,1000,500));
 		});
 		ActionButton(layout,"SynthiX",{
-			SynthiX(model.outlets,model.inlets).gui(nil,Rect(0,0,1000,500))
+			SynthiX(model.app.outlets,model.app.inlets).gui(nil,Rect(0,0,1000,500))
 		});
 
 		ActionButton(layout,"respawn",{
