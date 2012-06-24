@@ -30,7 +30,7 @@ SynthiX {
 
 	var <>outlets,<>inlets;
 	var uv,pen;
-	var <>labelSize = 50,<>on,<>off,<>cant,<>font;
+	var <>labelSize = 100,<>on,<>off,<>cant,<>font,bigFont;
 	var gridRect,width,height;
 	var ins,outs;
 	var <updateRate=0.5,animator;
@@ -55,6 +55,7 @@ SynthiX {
 		off = Color.black;
 		cant = Color.grey;
 		font = Font.sansSerif(9);
+		bigFont = Font.sansSerif(12);
 		this.update;
 		ins[0].mx.addDependant(this);
 		if(updateRate.notNil,{
@@ -68,9 +69,10 @@ SynthiX {
 		outs = outlets.asArray.sort({ arg a,b; a.unit.point <= b.unit.point });
 	}
 	draw {
-		var b,black,blue;
+		var b,black,blue,curs,faint;
 		black = Color.black;
-		blue = Color.yellow;
+		blue = Color.yellow(alpha:0.9);
+		faint = Color.white;//Color(0.6,0.6,0.8,0.7);
 		b = uv.bounds.moveTo(0,0);
 		pen.color = Color.grey(181/255.0);
 		pen.fillRect(b);
@@ -98,6 +100,17 @@ SynthiX {
 					pen.fillRect( r );
 				});
 			};
+			curs = labelSize;
+			ins.separate({ arg a,b; a.unit !== b.unit }).do { arg clump,i;
+				var r;
+				if(clump.size > 0,{
+					r = Rect( curs,0,clump.size * width,17 );
+					pen.stringCenteredIn(clump.first.unit.name,r,bigFont,faint);
+					pen.strokeColor = faint;
+					pen.strokeRect(r);
+					curs = r.right;
+				})
+			};
 		};
 		pen.use {
 			pen.translate(0,17);
@@ -112,7 +125,7 @@ SynthiX {
 					if(out.canGet,{
 						v = out.spec.unmap(out.get);
 						pen.color = blue;
-						r = r.moveBy( v * width,0 );
+						r = r.moveBy( v * labelSize,0 );
 						r.width = 2;
 						pen.fillRect( r );
 					});
@@ -132,7 +145,18 @@ SynthiX {
 					};
 				};
 				pen.translate(0,height)
-			}
+			};
+		};
+		curs = 17; // label height
+		outs.separate({ arg a,b; a.unit !== b.unit }).do { arg clump,i;
+			var r;
+			if(clump.size > 0,{
+				r = Rect( 0,curs,labelSize, clump.size * height );
+				pen.stringCenteredIn(clump.first.unit.name,r,bigFont,faint);
+				pen.strokeColor = faint;
+				pen.strokeRect(r);
+				curs = r.bottom;
+			})
 		};
 		if(animator.notNil,{
 			pen.color = blue;
