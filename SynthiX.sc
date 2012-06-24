@@ -57,10 +57,8 @@ SynthiX {
 		font = Font.sansSerif(9);
 		bigFont = Font.sansSerif(12);
 		this.update;
-		ins[0].mx.addDependant(this);
-		if(updateRate.notNil,{
-
-
+		if(ins.size > 0,{
+			ins[0].mx.addDependant(this);
 		})
 	}
 	update {
