@@ -6,13 +6,31 @@ MxUnit.register('MultiSplineFr',
 		var inlets,outlets,rec;
 		~source = sfr;
 		~recording = false;
-		rec = MxSetter({ arg v; 
-			if(~recording,{ v !? {sfr.setValueOnNextTick(v)} }) 
+		rec = MxSetter({ arg v;
+			if(~recording,{ v !? {sfr.setValueOnNextTick(v)} })
 		}.inEnvir);
+		// needs PointSpec or ArraySpec
 		inlets  = [ MxInlet("setValueNow",0,sfr.spec,rec) ];
 		outlets = Array.fill(~source.spline.numDimensions-1,
 				 { arg di;
-					MxOutlet("DIM" ++ (di+1), di, sfr.spec, MxIsFrameRateDevice({ arg val; val[di+1] }) ) 
+				 	var lastVal,default=sfr.spec.default;
+					MxOutlet("DIM" ++ (di+1), di, sfr.spec,
+						MxIsFrameRateDevice({ arg val;
+								val[di+1]
+							},
+							nil,
+							nil,
+							{	var beat; // get
+								try {
+									beat = ~mx.beat;
+									lastVal = sfr.value(beat).at(di+1);
+									lastVal
+								} { // if clock is stopped then beat throws
+									lastVal
+								}
+							}.inEnvir,
+							nil
+							))
 				 });
 		MxUnit(sfr,inlets,outlets);
 	},
