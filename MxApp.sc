@@ -36,6 +36,8 @@ MxApp : AbsApp {
 	units {
 		^MxQuery(model.allUnits(false).all.collect(this.prFind(_)),this)
 	}
+	outlets { ^this.units.outlets }
+	inlets { ^this.units.inlets }
 	channels {
 		^MxQuery(model.channels.collect(this.prFind(_)),this)
 	}
