@@ -63,7 +63,7 @@ MxUnit.register('MultiSplineFr',
 		~splineGui.setMaxTime( maxTime );
 	},
 	beatDuration: {
-		~source.spline.points.last[0]
+		~source.spline.points.maxValue(_.at(0))
 	},
 	record: { arg boo,atTime;
 		~recording = boo;
