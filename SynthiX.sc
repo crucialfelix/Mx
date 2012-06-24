@@ -33,7 +33,7 @@ SynthiX {
 	var <>labelSize = 50,<>on,<>off,<>cant,<>font;
 	var gridRect,width,height;
 	var ins,outs;
-	var <updateRate=1.0;
+	var <updateRate=0.5,animator;
 
 	*new { arg outlets,inlets;
 		^super.newCopyArgs(outlets,inlets)
@@ -134,6 +134,10 @@ SynthiX {
 				pen.translate(0,height)
 			}
 		};
+		if(animator.notNil,{
+			pen.color = blue;
+			pen.fillRect(Rect(0,0,labelSize,height))
+		})
 	}
 	mouseDownAction { arg view, x, y, modifiers, buttonNumber, clickCount;
 		var p,col,row;
@@ -158,14 +162,31 @@ SynthiX {
 
 			// top or side ?
 			if(p.x < gridRect.left,{
-				row = ((p.y - gridRect.top) / height).asInteger;
-
-				if(clickCount == 2,{
-					outs.at(row).unit.gui
-				},{
+				if(p.y < gridRect.top,{
+					// top corner
+					if(modifiers.isCtrl,{
+						if(animator.isNil,{
+							animator = Routine({
+											loop {
+												this.refresh;
+												updateRate.wait
+											}
+										});
+							animator.play(AppClock)
+						},{
+							animator.stop;
+							animator = nil
+						})
+					});
 					this.refresh;
+				},{
+					row = ((p.y - gridRect.top) / height).asInteger;
+					if(clickCount == 2,{
+						outs.at(row).unit.gui
+					},{
+						this.refresh;
+					})
 				})
-
 			},{
 				if(p.y < gridRect.top,{
 					col = ((p.x - gridRect.left) / width).asInteger;
@@ -181,10 +202,6 @@ SynthiX {
 							})
 						})
 					})
-				},{
-					// top corner
-					// this.refresh.debug("corner");
-					// could toggle auto-refresh
 				})
 			})
 
