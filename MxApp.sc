@@ -499,6 +499,11 @@ MxInletApp : AbsApp {
 		model.printOn(stream)
 	}
 	// cables
+
+	canGet { ^model.canGet }
+	canSet { ^model.canSet }
+	set { arg v; model.set(v) }
+	get { ^model.get }
 }
 
 
