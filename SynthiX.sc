@@ -169,7 +169,7 @@ SynthiX {
 			row = (p.y / height).asInteger;
 			out = outs.at(row);
 			in = ins.at(col);
-			if(out.unit !== in.unit,{
+			if(in.notNil and: {out.unit !== in.unit},{
 				if(out.to.includes(in),{
 					in.disconnect
 				},{
