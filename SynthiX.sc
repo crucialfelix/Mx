@@ -1,6 +1,6 @@
 
 /*
-	an EMS Synthi style patchbay for connecting things in Mx
+	an EMS Synthi A style patchbay for connecting things in Mx
 
 	aka "I sunk your battleship"
 
@@ -12,17 +12,15 @@
 	outlets and inlets should be iterables, preferrably MxQuery
 	this will be especially interesting when MxQuery can do lazy evaluation and thus the patchbay will update dynamically.
 
-	click to toggle patched
-	color code if its possible to connect or not
-	should sort by execution order
-	thus for synths everything above the diagonal
-	is a precendence error
+	sorts by execution order
+		thus for synths everything above the diagonal
+		is a precendence error
 
-	x = Mx.new.app;
-x.add( MultiSplineFr.new );
-x.add( TotalTracker.new );
-SynthiX(x.outlets,x.inlets).gui;
+	control-clicking on the inlets column headers will set the value if possible
+		so a synth type input can be set by clicking to see what it sounds like to wiggle it.
 
+	the outlets row headers show the output value if possible
+		ie. for things that have a simple float value like a CC or spline
 */
 
 
@@ -44,7 +42,7 @@ SynthiX {
 			uv = UserView(layout,bounds ?? {layout.indentedRemaining});
 		},{
 			bounds = bounds ?? {Rect(0,0,500,500)};
-			layout = Window("EMS",bounds).front;
+			layout = Window("SynthiX",bounds).front;
 			uv = UserView(layout,layout.bounds.moveTo(0,0));
 			uv.resize = 5;
 		});
