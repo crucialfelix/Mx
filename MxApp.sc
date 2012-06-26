@@ -368,6 +368,7 @@ MxUnitApp : AbsApp {
 	outlets {
 		^MxIOletsApp(model.outlets,mxapp,model)
 	}
+	cables { ^this.i.cables ++ this.o.cables }
 	out {
 		^this.outlets.out
 	}
@@ -412,6 +413,13 @@ MxIOletsApp : AbsApp {
 	out {
 		// shortcut to the first output
 		^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
+	}
+	cables {
+		var cables = [];
+		model.do { arg io,i;
+			cables.addAll(io.cables)
+		};
+		^cables
 	}
 	>> { arg inlet;
 		var outlet;
@@ -500,7 +508,11 @@ MxInletApp : AbsApp {
 		stream << mxapp.prFind(model.unit) << "::";
 		model.printOn(stream)
 	}
-	// cables
+	cables {
+		^this.mx.cables.toInlet(model).collect({ arg cable;
+			mxapp.prFind(cable)
+		})
+	}
 
 	canGet { ^model.canGet }
 	canSet { ^model.canSet }
@@ -557,6 +569,11 @@ MxOutletApp : AbsApp {
 		^this.mx.cables.fromOutlet(model).collect { arg cable;
 			mxapp.prFind( cable.inlet )
 		}
+	}
+	cables {
+		^this.mx.cables.fromOutlet(model).collect({ arg cable;
+			mxapp.prFind(cable)
+		})
 	}
 
 	canGet { ^model.canGet }
