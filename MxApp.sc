@@ -377,7 +377,7 @@ MxUnitApp : AbsApp {
 	>> { arg that;
 		this.checkThat(that);
 		^mxapp.transaction({
-			^this.outlets >> that
+			this.outlets >> that
 		})
 	}
 	addInlet { arg name,spec,adapter;
