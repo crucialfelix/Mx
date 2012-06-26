@@ -21,13 +21,9 @@ MxUnit.register('MultiSplineFr',
 							nil,
 							nil,
 							{	var beat; // get
-								try {
-									beat = ~mx.beat;
-									lastVal = sfr.value(beat).at(di+1);
-									lastVal
-								} { // if clock is stopped then beat throws
-									lastVal
-								}
+								beat = ~mx.beat;
+								lastVal = sfr.value(beat).at(di+1);
+								lastVal
 							}.inEnvir,
 							nil
 							))
