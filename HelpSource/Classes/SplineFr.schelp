@@ -12,132 +12,159 @@ CLASSMETHODS::
 METHOD:: new
 
 argument:: spline
-(describe argument here)
+
 
 argument:: dimension
-(describe argument here)
+
 
 argument:: loop
-(describe argument here)
+
 
 argument:: spec
-(describe argument here)
+
 
 argument:: frameRate
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 
 INSTANCEMETHODS::
 
 METHOD:: spline
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: dimension
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: loop
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: spec
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: frameRate
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: interpolationDensity
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: storeArgs
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: init
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: initTable
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: update
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: free
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: value
-(describe method here)
+
 
 argument:: time
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: setValueOnNextTick
-(describe method here)
+
 
 argument:: value
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: setValue
-(describe method here)
 
 argument:: value
-(describe argument here)
+
 
 argument:: time
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: findInsertIndex
-(describe method here)
+
 
 argument:: time
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: gui
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
+
 
 argument:: maxTime
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+

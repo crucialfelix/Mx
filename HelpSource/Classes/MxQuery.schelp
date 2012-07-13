@@ -59,17 +59,19 @@ METHOD:: select
 Just like collection select, but the function is passed:  source, i, app
 
 argument:: function
-(describe argument here)
 
-returns:: a new MxQuery with the selected results
+returns::
+
+ a new MxQuery with the selected results
 
 METHOD:: reject
 Just like collection reject
 
 argument:: function
-(describe argument here)
 
-returns:: a new MxQuery with the non-rejected results
+returns::
+
+ a new MxQuery with the non-rejected results
 
 METHOD:: units
 If a query set includes channels or iolets then this method will return a query set with all the units in those channels and all units that the iolets.
@@ -118,12 +120,14 @@ argument:: class
 returns:: an MxQuery with the selected results
 
 METHOD:: whereAppClassIs
-(describe method here)
+
 
 argument:: class
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: do
 Iterates over the result set
@@ -137,9 +141,10 @@ METHOD:: collect
 Collects the resultset returning an array of whatever your function returns.
 
 argument:: function
-(describe argument here)
 
-returns:: an array
+returns::
+
+ an array
 
 METHOD:: size
 Size of the result set
@@ -165,7 +170,7 @@ index
 returns:: the app object: link::Classes/MxUnitApp::, link::Classes/MxInletApp:: etc
 
 METHOD:: >>
-Connects all matched items to that.  Units connect their first available out. 
+Connects all matched items to that.  Units connect their first available out.
 
 argument:: that
 An inlet.  Will support connecting to another query set soon.
@@ -175,12 +180,14 @@ returns:: that
 METHOD:: disconnect
 Disconnect all matched items.  Outlets and inlets disconnect all cables.  Units disconnect all of their iolets.
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: remove
 Remove the matched items from the mx.  Not to be confused with removing the items from the query set (use reject for that).
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: get
 From the source objects get an array of values obtained with the selector.
@@ -195,15 +202,17 @@ extra args to pass when calling source.selector( arg1, arg2, ...)
 returns:: an array of the results of getting
 
 METHOD:: set
-(describe method here)
+
 
 argument:: selector
-(describe argument here)
+
 
 argument:: value
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: dup
 Duplicate all units in the query set.  Dup inserts a copy of the unit directly below itself, moving anything that might be there further down by one.
@@ -225,58 +234,67 @@ METHOD:: copyBy
 Copies rather than moves. See moveBy
 
 argument:: vector
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: stop
 Stops matched objects from playing
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: play
 Plays matched objects
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: free
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: respawn
 Respawns matched objects.  See link::Classes/MxUnitApp:: respawn
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: mute
 For all channels of the matched object, mutes or unmutes the channel fader.
 
 argument:: boo
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: solo
 For all channels of the matched object, solos or unsolos the channel fader.
 
 argument:: boo
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: db
 For all channels of the matched object, set the channel fader level.
 
 argument:: db
-(describe argument here)
 
-returns:: (returnvalue)
-
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+
+

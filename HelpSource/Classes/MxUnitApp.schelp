@@ -1,7 +1,7 @@
 CLASS:: MxUnitApp
 summary:: scripting interface object for a unit
 categories:: Mx
-related:: Class::MxApp
+related:: Class/MxApp
 
 DESCRIPTION::
 A unit holds an object like an Instr, NDef, Bus, Spline, SFP (soundfile player) etc.
@@ -32,7 +32,7 @@ freqInlet = u.inlets.freq;
 u.outlets.out >> v.inlets.in;
 u.inlets.at('1'); // if your inlet is named "1"
 ::
-    
+
 returns:: an MxIOletsApp
 
 METHOD:: outlets
@@ -59,7 +59,8 @@ u >> x.channel(3).fader;
 argument:: that
 an inlet, a channel fader
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: point
 channel@slot position on the grid.  master channel is inf
@@ -86,7 +87,8 @@ Move the unit by a channel@slot offset.  Overwrites anything that might be there
 argument:: vector
 Point representing the offset.  eg. 1@0 will move it to the next channel
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: dup
 Duplicate the object to the slot directly below it, insert an open space if there is already something there.
@@ -175,16 +177,14 @@ bounds rect or nil
 returns:: this
 
 METHOD:: printOn
-(describe method here)
+
 
 argument:: stream
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+

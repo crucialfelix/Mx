@@ -1,7 +1,7 @@
 CLASS:: MultiSplineFr
 summary:: Multi dimensional spline frame rate device
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 Mx supports Frame Rate Devices which are called at frame rate (24/beat by default).  This object translates a multi dimensional spline into an array of time domain interpolated values for use as automation controls to be patched to other units.
@@ -15,111 +15,135 @@ CLASSMETHODS::
 INSTANCEMETHODS::
 
 METHOD:: liveValues
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: focusedPoint
-(describe method here)
+
 
 argument:: fp
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: initTable
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: value
-(describe method here)
+
 
 argument:: time
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: setValue
-(describe method here)
+
 
 argument:: value
-(describe argument here)
+
 
 argument:: time
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: numDimensions
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: addDimension
-(describe method here)
+
 
 argument:: default
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: removeDimension
-(describe method here)
+
 
 argument:: di
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: gui
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
+
 
 argument:: maxTime
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: guiClass
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: savePoint
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: createPoint
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: deletePoint
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: setDimValues
-(describe method here)
+
 
 argument:: di
-(describe argument here)
+
 
 argument:: vals
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+

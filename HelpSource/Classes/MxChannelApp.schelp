@@ -66,7 +66,7 @@ one or more objects
 returns:: an MxUnitApp or an array of them
 
 METHOD:: dup
-Duplicate the item from one slot to another.  Connections are not preserved (yet). 
+Duplicate the item from one slot to another.  Connections are not preserved (yet).
 
 argument:: fromIndex
 integer
@@ -130,8 +130,4 @@ This objects current channelNumber.  Note that you can freely rearrange channels
 returns:: integer
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::

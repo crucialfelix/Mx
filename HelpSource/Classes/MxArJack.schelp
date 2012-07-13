@@ -1,7 +1,7 @@
 CLASS:: MxArJack
 summary:: A hot swappable input point for use in internal patching
 categories:: Mx
-related:: 
+related:: Classes/MxKrJack
 
 DESCRIPTION::
 In particular this is used by the Instr driver to put placeholders in the audio inputs.  These can then be connected to dynamically.
@@ -12,85 +12,99 @@ CLASSMETHODS::
 METHOD:: new
 
 argument:: numChannels
-(describe argument here)
+
 
 argument:: bus
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 
 INSTANCEMETHODS::
 
 METHOD:: numChannels
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: storeArgs
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: bus
-(describe method here)
+
 
 argument:: v
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: addToSynthDef
-(describe method here)
+
 
 argument:: synthDef
-(describe argument here)
+
 
 argument:: name
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: instrArgFromControl
-(describe method here)
+
 
 argument:: control
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: readFromBusToBundle
-(describe method here)
+
 
 argument:: bus
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: stopReadFromBusToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: rate
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: guiClass
-(describe method here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+
