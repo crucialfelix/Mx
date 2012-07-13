@@ -3,7 +3,7 @@
 	path:			"Mx",
 	summary:		"a patching Matrix and Mixer",
 	author:			"felix",
-	version:		0.5,
+	version:		"0.5.1",
 	url:			"https://github.com/crucialfelix/Mx",
 	isCompatible:	{ Main.versionAtLeast(3,5) },
 	dependencies:	["cruciallib"]
