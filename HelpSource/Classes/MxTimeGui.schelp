@@ -3,7 +3,8 @@ summary:: Timeline view
 categories:: Mx
 
 
-DESCRIPTION::
+DESCRIPTION:: This object is the timeline view that coordinates any timeline views that the units may support.
+
 The Mx itself has settings for endBeat and tempo, and it maintains a beat Position object as it plays, but otherwise does not have any timeline system.
 
 But the objects that it hosts may have timeline systems and this view coordinates display, scrolling, zooming and transport control for any objects that do.

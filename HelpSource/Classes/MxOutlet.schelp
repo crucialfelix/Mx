@@ -1,11 +1,9 @@
 CLASS:: MxOutlet
-summary:: (put short description here)
+summary:: holds identifying data for an outlet
 categories:: Mx
 
 
-DESCRIPTION::
-(put long description here)
-
+DESCRIPTION:: holds identifying data for an outlet
 
 CLASSMETHODS::
 
