@@ -63,7 +63,17 @@ MxUnit  {
 			if(File.exists(path),{
 				path.debug("Loading driver").load;
 				match = registery[class.name]
-			});
+			},{
+				path = Platform.userExtensionDir +/+ "quarks" +/+ "*"	+/+ "mxdrivers" +/+ class.name.asString ++ ".scd";
+				path.pathMatch.any { arg p;
+					p.debug("Loading mx driver").load;
+					(match = registery[class.name]).notNil
+				};
+				if(match.isNil and: {class !== Object},{
+					^this.handlersForClass(class.superclass)
+				});			
+				match
+			})
 		};
 		^match
 	}
@@ -307,13 +317,20 @@ MxUnit  {
 
 
 MxInlet {
-	
+
 	var <>name,<>index,<>spec,<>adapter;
 	var <>unit;
-	
+
 	*new { arg name,index,spec,adapter;
 		^super.newCopyArgs(name.asSymbol,index,spec.asSpec,adapter)
 	}
+
+	// one-time adhoc get/set of a value, usually a float
+	canGet { ^adapter.canGet }
+	canSet { ^adapter.canSet }
+	set { arg v; adapter.set(v) }
+	get { ^adapter.get }
+
 	storeArgs {
 		// adapter: AbsMxAdapter subclass
 		// which is not really savable

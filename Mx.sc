@@ -573,6 +573,7 @@ Mx : AbstractPlayerProxy {
 			});
 		});
 	}
+	beat { ^sched.beat }
 	gotoBeat { arg beat,q=4,bundle;
 		var b,beats,atBeat;
 		beat = beat.trunc(q);

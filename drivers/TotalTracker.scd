@@ -14,10 +14,15 @@ MxUnit.register('TotalTracker',
 (
 	make: { arg player;
 		var inlets,outlets,sips,patter,switcher;
-		
-		sips = [1,2,3,4].collect { arg i; 
-				MxInlet(i.asString,i,\unipolar, 
-					MxSetter({ arg v; player.app.setSongControl(i,v)},{player.server},{player.group}) 
+
+		sips = [1,2,3,4].collect { arg i;
+				MxInlet(i.asString,i,\unipolar,
+					MxSetter({ arg v; player.app.setSongControl(i,v) },
+						{ player.server },
+						{ player.group },
+						{ player.app.getSongControl(i) ? 0 },
+						{ arg v; player.app.setSongControl(i,v)}
+						)
 				)
 			};
 		player.numOuts = TotalTracker.numSongOuts;

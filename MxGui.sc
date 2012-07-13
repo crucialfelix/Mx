@@ -7,12 +7,17 @@ MxGui : AbstractPlayerGui {
 	writeName {}
 	saveConsole { arg layout;
 		super.saveConsole(layout);
+		layout.startRow;
 		ActionButton(layout,"Timeline",{
 			MxTimeGui(model).gui(nil,Rect(0,0,1000,800));
 		});
 		ActionButton(layout,"Mixer",{
 			MxMixerGui(model).gui(nil,Rect(0,0,1000,500));
 		});
+		ActionButton(layout,"SynthiX",{
+			SynthiX(model.app.outlets,model.app.inlets).gui(nil,Rect(0,0,1000,500))
+		});
+
 		ActionButton(layout,"respawn",{
 			boxes.selected.do { arg obj;
 				if(obj.isKindOf(MxUnit),{

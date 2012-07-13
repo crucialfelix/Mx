@@ -18,15 +18,21 @@ they do not hold any state or reference to specific objects
 AbsMxAdapter {}
 
 AbsMxFuncAdapter : AbsMxAdapter {
-	
-	var <>func,>getServer,>getGroup;
 
-	*new { arg thingGetter,getServer,getGroup;
-		^super.new.func_(thingGetter).getServer_(getServer).getGroup_(getGroup)
-	}	
-	value { ^func.value }	
+	var <>func,>getServer,>getGroup,>getValue,>setValue;
+
+	*new { arg thingGetter,getServer,getGroup,getValue,setValue;
+		^super.newCopyArgs( thingGetter,getServer,getGroup,getValue,setValue )
+	}
+	value { ^func.value }
 	server { ^getServer.value }
 	group { ^getGroup.value }
+
+	// one time get/set for iolets that could support that
+	canGet { ^getValue.notNil }
+	get { ^getValue.value }
+	canSet { ^setValue.notNil }
+	set { arg v; setValue.value(v) }
 }
 
 MxHasBus : AbsMxFuncAdapter {}
@@ -36,7 +42,7 @@ MxHasKrJack : AbsMxFuncAdapter {}
 MxHasStreamJack : AbsMxFuncAdapter {}
 
 MxPlaysOnBus : AbsMxFuncAdapter {}
-MxPlaysOnKrBus : AbsMxFuncAdapter {} 
+MxPlaysOnKrBus : AbsMxFuncAdapter {}
 MxListensToBus : AbsMxFuncAdapter {}
 MxChannelInputAdapter : AbsMxFuncAdapter {}
 
