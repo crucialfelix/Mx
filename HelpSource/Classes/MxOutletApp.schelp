@@ -30,7 +30,8 @@ returns:: a Spec subclass
 METHOD:: name
 Spec of the outlet as defined in the objects driver file in ~make
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: index
 Index of the outlet in the units outlets array
@@ -48,8 +49,4 @@ an array of inlets this outlet is connected to
 returns:: an array of link::Classes/MxInletApp::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::

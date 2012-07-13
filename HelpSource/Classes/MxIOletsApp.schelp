@@ -11,16 +11,16 @@ unit.inlets
 unit.outlets
 ::
 
-or 
+or
 
 code::
 unit.i
 unit.o
 ::
-    
+
 A specific inlet or outlet can be then accessed by name:
 
-code::    
+code::
 unit.inlets.freq
 ::
 
@@ -84,8 +84,4 @@ returns:: this
 
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
