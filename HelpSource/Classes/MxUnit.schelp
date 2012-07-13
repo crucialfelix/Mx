@@ -1,11 +1,10 @@
 CLASS:: MxUnit
-summary:: (put short description here)
+summary:: Container for a musical object (Instr, NDef, Spline etc); this is a single unit that has inlets and outlets which can be connected to other units
 categories:: Mx
+related:: Classes/MxUnitApp
 
 
-DESCRIPTION::
-(put long description here)
-
+DESCRIPTION:: Container for a musical object (Instr, NDef, Spline etc); this is a single unit that has inlets and outlets which can be connected to other units
 
 CLASSMETHODS::
 
