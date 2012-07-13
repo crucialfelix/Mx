@@ -1,7 +1,7 @@
 CLASS:: MxCable
 summary:: a connection between an MxUnit's outlet and another MxUnit's inlet
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 Cables represent a connection between an outlet and an inlet.  These may be audio, control or frame rate, but also event stream (Pbind), FFT chains or objects types like Env, Rect or Image.  Currently implemented are audio, control and frame rate.

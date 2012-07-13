@@ -1,7 +1,7 @@
 CLASS:: MxDocument
 summary:: a wrapper for placing code Documents onto the Mx grid
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 This is for adding code documents to an Mx.
@@ -28,7 +28,7 @@ The document will execute when it is loaded.
 
 The document has the environment of the unit.  Any v
 
-See MxUnit/varPooling for sharing variable spaces between units and documents.  You can set variables in your document and other documents can listen downstream for those.  
+See MxUnit/varPooling for sharing variable spaces between units and documents.  You can set variables in your document and other documents can listen downstream for those.
 
 code::
 // the unit
@@ -74,7 +74,7 @@ code::
 ::
 
 Dragging documents onto the grid will be supported.
-    
+
 You can of course always just place a bus or a Ndef or similar onto the Mx in order to get an audio input injected to the mixer.
 
 Possibly settings or different classes for live coding documents (that do not executed when loaded like this one does) and documents that s

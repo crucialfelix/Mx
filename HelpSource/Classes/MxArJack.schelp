@@ -1,7 +1,7 @@
 CLASS:: MxArJack
 summary:: A hot swappable input point for use in internal patching
 categories:: Mx
-related:: 
+related:: Classes/MxKrJack
 
 DESCRIPTION::
 In particular this is used by the Instr driver to put placeholders in the audio inputs.  These can then be connected to dynamically.

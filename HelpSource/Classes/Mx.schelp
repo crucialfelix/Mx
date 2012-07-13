@@ -1,10 +1,10 @@
 CLASS:: Mx
 summary:: A mixer and dynamic patching
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
-This is the Mx class itself that implements patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects (see link::Classes/MxApp::).  
+This is the Mx class itself that implements patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects (see link::Classes/MxApp::).
 
 The scripting objects (link::Classes/MxApp:: etc) are designed for efficiency, clarity and convienience.  The implementation classes like Mx, MxChannel, MxUnit etc. are designed for efficiency of internal implementation.
 

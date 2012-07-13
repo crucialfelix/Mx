@@ -1,13 +1,13 @@
 CLASS:: AbsApp
 summary:: Abstract super class for the various MxApp scripting objects
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 Each of the app objects is an code interface for an implementation class.
 
 link::Classes/MxApp:: => link::Classes/Mx::, link::Classes/MxChannelApp:: => link::Classes/MxChannel::, link::Classes/MxUnitApp:: => link::Classes/MxUnit::, link::classes/MxInletApp:: => link::classes/MxInlet::
-    
+
 see also link::Classes/MxQuery::
 
 CLASSMETHODS::

@@ -1,7 +1,7 @@
 CLASS:: MxUnit
 summary:: (put short description here)
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 (put long description here)
@@ -102,7 +102,7 @@ METHOD:: handlers
 returns:: (returnvalue)
 
 METHOD:: varPooling
-This is of interest if you are adding live coding documents.  Each unit has an environment that is active when your document is active.  If varPooling is turned on then the parent of the units environment is the environment of the first upstream unit that also has varPooling turned on.  That in turn may get variables from further upstream units.  
+This is of interest if you are adding live coding documents.  Each unit has an environment that is active when your document is active.  If varPooling is turned on then the parent of the units environment is the environment of the first upstream unit that also has varPooling turned on.  That in turn may get variables from further upstream units.
 
 So Units with varPooling on share environment variable space, but this variable space flows down the graph (channels, units).   You may however explicitly find an upstream unit and set its values or use its environment.
 

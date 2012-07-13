@@ -1,7 +1,7 @@
 CLASS:: MultiSplineFr
 summary:: Multi dimensional spline frame rate device
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 Mx supports Frame Rate Devices which are called at frame rate (24/beat by default).  This object translates a multi dimensional spline into an array of time domain interpolated values for use as automation controls to be patched to other units.

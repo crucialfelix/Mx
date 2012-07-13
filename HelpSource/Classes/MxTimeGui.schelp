@@ -1,7 +1,7 @@
 CLASS:: MxTimeGui
 summary:: Timeline view
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 The Mx itself has settings for endBeat and tempo, and it maintains a beat Position object as it plays, but otherwise does not have any timeline system.
