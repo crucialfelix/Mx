@@ -1,10 +1,10 @@
 CLASS:: Mx
 summary:: A mixer and dynamic patching
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
-This is the Mx class itself that implements patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects (see link::Classes/MxApp::).  
+This is the Mx class itself that implements patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects (see link::Classes/MxApp::).
 
 The scripting objects (link::Classes/MxApp:: etc) are designed for efficiency, clarity and convienience.  The implementation classes like Mx, MxChannel, MxUnit etc. are designed for efficiency of internal implementation.
 
@@ -102,582 +102,696 @@ a Position object that holds the current play position for the timeline.  It upd
 returns:: a Position
 
 METHOD:: nextID
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: register
-(describe method here)
+
 
 argument:: object
-(describe argument here)
+
 
 argument:: uid
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: atID
-(describe method here)
+
 
 argument:: uid
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: findID
-(describe method here)
+
 
 argument:: object
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: unregister
-(describe method here)
+
 
 argument:: uid
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: registerUnit
-(describe method here)
+
 
 argument:: unit
-(describe argument here)
+
 
 argument:: uid
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: registerChannel
-(describe method here)
+
 
 argument:: channel
-(describe argument here)
+
 
 argument:: uid
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: findMasterInput
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: add
-(describe method here)
+
 
 argument::  ... objects
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: channelAt
-(describe method here)
+
 
 argument:: chan
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: indexOfChannel
-(describe method here)
+
 
 argument:: channel
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: extendChannels
-(describe method here)
+
 
 argument:: toSize
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: insertChannel
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: objects
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: putChannel
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: objects
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: removeChannel
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prRemoveChannel
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prMakeChannel
-(describe method here)
+
 
 argument:: units
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: addOutput
-(describe method here)
+
 
 argument:: rate
-(describe argument here)
+
 
 argument:: numChannels
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: at
-(describe method here)
+
 
 argument:: chan
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: put
-(describe method here)
+
 
 argument:: chan
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: object
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: copy
-(describe method here)
+
 
 argument:: fromChan
-(describe argument here)
+
 
 argument:: fromIndex
-(describe argument here)
+
 
 argument:: toChan
-(describe argument here)
+
 
 argument:: toIndex
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prMakeUnit
-(describe method here)
+
 
 argument:: object
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prPutToChannel
-(describe method here)
+
 
 argument:: channel
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: object
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: putMaster
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: object
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: move
-(describe method here)
+
 
 argument:: chan
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: toChan
-(describe argument here)
+
 
 argument:: toIndex
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: remove
-(describe method here)
+
 
 argument:: chan
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: insert
-(describe method here)
+
 
 argument:: chan
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: object
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: removeUnit
-(describe method here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: pointForUnit
-(describe method here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: unitAddFrameRateDevices
-(describe method here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: addFrameRateDevice
-(describe method here)
+
 
 argument:: func
-(describe argument here)
+
 
 argument:: forUnit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: removeFrameRateDeviceForUnit
-(describe method here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: initialTick
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: startTicker
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: stopTicker
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: beatDuration
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: getInlet
-(describe method here)
+
 
 argument:: point
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: getOutlet
-(describe method here)
+
 
 argument:: point
-(describe argument here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: connect
-(describe method here)
+
 
 argument:: fromUnit
-(describe argument here)
+
 
 argument:: outlet
-(describe argument here)
+
 
 argument:: toUnit
-(describe argument here)
+
 
 argument:: inlet
-(describe argument here)
+
 
 argument:: mapping
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: disconnect
-(describe method here)
+
 
 argument:: fromUnit
-(describe argument here)
+
 
 argument:: outlet
-(describe argument here)
+
 
 argument:: toUnit
-(describe argument here)
+
 
 argument:: inlet
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: disconnectCable
-(describe method here)
+
 
 argument:: cable
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: disconnectUnit
-(describe method here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: disconnectInlet
-(describe method here)
+
 
 argument:: inlet
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: disconnectOutlet
-(describe method here)
+
 
 argument:: outlet
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: mute
-(describe method here)
+
 
 argument:: channel
-(describe argument here)
+
 
 argument:: boo
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: solo
-(describe method here)
+
 
 argument:: channel
-(describe argument here)
+
 
 argument:: boo
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: gotoBeat
-(describe method here)
+
 
 argument:: beat
-(describe argument here)
+
 
 argument:: q
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: update
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: updateVarPooling
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: allUnits
-(describe method here)
+
 
 argument:: includeChanUnit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: clearPending
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: children
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: loadDefFileToBundle
-(describe method here)
+
 
 argument:: b
-(describe argument here)
+
 
 argument:: server
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prepareChildrenToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: spawnToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: spawnCablesToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: updateAutoCables
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: stopToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: gui
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: guiClass
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: draw
-(describe method here)
+
 
 argument:: pen
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
+
 
 argument:: style
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 
 EXAMPLES::

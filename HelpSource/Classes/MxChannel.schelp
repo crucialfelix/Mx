@@ -1,10 +1,20 @@
 CLASS:: MxChannel
-summary:: (put short description here)
-categories:: Mx, UGens>Undocumented
-related:: 
+summary:: a group of MxUnits
+categories:: Mx
 
-DESCRIPTION::
-(put long description here)
+
+DESCRIPTION:: A channel strip which holds multiple MxUnits; groups and mixes them together.
+
+When looking at the patch bay grid view, the MxChannels are the vertical strips.
+
+Each square is an MxUnit.  The MxChannel keeps all of its units in a Group and by default patches audio output to its fader.
+
+Unlike Ableton, which it visually resembles, the units in the patchbay do not play mutually exclusively.
+
+You can wire any unit to any place you like, they are all playing.
+
+
+
 
 
 CLASSMETHODS::
@@ -12,297 +22,357 @@ CLASSMETHODS::
 METHOD:: new
 
 argument:: units
-(describe argument here)
+
 
 argument:: faderArgs
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 
 INSTANCEMETHODS::
 
 METHOD:: units
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: fader
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: input
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: numChannels
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: pending
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: myUnit
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: unitsGroup
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: mixGroup
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: storeArgs
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: init
-(describe method here)
+
 
 argument:: argunits
-(describe argument here)
+
 
 argument:: argfader
-(describe argument here)
+
 
 argument:: nc
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: makeInput
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: at
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: put
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: insert
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: unit
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: extendUnits
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: removeAt
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: extractAt
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: insertAt
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: unit
-(describe argument here)
+
 
 argument:: unitGroup
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: move
-(describe method here)
+
 
 argument:: fromIndex
-(describe argument here)
+
 
 argument:: toIndex
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: children
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prepareToBundle
-(describe method here)
+
 
 argument:: parentGroup
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
 argument:: private
-(describe argument here)
+
 
 argument:: bus
-(describe argument here)
+
 
 argument:: groupToUse
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prepareChildrenToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: loadDefFileToBundle
-(describe method here)
+
 
 argument:: b
-(describe argument here)
+
 
 argument:: server
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: spawnToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: stopToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: freeToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: update
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: bus
-(describe method here)
+
 
 argument:: b
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: groupForIndex
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: addUnitGroupMsg
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: g
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: moveUnitGroupMsg
-(describe method here)
+
 
 argument:: index
-(describe argument here)
+
 
 argument:: g
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: findGroupPreviousTo
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: inlets
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: outlets
-(describe method here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+

@@ -1,425 +1,512 @@
 CLASS:: MxUnit
-summary:: (put short description here)
+summary:: Container for a musical object (Instr, NDef, Spline etc); this is a single unit that has inlets and outlets which can be connected to other units
 categories:: Mx
-related:: 
+related:: Classes/MxUnitApp
 
-DESCRIPTION::
-(put long description here)
 
+DESCRIPTION:: Container for a musical object (Instr, NDef, Spline etc); this is a single unit that has inlets and outlets which can be connected to other units
 
 CLASSMETHODS::
 
 METHOD:: protoHandler
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: make
-(describe method here)
+
 
 argument:: source
-(describe argument here)
+
 
 argument:: class
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: loadData
-(describe method here)
+
 
 argument:: data
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: new
 
 argument:: source
-(describe argument here)
+
 
 argument:: inlets
-(describe argument here)
+
 
 argument:: outlets
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: handlersFor
-(describe method here)
+
 
 argument:: class
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: handlersForClass
-(describe method here)
+
 
 argument:: class
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: register
-(describe method here)
+
 
 argument:: classname
-(describe argument here)
+
 
 argument:: handlers
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: initClass
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 
 INSTANCEMETHODS::
 
 METHOD:: source
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: inlets
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: outlets
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: handlers
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: varPooling
-This is of interest if you are adding live coding documents.  Each unit has an environment that is active when your document is active.  If varPooling is turned on then the parent of the units environment is the environment of the first upstream unit that also has varPooling turned on.  That in turn may get variables from further upstream units.  
+This is of interest if you are adding live coding documents.  Each unit has an environment that is active when your document is active.  If varPooling is turned on then the parent of the units environment is the environment of the first upstream unit that also has varPooling turned on.  That in turn may get variables from further upstream units.
 
 So Units with varPooling on share environment variable space, but this variable space flows down the graph (channels, units).   You may however explicitly find an upstream unit and set its values or use its environment.
 
 argument:: boo
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: onLoad
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: group
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: saveData
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: init
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: getInlet
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: getOutlet
-(describe method here)
+
 
 argument:: index
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: mx
-(describe method here)
+
 
 argument:: mx
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: parentEnvir
-(describe method here)
+
 
 argument:: env
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: isPrepared
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prSetStatus
-(describe method here)
+
 
 argument:: newStatus
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: didLoad
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prepareToBundle
-(describe method here)
+
 
 argument:: agroup
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
 argument:: private
-(describe argument here)
+
 
 argument:: bus
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: spawnToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: stopToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: freeToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: respawnToBundle
-(describe method here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: moveToHead
-(describe method here)
+
 
 argument:: aGroup
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: use
-(describe method here)
+
 
 argument:: function
-(describe argument here)
+
 
 argument:: rollback
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: delegate
-(describe method here)
+
 
 argument:: handlerName
-(describe argument here)
+
 
 argument::  ... args
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: callHandler
-(describe method here)
+
 
 argument:: method
-(describe argument here)
+
 
 argument::  ... args
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: play
-(describe method here)
+
 
 argument:: group
-(describe argument here)
+
 
 argument:: atTime
-(describe argument here)
+
 
 argument:: bus
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: stop
-(describe method here)
+
 
 argument:: atTime
-(describe argument here)
+
 
 argument:: andFreeResources
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: respawn
-(describe method here)
+
 
 argument:: atTime
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: isPlaying
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: numChannels
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: spec
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: beatDuration
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: copySource
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: name
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: gui
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: draw
-(describe method here)
+
 
 argument:: pen
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
+
 
 argument:: style
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: timeGui
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
+
 
 argument:: maxTime
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: zoomTime
-(describe method here)
+
 
 argument:: fromTime
-(describe argument here)
+
 
 argument:: toTime
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: gotoBeat
-(describe method here)
+
 
 argument:: beat
-(describe argument here)
+
 
 argument:: atBeat
-(describe argument here)
+
 
 argument:: bundle
 MixedBundle
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: canRecord
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: record
-(describe method here)
+
 
 argument:: boo
-(describe argument here)
+
 
 argument:: atTime
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+

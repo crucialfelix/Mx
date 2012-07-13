@@ -1,7 +1,7 @@
 CLASS:: MxCable
 summary:: a connection between an MxUnit's outlet and another MxUnit's inlet
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
 Cables represent a connection between an outlet and an inlet.  These may be audio, control or frame rate, but also event stream (Pbind), FFT chains or objects types like Env, Rect or Image.  Currently implemented are audio, control and frame rate.
@@ -98,14 +98,18 @@ an Environment used by the MxCableStrategy connect and disconnect functions.  Th
 returns:: an Environement
 
 METHOD:: init
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: asString
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: strategy
 the MxCableStrategy for this connection.
@@ -150,8 +154,4 @@ input value.
 returns:: mapped value
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::

@@ -1,10 +1,10 @@
 CLASS:: MxApp
 summary:: Scripting and interacting with an Mx
 categories:: Mx
-related:: 
+
 
 DESCRIPTION::
-The Mx class itself implements the patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects such as MxApp.  
+The Mx class itself implements the patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects such as MxApp.
 
 The scripting objects (MxApp etc) are designed for efficiency, clarity and convienience.  The implementation classes like Mx, MxChannel, MxUnit etc. are designed for efficiency of internal implementation.
 
@@ -28,8 +28,8 @@ Units are stored in the Mx on a grid.  Each column is an link::Classes/MxChannel
 
 Visually this is like a mixer with channels @ rack units, or like the colored squares in Ableton Live.
 
-For units that create synths it is important to know that each channel is contained in a group and each unit is in a group.  
-Therefore any unit may cable its outlet(s) to any other units (as many as it wants to) as long as the unit is below or to the right of it.  
+For units that create synths it is important to know that each channel is contained in a group and each unit is in a group.
+Therefore any unit may cable its outlet(s) to any other units (as many as it wants to) as long as the unit is below or to the right of it.
 
 This means when the gui is opened it is very easy to keep track of order of operation.  If you move a unit to the left of what its plugged into it will go silent because it is before what is supposed to be after it.  Move it back and it works again.
 
@@ -72,7 +72,7 @@ returns:: an link::Classes/MxChannelApp::
 METHOD:: master
 The master channel on the right side.  Channel number is inf.  Each channel is cabled to the top right input of the master channel.  These cables are invisible on the gui because it makes things look cluttered.
 
-Mastering effects may be inserted on the mastering channel.  An Mx can have multiple outlets (not quite yet implemented) and channels and individual units are free to cable directly to those outlets and are free to not cable themselves to their channels, and channels are even free to uncable themselves from the master channel.   
+Mastering effects may be inserted on the mastering channel.  An Mx can have multiple outlets (not quite yet implemented) and channels and individual units are free to cable directly to those outlets and are free to not cable themselves to their channels, and channels are even free to uncable themselves from the master channel.
 
 returns:: an link::Classes/MxChannelApp::
 
@@ -120,7 +120,8 @@ returns:: this
 METHOD:: save
 Save the Mx as a document (initiating a file dialog if there is no path yet) which should reproduce the current state of the Mx and all of its objects.  Not all objects may support saving and loading, and any objects like Busses would fix their bus numbers in the document.   This can also be done from the gui.
 
-returns:: (returnvalue)
+returns::
+
 
 METHOD:: gui
 Make a gui for the Mx

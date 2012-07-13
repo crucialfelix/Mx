@@ -1,9 +1,10 @@
 CLASS:: MxTimeGui
 summary:: Timeline view
 categories:: Mx
-related:: 
 
-DESCRIPTION::
+
+DESCRIPTION:: This object is the timeline view that coordinates any timeline views that the units may support.
+
 The Mx itself has settings for endBeat and tempo, and it maintains a beat Position object as it plays, but otherwise does not have any timeline system.
 
 But the objects that it hosts may have timeline systems and this view coordinates display, scrolling, zooming and transport control for any objects that do.
@@ -14,118 +15,140 @@ The objects driver file can implement the ~timeGui handler, ~beatDuration and ~z
 INSTANCEMETHODS::
 
 METHOD:: from
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: to
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: maxTime
-(describe method here)
+
 
 argument:: mt
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: laneHeight
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: guiBody
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: prSetFromTo
-(describe method here)
+
 
 argument:: argFrom
-(describe argument here)
+
 
 argument:: argTo
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: zoom
-(describe method here)
+
 
 argument:: argFrom
-(describe argument here)
+
 
 argument:: argTo
-(describe argument here)
+
 
 argument:: updateZoomControl
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: zoomBy
-(describe method here)
+
 
 argument:: percentage
-(describe argument here)
+
 
 argument:: round
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: moveBy
-(describe method here)
+
 
 argument:: percentage
-(describe argument here)
+
 
 argument:: round
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: keyDownResponder
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: writeName
-(describe method here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: background
-(describe method here)
+
 
 argument:: b
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
+
+
+
 
 METHOD:: guify
-(describe method here)
+
 
 argument:: parent
-(describe argument here)
+
 
 argument:: bounds
-(describe argument here)
+
 
 argument:: title
-(describe argument here)
 
-returns:: (returnvalue)
+returns::
 
 
-EXAMPLES::
 
-code::
-(some example code)
-::
+
+
+
