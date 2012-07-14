@@ -26,7 +26,6 @@ argument:: units
 
 argument:: faderArgs
 
-returns::
 
 
 
@@ -36,63 +35,54 @@ INSTANCEMETHODS::
 
 METHOD:: units
 
-returns::
 
 
 
 
 METHOD:: fader
 
-returns::
 
 
 
 
 METHOD:: input
 
-returns::
 
 
 
 
 METHOD:: numChannels
 
-returns::
 
 
 
 
 METHOD:: pending
 
-returns::
 
 
 
 
 METHOD:: myUnit
 
-returns::
 
 
 
 
 METHOD:: unitsGroup
 
-returns::
 
 
 
 
 METHOD:: mixGroup
 
-returns::
 
 
 
 
 METHOD:: storeArgs
 
-returns::
 
 
 
@@ -108,14 +98,12 @@ argument:: argfader
 
 argument:: nc
 
-returns::
 
 
 
 
 METHOD:: makeInput
 
-returns::
 
 
 
@@ -125,7 +113,6 @@ METHOD:: at
 
 argument:: index
 
-returns::
 
 
 
@@ -138,7 +125,6 @@ argument:: index
 
 argument:: unit
 
-returns::
 
 
 
@@ -151,7 +137,6 @@ argument:: index
 
 argument:: unit
 
-returns::
 
 
 
@@ -161,7 +146,6 @@ METHOD:: extendUnits
 
 argument:: index
 
-returns::
 
 
 
@@ -171,7 +155,6 @@ METHOD:: removeAt
 
 argument:: index
 
-returns::
 
 
 
@@ -181,7 +164,6 @@ METHOD:: extractAt
 
 argument:: index
 
-returns::
 
 
 
@@ -197,7 +179,6 @@ argument:: unit
 
 argument:: unitGroup
 
-returns::
 
 
 
@@ -210,14 +191,12 @@ argument:: fromIndex
 
 argument:: toIndex
 
-returns::
 
 
 
 
 METHOD:: children
 
-returns::
 
 
 
@@ -229,7 +208,7 @@ argument:: parentGroup
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 argument:: private
 
@@ -239,7 +218,6 @@ argument:: bus
 
 argument:: groupToUse
 
-returns::
 
 
 
@@ -248,9 +226,8 @@ METHOD:: prepareChildrenToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: loadDefFileToBundle
@@ -261,7 +238,6 @@ argument:: b
 
 argument:: server
 
-returns::
 
 
 
@@ -270,36 +246,32 @@ METHOD:: spawnToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: stopToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: freeToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: update
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: bus
@@ -307,7 +279,6 @@ METHOD:: bus
 
 argument:: b
 
-returns::
 
 
 
@@ -319,9 +290,8 @@ argument:: index
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: addUnitGroupMsg
@@ -332,7 +302,6 @@ argument:: index
 
 argument:: g
 
-returns::
 
 
 
@@ -345,7 +314,6 @@ argument:: index
 
 argument:: g
 
-returns::
 
 
 
@@ -355,21 +323,18 @@ METHOD:: findGroupPreviousTo
 
 argument:: index
 
-returns::
 
 
 
 
 METHOD:: inlets
 
-returns::
 
 
 
 
 METHOD:: outlets
 
-returns::
 
 
 

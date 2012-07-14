@@ -16,7 +16,6 @@ argument:: numChannels
 
 argument:: bus
 
-returns::
 
 
 
@@ -26,14 +25,12 @@ INSTANCEMETHODS::
 
 METHOD:: numChannels
 
-returns::
 
 
 
 
 METHOD:: storeArgs
 
-returns::
 
 
 
@@ -43,7 +40,6 @@ METHOD:: bus
 
 argument:: v
 
-returns::
 
 
 
@@ -56,7 +52,6 @@ argument:: synthDef
 
 argument:: name
 
-returns::
 
 
 
@@ -66,7 +61,6 @@ METHOD:: instrArgFromControl
 
 argument:: control
 
-returns::
 
 
 
@@ -78,30 +72,26 @@ argument:: bus
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: stopReadFromBusToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: rate
 
-returns::
 
 
 
 
 METHOD:: guiClass
 
-returns::
 
 
 

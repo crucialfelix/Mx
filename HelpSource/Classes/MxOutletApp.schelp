@@ -30,7 +30,6 @@ returns:: a Spec subclass
 METHOD:: name
 Spec of the outlet as defined in the objects driver file in ~make
 
-returns::
 
 
 METHOD:: index

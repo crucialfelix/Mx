@@ -60,7 +60,6 @@ Just like collection select, but the function is passed:  source, i, app
 
 argument:: function
 
-returns::
 
  a new MxQuery with the selected results
 
@@ -69,7 +68,6 @@ Just like collection reject
 
 argument:: function
 
-returns::
 
  a new MxQuery with the non-rejected results
 
@@ -124,7 +122,6 @@ METHOD:: whereAppClassIs
 
 argument:: class
 
-returns::
 
 
 
@@ -142,7 +139,6 @@ Collects the resultset returning an array of whatever your function returns.
 
 argument:: function
 
-returns::
 
  an array
 
@@ -180,13 +176,11 @@ returns:: that
 METHOD:: disconnect
 Disconnect all matched items.  Outlets and inlets disconnect all cables.  Units disconnect all of their iolets.
 
-returns::
 
 
 METHOD:: remove
 Remove the matched items from the mx.  Not to be confused with removing the items from the query set (use reject for that).
 
-returns::
 
 
 METHOD:: get
@@ -209,7 +203,6 @@ argument:: selector
 
 argument:: value
 
-returns::
 
 
 
@@ -235,7 +228,6 @@ Copies rather than moves. See moveBy
 
 argument:: vector
 
-returns::
 
 
 
@@ -243,18 +235,15 @@ returns::
 METHOD:: stop
 Stops matched objects from playing
 
-returns::
 
 
 METHOD:: play
 Plays matched objects
 
-returns::
 
 
 METHOD:: free
 
-returns::
 
 
 
@@ -262,7 +251,6 @@ returns::
 METHOD:: respawn
 Respawns matched objects.  See link::Classes/MxUnitApp:: respawn
 
-returns::
 
 
 METHOD:: mute
@@ -270,7 +258,6 @@ For all channels of the matched object, mutes or unmutes the channel fader.
 
 argument:: boo
 
-returns::
 
 
 
@@ -280,7 +267,6 @@ For all channels of the matched object, solos or unsolos the channel fader.
 
 argument:: boo
 
-returns::
 
 
 
@@ -290,7 +276,6 @@ For all channels of the matched object, set the channel fader level.
 
 argument:: db
 
-returns::
 
 
 

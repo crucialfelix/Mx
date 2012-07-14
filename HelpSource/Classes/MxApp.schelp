@@ -120,7 +120,6 @@ returns:: this
 METHOD:: save
 Save the Mx as a document (initiating a file dialog if there is no path yet) which should reproduce the current state of the Mx and all of its objects.  Not all objects may support saving and loading, and any objects like Busses would fix their bus numbers in the document.   This can also be done from the gui.
 
-returns::
 
 
 METHOD:: gui

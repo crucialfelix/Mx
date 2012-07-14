@@ -28,8 +28,6 @@ argument:: model
 
 argument:: mxapp
 
-returns::
-
 
 
 
@@ -39,12 +37,10 @@ INSTANCEMETHODS::
 METHOD:: model
 The Mx implementation object. link::Classes/MxApp:: => Mx, link::Classes/MxChannelApp:: => MxChannel, link::Classes/MxUnitApp:: => MxUnit etc
 
-returns::
 
 
 METHOD:: prInit
 
-returns::
 
 
 
@@ -52,7 +48,6 @@ returns::
 METHOD:: mx
 The Mx object that this unit, channel, iolet etc. is inside.
 
-returns::
 
 
 METHOD:: printOn
@@ -60,7 +55,6 @@ METHOD:: printOn
 
 argument:: stream
 
-returns::
 
 
 
@@ -68,12 +62,10 @@ returns::
 METHOD:: source
 The musical object (Instr, NDef, Spline etc) that is contained by the MxUnit.
 
-returns::
 
 
 METHOD:: dereference
 
-returns::
 
 
 
