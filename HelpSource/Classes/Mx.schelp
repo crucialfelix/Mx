@@ -6,7 +6,7 @@ categories:: Mx
 DESCRIPTION::
 This is the Mx class itself that implements patching and updating.  Normal interaction with an Mx is done through the gui (MxGui) and the scripting objects (see link::Classes/MxApp::).
 
-The scripting objects (link::Classes/MxApp:: etc) are designed for efficiency, clarity and convienience.  The implementation classes like Mx, MxChannel, MxUnit etc. are designed for efficiency of internal implementation.
+The scripting objects (link::Classes/MxApp:: etc) are designed for efficiency of usage, clarity and convienience.  The implementation classes like Mx, MxChannel, MxUnit etc. are designed for efficiency of internal implementation.
 
 Most internal commands for units or channels go through the Mx object which notes all changes like adding or removing of objects or cables in its removing and adding arrays and then performs all these changes on .update.  When using the gui or the scripting objects the .update is called automatically.
 
@@ -64,7 +64,7 @@ returns:: array of MxInlet
 METHOD:: outlets
 Just like an individual unit, an Mx can have outlets and can be loaded inside another Mx.  (not yet fully implemented)  By default an Mx has one audio stereo output.  It will be able to have any number and type of outlets.  ie. multi channel audio, kr outputs, event stream outputs and even files, images or geometries.
 
-returns:: array of MxOutlet
+returns:: array of link::Classes/MxOutlet::
 
 METHOD:: autoCable
 When adding audio rate objects, if autoCable is true (default: true) then a cable will be connected from the unit to its channel's fader.
@@ -99,7 +99,7 @@ returns:: int
 METHOD:: position
 a Position object that holds the current play position for the timeline.  It updates at every frameRate tick
 
-returns:: a Position
+returns:: a link::Classes/Position::
 
 
 METHOD:: nextID
@@ -171,7 +171,7 @@ argument:: uid
 METHOD:: findMasterInput
 locate or make an input unit on the master channel
 
-returns:: MxChannelInput
+returns:: link::Classes/MxChannelInput::
 
 
 
@@ -181,7 +181,7 @@ create a new channel and add one or more objects to it
 
 argument::  ... objects
 
-returns:: MxChannel
+returns:: link::Classes/MxChannel::
 
 
 
@@ -190,7 +190,7 @@ METHOD:: channelAt
 
 argument:: chan
 
-returns:: MxChannel
+returns:: link::Classes/MxChannel::
 
 
 
@@ -221,7 +221,7 @@ argument:: index
 
 argument:: objects
 
-returns:: MxChannel
+returns:: link::Classes/MxChannel::
 
 
 
@@ -234,7 +234,7 @@ argument:: index
 
 argument:: objects
 
-returns:: MxChannel
+returns:: link::Classes/MxChannel::
 
 
 
@@ -262,7 +262,7 @@ METHOD:: prMakeChannel
 
 argument:: units
 
-returns:: MxChannel
+returns:: link::Classes/MxChannel::
 
 
 
@@ -276,7 +276,7 @@ Symbol
 argument:: numChannels
 int
 
-returns:: MxChannel
+returns:: link::Classes/MxChannel::
 
 
 
@@ -290,7 +290,7 @@ int
 argument:: index
 int
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -307,7 +307,7 @@ int
 argument:: object
 object
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -322,7 +322,7 @@ argument:: toChan
 
 argument:: toIndex
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -331,7 +331,7 @@ METHOD:: prMakeUnit
 
 argument:: object
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -344,7 +344,7 @@ argument:: index
 
 argument:: object
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -357,7 +357,7 @@ argument:: index
 
 argument:: object
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -404,7 +404,7 @@ argument:: index
 
 argument:: object
 
-returns:: MxUnit
+returns:: link::Classes/MxUnit::
 
 
 
@@ -445,7 +445,7 @@ argument:: func
 argument:: forUnit
 unit that owns the frame rate device
 
-returns:: link::ClassesMxFrameRateDevice::
+returns:: link::Classes/MxFrameRateDevice::
 
 
 
@@ -467,14 +467,14 @@ set position to 0.0 and set frame rate devices to 0.0
 METHOD:: startTicker
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
 METHOD:: stopTicker
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
@@ -494,7 +494,7 @@ argument:: point
 
 argument:: index
 
-returns:: MxInlet
+returns:: link::Classes/MxInlet::
 
 
 
@@ -507,7 +507,7 @@ argument:: point
 
 argument:: index
 
-returns:: MxOutlet
+returns:: link::Classes/MxOutlet::
 
 
 
@@ -613,7 +613,7 @@ argument:: q
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
@@ -621,11 +621,11 @@ METHOD:: update
 Enact all changes to the server after things have been added/removed dis/connected.  So .add and .remove etc are called, then .update is called that syncs the server to the new state in one bundle.
 
 argument:: bundle
-MixedBundle or nil
+link::Classes/MixedBundle:: or nil
 
 If bundle is supplied then it will not send it and will return the bundle.  If nil then it creates and sends the bundle.
 
-returns:: MixedBundle
+returns:: link::Classes/MixedBundle::
 
 
 METHOD:: updateVarPooling
@@ -682,21 +682,21 @@ argument:: server
 METHOD:: prepareChildrenToBundle
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
 METHOD:: spawnToBundle
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
 METHOD:: spawnCablesToBundle
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
@@ -710,13 +710,13 @@ returns:: array of MxCable
 METHOD:: stopToBundle
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 
 
 METHOD:: gui
 
-argument:: parent
+argument:: layout
 
 argument:: bounds
 
