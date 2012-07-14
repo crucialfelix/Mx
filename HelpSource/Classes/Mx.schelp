@@ -716,7 +716,7 @@ link::Classes/MixedBundle::
 
 METHOD:: gui
 
-argument:: layout
+argument:: parent
 
 argument:: bounds
 

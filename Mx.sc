@@ -773,8 +773,8 @@ Mx : AbstractPlayerProxy {
 		});
 		cables.do(_.stopToBundle(bundle));		
 	}
-	gui { arg layout,bounds;
-		^super.gui(layout,bounds ?? {Rect(100,100,900,600)})
+	gui { arg parent,bounds;
+		^super.gui(parent,bounds ?? {Rect(100,100,900,600)})
 	}
 	guiClass { ^MxGui }
 	app {

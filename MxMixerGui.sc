@@ -6,12 +6,12 @@ MxMixerGui : ObjectGui {
 	var faders,solos,mutes;
 
 	writeName {}
-	guiBody { arg layout,bounds,showScope=true;
+	guiBody { arg parent,bounds,showScope=true;
 		var scopeSize = 275,faderHeight,chans;
 		solos = Array.newClear(model.channels.size);
 		mutes = Array.newClear(model.channels.size + 1);
 		faders = Array.newClear(model.channels.size + 1);
-		bounds = bounds ?? {layout.bounds};
+		bounds = bounds ?? {parent.bounds};
 		showScope = showScope and: {model.isPlaying and: {model.server.inProcess}};
 		if(showScope,{
 			faderHeight = bounds.height - scopeSize - 4;
@@ -20,20 +20,20 @@ MxMixerGui : ObjectGui {
 		});
 
 		if(showScope,{
-			layout.startRow;
-			layout.flow({ arg layout;
-				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,zoom:1.0,rate:\audio,view:layout);
+			parent.startRow;
+			parent.flow({ arg parent;
+				scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,zoom:1.0,rate:\audio,view:parent);
 				scope.xZoom = 16;
 			},scopeSize@scopeSize);
 			/*
-			freqScope = PlusFreqScope(layout,Rect(0,0,scopeSize,scopeSize));
+			freqScope = PlusFreqScope(parent,Rect(0,0,scopeSize,scopeSize));
 			freqScope.inBus = model.master.bus.index;
 			freqScope.dbRange = 18;
 			freqScope.freqMode = 1;
 			freqScope.active = true;
 			*/
 		});
-		layout.startRow;
+		parent.startRow;
 		chans = (model.channels ++ [model.master]);
 		if(model.isPlaying and: {\BusMeters.asClass.notNil},{
 			// else it doesnt have busses yet
@@ -48,18 +48,18 @@ MxMixerGui : ObjectGui {
 				model.changed('mixer',this);
 			};
 			faders.put(i,f);
-			f.gui(layout,40@faderHeight);
+			f.gui(parent,40@faderHeight);
 
 			// meter
 			if(meters.notNil,{
-				layout.comp({ arg layout;
-					meters.makePeak(i,layout,Rect(0,0,28, GUI.skin.buttonHeight));
-					meters.makeBusMeter(i,layout,Rect(0,GUI.skin.buttonHeight+1,30,faderHeight - GUI.skin.buttonHeight - 1));
+				parent.comp({ arg parent;
+					meters.makePeak(i,parent,Rect(0,0,28, GUI.skin.buttonHeight));
+					meters.makeBusMeter(i,parent,Rect(0,GUI.skin.buttonHeight+1,30,faderHeight - GUI.skin.buttonHeight - 1));
 				},Rect(0,0,30,faderHeight))
 			});
-			layout.flow({ arg layout;
+			parent.flow({ arg parent;
 				if(scope.notNil,{
-					ab = ActionButton(layout,"¤",{
+					ab = ActionButton(parent,"¤",{
 						scope.index = chan.fader.bus.index;
 						if(freqScope.notNil,{
 							freqScope.inBus = chan.fader.bus.index;
@@ -84,15 +84,15 @@ MxMixerGui : ObjectGui {
 					})
 				});
 				if(chan !== model.master,{
-					layout.startRow;
-					solos.put(i, ToggleButton(layout,"S",{ arg button,bool; 
+					parent.startRow;
+					solos.put(i, ToggleButton(parent,"S",{ arg button,bool; 
 									model.solo(i,bool); 
 									model.changed('mixer',this);
 									this.updateButtons 
 								}) );
 				});
-				layout.startRow;
-				mutes.put(i, ToggleButton(layout,"M",{ arg button,bool; 
+				parent.startRow;
+				mutes.put(i, ToggleButton(parent,"M",{ arg button,bool; 
 					if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); }); 
 					model.changed('mixer',this);
 					this.updateButtons 

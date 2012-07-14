@@ -288,14 +288,14 @@ MxUnit  {
 	name {
 		^this.use { ~name.value }
 	}
-	gui { arg layout,bounds;
-		^this.use { ~gui.value(layout,bounds) }
+	gui { arg parent,bounds;
+		^this.use { ~gui.value(parent,bounds) }
 	}	
 	draw { arg pen,bounds,style;
 		^this.use { ~draw.value(pen,bounds,style) }
 	}
-	timeGui { arg layout,bounds,maxTime;
-		^this.use { ~timeGui.value(layout,bounds,maxTime) }
+	timeGui { arg parent,bounds,maxTime;
+		^this.use { ~timeGui.value(parent,bounds,maxTime) }
 	}
 	zoomTime { arg fromTime,toTime;
 		^this.use { ~zoomTime.value(fromTime,toTime) }

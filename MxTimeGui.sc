@@ -7,12 +7,12 @@ MxTimeGui : ObjectGui {
 	var <>laneHeight=150;
 	var zoom,timeRuler,updater,units;
 	
-	guiBody { arg layout;
+	guiBody { arg parent;
 		var i = 0,width, focusColor,kdr,makeSidebar;
 		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight,gap=GUI.skin.gap.x,currenty;
 		
-		layout.startRow;
-		width = layout.indentedRemaining.width;
+		parent.startRow;
+		width = parent.indentedRemaining.width;
 		focusColor = GUI.skin.focusColor ?? {Color.blue(alpha:0.4)};
 
 		kdr = this.keyDownResponder;
@@ -21,7 +21,7 @@ MxTimeGui : ObjectGui {
 			var s,m,maxUsedHeight,b;
 			var lane;
 			
-			lane = layout.comp({ arg l;
+			lane = parent.comp({ arg l;
 				s = l.vert({ arg s;
 						side.value(s)
 				},Rect(0,0,sidebarSize,laneHeight));
@@ -41,22 +41,22 @@ MxTimeGui : ObjectGui {
 		};	
 
 		maxTime = (model.endBeat ?? {model.beatDuration} ? 480) + 8;
-		SynthConsole(model,layout).play.stop.tempo;
-		CXLabel(layout,"Last beat:");
+		SynthConsole(model,parent).play.stop.tempo;
+		CXLabel(parent,"Last beat:");
 		NumberEditor(maxTime,[0,10000].asSpec).action_({ arg num;
 			this.maxTime = num.value;
 			timeRuler.refresh;
 			this.zoom(0,maxTime,true);
-		}).smallGui(layout);
-		ActionButton(layout,"Rec to disk...",{
+		}).smallGui(parent);
+		ActionButton(parent,"Rec to disk...",{
 			model.record(endBeat:maxTime);
 		}).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 
-		layout.startRow;
+		parent.startRow;
 		zoomCalc = ZoomCalc([0,maxTime],[0,width]);
 		playZoomCalc = ZoomCalc([0,maxTime],[0,1.0]);
 
-		currenty = layout.view.decorator.top;
+		currenty = parent.view.decorator.top;
 
 		// zoom controls
 		makeSidebar.value({ arg s;
@@ -94,7 +94,7 @@ MxTimeGui : ObjectGui {
 					timeRuler.position = pos.current;
 				})
 			}.defer
-		}).removeOnClose(layout);
+		}).removeOnClose(parent);
 		
 		units = [];
 		model.channels.do { arg chan,ci;

@@ -62,8 +62,8 @@ MultiSplineFr : SplineFr {
 	removeDimension { arg di;
 		spline.points = spline.points.collect { arg p; p.removeAt(di); p };
 	}
-	gui { arg layout,bounds,maxTime;
-		^this.guiClass.new(this).gui(layout,bounds,maxTime)	}
+	gui { arg parent,bounds,maxTime;
+		^this.guiClass.new(this).gui(parent,bounds,maxTime)	}
 	guiClass {
 		^MultiSplineFrGui
 	}
