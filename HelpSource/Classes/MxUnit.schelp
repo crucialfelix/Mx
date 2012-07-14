@@ -10,7 +10,6 @@ CLASSMETHODS::
 
 METHOD:: protoHandler
 
-returns::
 
 
 
@@ -23,7 +22,6 @@ argument:: source
 
 argument:: class
 
-returns::
 
 
 
@@ -33,7 +31,6 @@ METHOD:: loadData
 
 argument:: data
 
-returns::
 
 
 
@@ -48,7 +45,6 @@ argument:: inlets
 
 argument:: outlets
 
-returns::
 
 
 
@@ -58,7 +54,6 @@ METHOD:: handlersFor
 
 argument:: class
 
-returns::
 
 
 
@@ -68,7 +63,6 @@ METHOD:: handlersForClass
 
 argument:: class
 
-returns::
 
 
 
@@ -81,14 +75,12 @@ argument:: classname
 
 argument:: handlers
 
-returns::
 
 
 
 
 METHOD:: initClass
 
-returns::
 
 
 
@@ -98,28 +90,24 @@ INSTANCEMETHODS::
 
 METHOD:: source
 
-returns::
 
 
 
 
 METHOD:: inlets
 
-returns::
 
 
 
 
 METHOD:: outlets
 
-returns::
 
 
 
 
 METHOD:: handlers
 
-returns::
 
 
 
@@ -131,35 +119,30 @@ So Units with varPooling on share environment variable space, but this variable 
 
 argument:: boo
 
-returns::
 
 
 
 
 METHOD:: onLoad
 
-returns::
 
 
 
 
 METHOD:: group
 
-returns::
 
 
 
 
 METHOD:: saveData
 
-returns::
 
 
 
 
 METHOD:: init
 
-returns::
 
 
 
@@ -169,7 +152,6 @@ METHOD:: getInlet
 
 argument:: index
 
-returns::
 
 
 
@@ -179,7 +161,6 @@ METHOD:: getOutlet
 
 argument:: index
 
-returns::
 
 
 
@@ -189,7 +170,6 @@ METHOD:: mx
 
 argument:: mx
 
-returns::
 
 
 
@@ -199,14 +179,12 @@ METHOD:: parentEnvir
 
 argument:: env
 
-returns::
 
 
 
 
 METHOD:: isPrepared
 
-returns::
 
 
 
@@ -216,14 +194,12 @@ METHOD:: prSetStatus
 
 argument:: newStatus
 
-returns::
 
 
 
 
 METHOD:: didLoad
 
-returns::
 
 
 
@@ -235,14 +211,13 @@ argument:: agroup
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 argument:: private
 
 
 argument:: bus
 
-returns::
 
 
 
@@ -251,36 +226,32 @@ METHOD:: spawnToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: stopToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: freeToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: respawnToBundle
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: moveToHead
@@ -290,9 +261,8 @@ argument:: aGroup
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: use
@@ -303,7 +273,6 @@ argument:: function
 
 argument:: rollback
 
-returns::
 
 
 
@@ -316,7 +285,6 @@ argument:: handlerName
 
 argument::  ... args
 
-returns::
 
 
 
@@ -329,7 +297,6 @@ argument:: method
 
 argument::  ... args
 
-returns::
 
 
 
@@ -345,7 +312,6 @@ argument:: atTime
 
 argument:: bus
 
-returns::
 
 
 
@@ -358,7 +324,6 @@ argument:: atTime
 
 argument:: andFreeResources
 
-returns::
 
 
 
@@ -368,49 +333,42 @@ METHOD:: respawn
 
 argument:: atTime
 
-returns::
 
 
 
 
 METHOD:: isPlaying
 
-returns::
 
 
 
 
 METHOD:: numChannels
 
-returns::
 
 
 
 
 METHOD:: spec
 
-returns::
 
 
 
 
 METHOD:: beatDuration
 
-returns::
 
 
 
 
 METHOD:: copySource
 
-returns::
 
 
 
 
 METHOD:: name
 
-returns::
 
 
 
@@ -423,7 +381,6 @@ argument:: parent
 
 argument:: bounds
 
-returns::
 
 
 
@@ -439,7 +396,6 @@ argument:: bounds
 
 argument:: style
 
-returns::
 
 
 
@@ -455,7 +411,6 @@ argument:: bounds
 
 argument:: maxTime
 
-returns::
 
 
 
@@ -468,7 +423,6 @@ argument:: fromTime
 
 argument:: toTime
 
-returns::
 
 
 
@@ -483,14 +437,12 @@ argument:: atBeat
 
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
-returns::
 
 
 METHOD:: canRecord
 
-returns::
 
 
 
@@ -503,7 +455,6 @@ argument:: boo
 
 argument:: atTime
 
-returns::
 
 
 

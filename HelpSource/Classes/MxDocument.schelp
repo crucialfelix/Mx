@@ -88,7 +88,6 @@ argument:: path
 
 argument:: content
 
-returns::
 
 
 
@@ -98,28 +97,24 @@ INSTANCEMETHODS::
 
 METHOD:: eval
 
-returns::
 
 
 
 
 METHOD:: path
 
-returns::
 
 
 
 
 METHOD:: content
 
-returns::
 
 
 
 
 METHOD:: name
 
-returns::
 
 
 
@@ -129,14 +124,12 @@ METHOD:: printOn
 
 argument:: stream
 
-returns::
 
 
 
 
 METHOD:: storeArgs
 
-returns::
 
 
 
@@ -149,7 +142,6 @@ argument:: parent
 
 argument:: bounds
 
-returns::
 
 
 

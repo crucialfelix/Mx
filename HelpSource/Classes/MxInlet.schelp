@@ -22,7 +22,6 @@ argument:: spec
 
 argument:: adapter
 
-returns::
 
 
 
@@ -32,42 +31,36 @@ INSTANCEMETHODS::
 
 METHOD:: name
 
-returns::
 
 
 
 
 METHOD:: index
 
-returns::
 
 
 
 
 METHOD:: spec
 
-returns::
 
 
 
 
 METHOD:: adapter
 
-returns::
 
 
 
 
 METHOD:: unit
 
-returns::
 
 
 
 
 METHOD:: storeArgs
 
-returns::
 
 
 
@@ -77,7 +70,6 @@ METHOD:: printOn
 
 argument:: stream
 
-returns::
 
 
 

@@ -25,7 +25,6 @@ argument:: spec
 
 argument:: frameRate
 
-returns::
 
 
 
@@ -35,75 +34,64 @@ INSTANCEMETHODS::
 
 METHOD:: spline
 
-returns::
 
 
 METHOD:: dimension
 
-returns::
 
 
 
 
 METHOD:: loop
 
-returns::
 
 
 
 
 METHOD:: spec
 
-returns::
 
 
 
 
 METHOD:: frameRate
 
-returns::
 
 
 
 
 METHOD:: interpolationDensity
 
-returns::
 
 
 
 
 METHOD:: storeArgs
 
-returns::
 
 
 
 
 METHOD:: init
 
-returns::
 
 
 
 
 METHOD:: initTable
 
-returns::
 
 
 
 
 METHOD:: update
 
-returns::
 
 
 
 
 METHOD:: free
 
-returns::
 
 
 
@@ -113,7 +101,6 @@ METHOD:: value
 
 argument:: time
 
-returns::
 
 
 
@@ -123,7 +110,6 @@ METHOD:: setValueOnNextTick
 
 argument:: value
 
-returns::
 
 
 
@@ -135,7 +121,6 @@ argument:: value
 
 argument:: time
 
-returns::
 
 
 
@@ -145,7 +130,6 @@ METHOD:: findInsertIndex
 
 argument:: time
 
-returns::
 
 
 
@@ -161,7 +145,6 @@ argument:: bounds
 
 argument:: maxTime
 
-returns::
 
 
 

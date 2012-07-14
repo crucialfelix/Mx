@@ -60,7 +60,7 @@ MxDocument {
 		^[p, c]
 	}
 	
-	gui { arg layout,bounds;
+	gui { arg parent,bounds;
 		if(document.notNil,{
 			^document.front
 		});

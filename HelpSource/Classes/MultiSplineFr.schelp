@@ -16,7 +16,6 @@ INSTANCEMETHODS::
 
 METHOD:: liveValues
 
-returns::
 
 
 
@@ -26,14 +25,12 @@ METHOD:: focusedPoint
 
 argument:: fp
 
-returns::
 
 
 
 
 METHOD:: initTable
 
-returns::
 
 
 
@@ -43,7 +40,6 @@ METHOD:: value
 
 argument:: time
 
-returns::
 
 
 
@@ -56,14 +52,12 @@ argument:: value
 
 argument:: time
 
-returns::
 
 
 
 
 METHOD:: numDimensions
 
-returns::
 
 
 
@@ -73,7 +67,6 @@ METHOD:: addDimension
 
 argument:: default
 
-returns::
 
 
 
@@ -83,7 +76,6 @@ METHOD:: removeDimension
 
 argument:: di
 
-returns::
 
 
 
@@ -99,35 +91,30 @@ argument:: bounds
 
 argument:: maxTime
 
-returns::
 
 
 
 
 METHOD:: guiClass
 
-returns::
 
 
 
 
 METHOD:: savePoint
 
-returns::
 
 
 
 
 METHOD:: createPoint
 
-returns::
 
 
 
 
 METHOD:: deletePoint
 
-returns::
 
 
 
@@ -140,7 +127,6 @@ argument:: di
 
 argument:: vals
 
-returns::
 
 
 

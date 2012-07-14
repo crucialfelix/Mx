@@ -248,7 +248,7 @@ Mx : AbstractPlayerProxy {
 		});
 		if(channels[chan].isNil,{
 			this.insertChannel(chan, Array.fill(index,nil) ++ [object]);
-			^this
+			^this.at(chan,index)
 		});
 		^this.prPutToChannel(channels[chan],index,object)
 	}
@@ -517,7 +517,6 @@ Mx : AbstractPlayerProxy {
 				^this.disconnectCable(cab)
 			})
 		};
-		^nil
 	}
 	disconnectCable { arg cable;
 		if(this.isPlaying,{
@@ -774,8 +773,8 @@ Mx : AbstractPlayerProxy {
 		});
 		cables.do(_.stopToBundle(bundle));		
 	}
-	gui { arg layout,bounds;
-		^super.gui(layout,bounds ?? {Rect(100,100,900,600)})
+	gui { arg parent,bounds;
+		^super.gui(parent,bounds ?? {Rect(100,100,900,600)})
 	}
 	guiClass { ^MxGui }
 	app {
