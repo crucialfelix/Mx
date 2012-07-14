@@ -5,14 +5,14 @@ EventListPlayerGui : AbstractPlayerGui {
 	var tg,zoomCalc,rs,hitAreas,selected,mouseDownPoint;
 	var manager;
 	
-	guiBody { arg layout,bounds;
+	guiBody { arg parent,bounds;
 		// zoom control if top
 		// test buttons to click each one
-		ToggleButton(layout,"debug",{ model.verbose = true },{ model.verbose = false },model.verbose);
-		this.timeGui(layout,bounds ?? {Rect(0,0,layout.bounds.width,100)})
+		ToggleButton(parent,"debug",{ model.verbose = true },{ model.verbose = false },model.verbose);
+		this.timeGui(parent,bounds ?? {Rect(0,0,parent.bounds.width,100)})
 	}
-	timeGui { arg layout,bounds,maxTime;
-		tg = UserView(layout,bounds);
+	timeGui { arg parent,bounds,maxTime;
+		tg = UserView(parent,bounds);
 		if(maxTime.isNil,{
 			maxTime = model.beatDuration;
 			if(maxTime.isNil,{
@@ -110,22 +110,22 @@ EventListPlayerGui : AbstractPlayerGui {
 
 InstrEventListPlayerGui : EventListPlayerGui {
 	
-	writeName { arg layout;
-		super.writeName(layout);
-		this.addEventButton(layout)
+	writeName { arg parent;
+		super.writeName(parent);
+		this.addEventButton(parent)
 	}
-	addEventButton { arg layout;
-		ActionButton(layout,"+",{
+	addEventButton { arg parent;
+		ActionButton(parent,"+",{
 			this.addEventDialog(blend(zoomCalc.zoomedRange[0],zoomCalc.zoomedRange[1],0.5).round(1))
 		});
 	}		
 	addEventDialog { arg beat;
-		InstrBrowser({ arg layout,instr;
+		InstrBrowser({ arg parent,instr;
 			var patch,beatEditor,playingPatch,up;
 			patch = Patch(instr);
-			patch.gui(layout);
-			layout.startRow;
-			ToggleButton(layout,"test",{
+			patch.gui(parent);
+			parent.startRow;
+			ToggleButton(parent,"test",{
 				playingPatch = model.playEvent(patch.asEvent);
 				// Updater(playingPatch
 				// watch for it to die
@@ -133,20 +133,20 @@ InstrEventListPlayerGui : EventListPlayerGui {
 			},{
 				playingPatch.stop.free
 			});
-			ActionButton(layout,"RND",{
+			ActionButton(parent,"RND",{
 				patch.rand
 			});
 			beatEditor = NumberEditor(beat,[0, min(model.beatDuration ? 128,128) + 512 ]);
-			CXLabel(layout,"At beat");
-			beatEditor.gui(layout);
-			ActionButton(layout,"Insert event",{
+			CXLabel(parent,"At beat");
+			beatEditor.gui(parent);
+			ActionButton(parent,"Insert event",{
 				var e;
 				e = patch.asEvent;
 				e[\beat] = beatEditor.value;
 				model.addEvent(e);
 				model.changed(\didAddEvent);
 			});
-			layout.hr;
+			parent.hr;
 		}).gui
 	}
 }

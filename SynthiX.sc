@@ -36,14 +36,14 @@ SynthiX {
 	*new { arg outlets,inlets;
 		^super.newCopyArgs(outlets,inlets)
 	}
-	gui { arg layout,bounds;
-		if(layout.notNil,{
-			layout = layout.asFlowView(bounds);
-			uv = UserView(layout,bounds ?? {layout.indentedRemaining});
+	gui { arg parent,bounds;
+		if(parent.notNil,{
+			parent = parent.asFlowView(bounds);
+			uv = UserView(parent,bounds ?? {parent.indentedRemaining});
 		},{
 			bounds = bounds ?? {Rect(0,0,500,500)};
-			layout = Window("SynthiX",bounds).front;
-			uv = UserView(layout,layout.bounds.moveTo(0,0));
+			parent = Window("SynthiX",bounds).front;
+			uv = UserView(parent,parent.bounds.moveTo(0,0));
 			uv.resize = 5;
 		});
 		uv.drawFunc = {this.draw};

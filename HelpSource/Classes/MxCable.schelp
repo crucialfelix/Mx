@@ -99,14 +99,12 @@ returns:: an Environement
 
 METHOD:: init
 
-returns::
 
 
 
 
 METHOD:: asString
 
-returns::
 
 
 
@@ -125,7 +123,7 @@ METHOD:: spawnToBundle
 Not all cables use synths on the server.  For relationships that exist only in the language, functions may be added to the bundle which enact the actual connection.
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 returns:: this
 
@@ -133,7 +131,7 @@ METHOD:: stopToBundle
 Disconnecting the cable, stopping any cable synthsetcc.
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 returns:: this
 
@@ -141,7 +139,7 @@ METHOD:: freeToBundle
 Free any resources.  In practice everything is freed at stop and no resources are kept around.
 
 argument:: bundle
-MixedBundle
+link::Classes/MixedBundle::
 
 returns:: this
 

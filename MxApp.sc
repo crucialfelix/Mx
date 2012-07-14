@@ -90,14 +90,14 @@ MxApp : AbsApp {
 	save {
 		model.save
 	}
-	gui { arg layout,bounds;
+	gui { arg parent,bounds;
 		// detect and front
 		//var open;
 		//open = model.dependants.detect(_.isKindOf(MxGui));
 		//if(open.notNil and: { open.isClosed.not },{
 		//	open.front
 		//},{
-			model.gui(layout,bounds);
+			model.gui(parent,bounds);
 		//})
 	}
 	
@@ -288,8 +288,8 @@ MxUnitApp : AbsApp {
 	beatDuration {
 		model.beatDuration
 	}
-	gui { arg layout,bounds;
-		^model.gui(layout,bounds)
+	gui { arg parent,bounds;
+		^model.gui(parent,bounds)
 	}
 	
 	remove {

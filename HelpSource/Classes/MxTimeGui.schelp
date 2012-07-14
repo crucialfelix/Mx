@@ -16,14 +16,12 @@ INSTANCEMETHODS::
 
 METHOD:: from
 
-returns::
 
 
 
 
 METHOD:: to
 
-returns::
 
 
 
@@ -33,14 +31,12 @@ METHOD:: maxTime
 
 argument:: mt
 
-returns::
 
 
 
 
 METHOD:: laneHeight
 
-returns::
 
 
 
@@ -50,7 +46,6 @@ METHOD:: guiBody
 
 argument:: parent
 
-returns::
 
 
 
@@ -63,7 +58,6 @@ argument:: argFrom
 
 argument:: argTo
 
-returns::
 
 
 
@@ -79,7 +73,6 @@ argument:: argTo
 
 argument:: updateZoomControl
 
-returns::
 
 
 
@@ -92,7 +85,6 @@ argument:: percentage
 
 argument:: round
 
-returns::
 
 
 
@@ -105,21 +97,18 @@ argument:: percentage
 
 argument:: round
 
-returns::
 
 
 
 
 METHOD:: keyDownResponder
 
-returns::
 
 
 
 
 METHOD:: writeName
 
-returns::
 
 
 
@@ -129,7 +118,6 @@ METHOD:: background
 
 argument:: b
 
-returns::
 
 
 
@@ -145,7 +133,6 @@ argument:: bounds
 
 argument:: title
 
-returns::
 
 
 

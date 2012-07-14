@@ -103,7 +103,7 @@ returns:: (returnvalue)
 METHOD:: gui
 (describe method here)
 
-argument:: layout
+argument:: parent
 (describe argument here)
 
 argument:: bounds
