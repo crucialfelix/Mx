@@ -1,7 +1,7 @@
 CLASS:: MxUnitApp
 summary:: scripting interface object for a unit
 categories:: Mx
-related:: Class/MxApp
+related:: Classes/MxApp
 
 DESCRIPTION::
 A unit holds an object like an Instr, NDef, Bus, Spline, SFP (soundfile player) etc.
