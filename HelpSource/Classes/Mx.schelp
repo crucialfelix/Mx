@@ -101,105 +101,96 @@ a Position object that holds the current play position for the timeline.  It upd
 
 returns:: a Position
 
+
 METHOD:: nextID
 
-returns::
-
-
+returns:: int
 
 
 METHOD:: register
-
+adds an object to an internal registery of all objects and iolets
 
 argument:: object
 
-
 argument:: uid
+optional
 
-returns::
+returns:: uid
 
 
 
 
 METHOD:: atID
-
+retrieves an object from the registry
 
 argument:: uid
 
-returns::
+returns:: object
 
 
 
 
 METHOD:: findID
-
+find registery object for id
 
 argument:: object
 
-returns::
+returns:: uid
 
 
 
 
 METHOD:: unregister
 
-
 argument:: uid
 
-returns::
 
 
 
 
 METHOD:: registerUnit
 
-
 argument:: unit
-
 
 argument:: uid
 
-returns::
 
 
 
 
 METHOD:: registerChannel
 
-
 argument:: channel
-
 
 argument:: uid
 
-returns::
 
 
 
 
 METHOD:: findMasterInput
+locate or make an input unit on the master channel
 
-returns::
+returns:: MxChannelInput
 
 
 
 
 METHOD:: add
-
+create a new channel and add one or more objects to it
 
 argument::  ... objects
 
-returns::
+returns:: MxChannel
 
 
 
 
 METHOD:: channelAt
 
-
 argument:: chan
 
-returns::
+returns:: MxChannel
 
 
 
@@ -209,43 +200,41 @@ METHOD:: indexOfChannel
 
 argument:: channel
 
-returns::
+returns:: int
 
 
 
 
 METHOD:: extendChannels
 
-
 argument:: toSize
 
-returns::
 
 
 
 
 METHOD:: insertChannel
-
+Create a channel at the index and add objects to it
 
 argument:: index
 
 
 argument:: objects
 
-returns::
+returns:: MxChannel
 
 
 
 
 METHOD:: putChannel
-
+Create a channel, replacing any previous channel at this index. Add supplied objects to it
 
 argument:: index
 
 
 argument:: objects
 
-returns::
+returns:: MxChannel
 
 
 
@@ -255,7 +244,6 @@ METHOD:: removeChannel
 
 argument:: index
 
-returns::
 
 
 
@@ -265,7 +253,6 @@ METHOD:: prRemoveChannel
 
 argument:: index
 
-returns::
 
 
 
@@ -275,94 +262,89 @@ METHOD:: prMakeChannel
 
 argument:: units
 
-returns::
+returns:: MxChannel
 
 
 
 
 METHOD:: addOutput
-
+Add a new output.  Default is one stereo audio out.  Adding an output adds additional MxOutlets to the Mx
 
 argument:: rate
-
+Symbol
 
 argument:: numChannels
+int
 
-returns::
+returns:: MxChannel
 
 
 
 
 METHOD:: at
-
+Retreive the MxUnit at the channel and index. returns nil if unoccupied
 
 argument:: chan
-
+int
 
 argument:: index
+int
 
-returns::
+returns:: MxUnit
 
 
 
 
 METHOD:: put
-
+put an object at channel @ index, wrapping it in an MxUnit
 
 argument:: chan
-
+int
 
 argument:: index
-
+int
 
 argument:: object
+object
 
-returns::
+returns:: MxUnit
 
 
 
 
 METHOD:: copy
 
-
 argument:: fromChan
-
 
 argument:: fromIndex
 
-
 argument:: toChan
-
 
 argument:: toIndex
 
-returns::
+returns:: MxUnit
 
 
 
 
 METHOD:: prMakeUnit
 
-
 argument:: object
 
-returns::
+returns:: MxUnit
 
 
 
 
 METHOD:: prPutToChannel
 
-
 argument:: channel
-
 
 argument:: index
 
-
 argument:: object
 
-returns::
+returns:: MxUnit
 
 
 
@@ -375,7 +357,7 @@ argument:: index
 
 argument:: object
 
-returns::
+returns:: MxUnit
 
 
 
@@ -394,20 +376,19 @@ argument:: toChan
 
 argument:: toIndex
 
-returns::
 
 
 
 
 METHOD:: remove
-
+schedules the object at chan@index to be removed at the next update.
+removes the object from the grid (if any) immediately.
 
 argument:: chan
 
 
 argument:: index
 
-returns::
 
 
 
@@ -423,92 +404,84 @@ argument:: index
 
 argument:: object
 
-returns::
+returns:: MxUnit
 
 
 
 
 METHOD:: removeUnit
-
+remote the unit, whever it is located. see remove
 
 argument:: unit
 
-returns::
 
 
 
 
 METHOD:: pointForUnit
-
+find the chan@index point for a unit
 
 argument:: unit
 
-returns::
+returns:: Point or nil for private units like the fader's unit
 
 
 
 
 METHOD:: unitAddFrameRateDevices
-
+call the unit's handlers offering it the chance to add frame rate devices.
 
 argument:: unit
 
-returns::
 
 
 
 
 METHOD:: addFrameRateDevice
-
+add a frame rate device : a function that will be called at frame rate (default 24/s)
 
 argument:: func
 
-
 argument:: forUnit
+unit that owns the frame rate device
 
-returns::
+returns:: link::ClassesMxFrameRateDevice::
 
 
 
 
 METHOD:: removeFrameRateDeviceForUnit
 
-
 argument:: unit
 
-returns::
 
 
 
 
 METHOD:: initialTick
-
-returns::
+set position to 0.0 and set frame rate devices to 0.0
 
 
 
 
 METHOD:: startTicker
 
-
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: stopTicker
 
-
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: beatDuration
+longest duration of any unit. total length of the song.
 
-returns::
+returns:: float
 
 
 
@@ -521,7 +494,7 @@ argument:: point
 
 argument:: index
 
-returns::
+returns:: MxInlet
 
 
 
@@ -534,13 +507,13 @@ argument:: point
 
 argument:: index
 
-returns::
+returns:: MxOutlet
 
 
 
 
 METHOD:: connect
-
+make a connection, adding an MxCable.  actual connection happens on next update
 
 argument:: fromUnit
 
@@ -556,13 +529,11 @@ argument:: inlet
 
 argument:: mapping
 
-returns::
 
 
 
 
 METHOD:: disconnect
-
 
 argument:: fromUnit
 
@@ -575,73 +546,59 @@ argument:: toUnit
 
 argument:: inlet
 
-returns::
 
 
 
 
 METHOD:: disconnectCable
 
-
 argument:: cable
 
-returns::
 
 
 
 
 METHOD:: disconnectUnit
 
-
 argument:: unit
 
-returns::
 
 
 
 
 METHOD:: disconnectInlet
 
-
 argument:: inlet
 
-returns::
 
 
 
 
 METHOD:: disconnectOutlet
 
-
 argument:: outlet
 
-returns::
 
 
 
 
 METHOD:: mute
 
-
 argument:: channel
-
 
 argument:: boo
 
-returns::
 
 
 
 
 METHOD:: solo
 
-
 argument:: channel
 
 
 argument:: boo
 
-returns::
 
 
 
@@ -658,137 +615,131 @@ argument:: q
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: update
-
+Enact all changes to the server after things have been added/removed dis/connected.  So .add and .remove etc are called, then .update is called that syncs the server to the new state in one bundle.
 
 argument:: bundle
-MixedBundle
+MixedBundle or nil
 
-returns::
+If bundle is supplied then it will not send it and will return the bundle.  If nil then it creates and sends the bundle.
+
+returns:: MixedBundle
 
 
 METHOD:: updateVarPooling
+set up parent chain of unit environments that participate in varPooling
 
-returns::
 
 
 
 
 METHOD:: allUnits
+iterator over all units
 
+code::
+mx.allUnits.do { arg unit;
+  //
+}
+::
 
 argument:: includeChanUnit
+boolean
+each MxChannel has an MxUnit for its fader.  you may wish to exclude those and just iterate over the units on the grid.
 
-returns::
+returns:: Routine
 
 
 
 
 METHOD:: clearPending
+very private
+clears any state changes requested through .add and .remove
 
-returns::
 
 
 
 
 METHOD:: children
+all channels including the master channel
 
-returns::
+returns:: array of MxChannel
 
 
 
 
 METHOD:: loadDefFileToBundle
 
-
 argument:: b
-
 
 argument:: server
 
-returns::
 
 
 
 
 METHOD:: prepareChildrenToBundle
 
-
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: spawnToBundle
 
-
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: spawnCablesToBundle
 
-
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: updateAutoCables
 
-returns::
+returns:: array of MxCable
 
 
 
 
 METHOD:: stopToBundle
 
-
 argument:: bundle
 MixedBundle
 
-returns::
 
 
 METHOD:: gui
 
-
 argument:: parent
-
 
 argument:: bounds
 
-returns::
+returns:: MxGui
 
 
 
 
 METHOD:: guiClass
 
-returns::
+returns:: MxGui
 
 
 
 
 METHOD:: draw
 
-
 argument:: pen
-
 
 argument:: bounds
 
-
 argument:: style
 
-returns::
 
 
 
