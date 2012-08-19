@@ -30,13 +30,23 @@ MxUnit.register('TotalTracker',
 		~switcher = switcher;
 		// ok for midi note where you can choose
 		// but how to do a float that wanders over them ?
+		// how can I send nil to stop all ?
 		patter = MxInlet("pattern",0,ControlSpec(0,player.app.numPatterns,step:1),
 					MxSetter({ arg v;
-						var p;
 						switcher.wrapSelect(v.asInteger);
-					}));
+					}),
+					);
 		sips = sips.insert(0,patter);
 		sips = sips.add( MxInlet("audio",5,AudioSpec(2),MxListensToBus({ player.song.efxBus },{player.server},{player.group}) ) );
+		["12","34"].do { arg xyName,i;
+			sips = sips.add( MxInlet(xyName,6+(i*2),ArraySpec.new,
+				MxSetter({ arg xy; player.app.setSongControlXY(i,xy)},
+					{ player.server },
+					{ player.group },
+					nil,
+					nil
+				)));
+		};
 		inlets  = sips;
 		outlets = [ MxOutlet("out", 0, AudioSpec(2), MxPlaysOnBus({player.bus}) ) ];
 		player.numOuts.do { arg i;
