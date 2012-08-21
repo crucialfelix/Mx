@@ -30,7 +30,8 @@ MxCable {
 		this.strategy.setInitial(this)
 	}
 	spawnToBundle { arg bundle;
-		this.strategy.connect(this,bundle)
+		this.strategy.connect(this,bundle);
+		bundle.addFunction({this.pending=false})
 	}
 	stopToBundle { arg bundle;
 		this.strategy.disconnect(this,bundle)
