@@ -83,6 +83,7 @@ MxApp : AbsApp {
 		},then)
 	}
 
+	beat { ^model.beat }
 	relocate { arg beat,q=4;
 		model.gotoBeat(beat,q);
 	}
