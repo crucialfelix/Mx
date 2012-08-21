@@ -433,6 +433,7 @@ MxIOletsApp : AbsApp {
 	first {
 		^this.prFindIOlet(0,true)
 	}
+	size { ^model.size }
 	out {
 		// shortcut to the first output
 		^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
@@ -451,11 +452,24 @@ MxIOletsApp : AbsApp {
 		^outlet >> inlet
 	}
 	do { arg function;
-		model.do { arg io,i; function.value(mxapp.prFind(io),i) }
+		model.do(this.prRedirected(function))
+	}
+	collect { arg function;
+		^model.collect(this.prRedirected(function))
+	}
+	select { arg function;
+		^model.select(this.prRedirected(function))
+	}
+	prRedirected { arg function;
+		// curry the function for collect/select while supplying the app objects
+		^{ arg io,i;
+			function.value(mxapp.prFind(io),i)
+		}
 	}
 	// finds iolet by name
 	doesNotUnderstand { arg selector ... args;
 		^this.prFindIOlet(selector) ?? {
+			(selector.asString + "is not an iolet.\nIOlets:" + model).error;
 			this.superPerformList(\doesNotUnderstand, selector, args);
 		}
 	}
