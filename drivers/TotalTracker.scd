@@ -114,6 +114,9 @@ MxUnit.register('TotalTracker',
 		~tg = TrMxSongTimeGui(~source);
 		~tg.gui(layout,bounds,maxTime);
 	},
+	setMaxTime: { arg maxTime;
+		~tg.setMaxTime(maxTime)
+	},
 	zoomTime: { arg from,to;
 		~tg.setZoom(from,to).update;
 	},
