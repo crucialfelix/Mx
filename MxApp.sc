@@ -344,9 +344,31 @@ MxUnitApp : AbsApp {
 		// copy relative to self
 		^this.copy(this.point + vector)
 	}
-	//replaceWith { arg source; // or unit or point
-	//}
-	//replace(other)
+	replaceWith { arg source;
+		var p = this.point,
+		insFrom = this.i.collect(_.from),
+		outsTo = this.o.collect(_.to);
+
+		^mxapp.transaction({
+			var new;
+			new = mxapp.put(p,source);
+			insFrom.do { arg outs,i;
+				outs.do { arg out;
+					if(new.i.size > i,{
+						out >> new.i[i]
+					})
+				}
+			};
+			outsTo.do { arg ins,i;
+				ins.do { arg in;
+					if(new.o.size > i,{
+						new.o[i] >> in
+					})
+				}
+			};
+			new
+		})
+	}
 	// below
 	// above
 	// left
