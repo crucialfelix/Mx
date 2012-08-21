@@ -3,7 +3,7 @@
 MxChannel : AbstractPlayerProxy {
 
 	var <>units,<fader,<>input;
-	
+
 	var <numChannels=2,<>pending=false;
 
 	var <myUnit,<unitsGroup,unitGroups,<mixGroup;
@@ -20,8 +20,8 @@ MxChannel : AbstractPlayerProxy {
 		});
 		^super.new.init(units,fader,nc)
 	}
-	storeArgs { 
-		^[units.collect({|u| u !? {u.saveData}}),fader.storeArgs] 
+	storeArgs {
+		^[units.collect({|u| u !? {u.saveData}}),fader.storeArgs]
 	}
 
 	init { arg argunits,argfader,nc;
@@ -42,7 +42,7 @@ MxChannel : AbstractPlayerProxy {
 			this.put(0,input);
 		});
 		^input
-	}		
+	}
 	at { arg index;
 		^units[index]
 	}
@@ -58,7 +58,7 @@ MxChannel : AbstractPlayerProxy {
 				this.move(i, i + 1);
 			});
 		});
-		this.put(index,unit);	
+		this.put(index,unit);
 	}
 	extendUnits { arg index;
 		var ip = index + 1;
@@ -107,21 +107,21 @@ MxChannel : AbstractPlayerProxy {
 			adding = adding.add( this.moveUnitGroupMsg(index,unitGroup) );
 		});
 	}
-		
+
 	move { arg fromIndex,toIndex;
 		var moving,g,oldg,old;
 		moving = units[fromIndex];
 		if(moving.notNil,{
 			units.put(fromIndex,nil);
-			
+
 			old = this.removeAt(toIndex);
-			
+
 			// freeing the group now
 			oldg = unitGroups[toIndex];
 			if(oldg.notNil,{
 				removing = removing.add( oldg );
 			});
-			
+
 			g = unitGroups[fromIndex];
 			if(g.notNil,{
 				unitGroups[fromIndex] = nil;
@@ -155,23 +155,23 @@ MxChannel : AbstractPlayerProxy {
 			group
 		};
 		super.prepareToBundle(group,bundle,private,bus);
-		
+
 		unitsGroup = Group.basicNew(this.server);
 		this.annotate(unitsGroup,"unitsGroup");
 		bundle.add( unitsGroup.addToTailMsg(group) );
-		
+
 		units.do { arg u,i;
 			if(u.notNil,{
 				this.groupForIndex(i,bundle);
 			});
 		};
-		
+
 		mixGroup = Group.basicNew(this.server);
 		bundle.add( mixGroup.addToTailMsg(group) );
 		this.annotate(mixGroup,"mixGroup");
 
 		fader.prepareToBundle(mixGroup,bundle,private,bus);
-		
+
 		units.do { arg unit,i;
 			if(unit.notNil and: {unit.isPrepared.not},{
 				unit.prepareToBundle(unitGroups[i],bundle,true)
@@ -183,7 +183,7 @@ MxChannel : AbstractPlayerProxy {
 	loadDefFileToBundle { arg b,server;
 		// units will load during prepare
 		fader.loadDefFileToBundle(b,server)
-	}	
+	}
 	spawnToBundle { arg bundle;
 		units.do { arg u,i;
 			var g;
@@ -217,7 +217,7 @@ MxChannel : AbstractPlayerProxy {
 	freeToBundle { arg bundle;
 		super.freeToBundle(bundle);
 		mixGroup.freeToBundle(bundle);
-				
+
 		if(input.notNil,{
 			input.freeToBundle( bundle );
 			input.group.freeToBundle( bundle );
@@ -294,7 +294,7 @@ MxChannel : AbstractPlayerProxy {
 		});
 		^nil
 	}
-	
+
 	inlets { ^myUnit.inlets }
 	outlets { ^myUnit.outlets }
 }

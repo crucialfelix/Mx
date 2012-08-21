@@ -20,6 +20,6 @@ EagerBundle : MixedBundle {
 	}
 	addOnSendMessage { arg receiver, selector, args;
 		Message(receiver,selector,args).value
-	}	
+	}
 }
 

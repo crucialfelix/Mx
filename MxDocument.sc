@@ -1,18 +1,18 @@
 
 
-MxDocument { 
+MxDocument {
 	/*
 		this is just a container for an SC code Document
 		either as a path or as a string.
-		
+
 		a Document in sc can only exist if the document window is open,
 		so this container allows it to be evaluated even from disk
 		or if being edited by another app
 	*/
-	
+
 	var >path,>content;
 	var document;
-	
+
 	*new { arg path,content;
 		^super.newCopyArgs(path,content)
 	}
@@ -37,7 +37,7 @@ MxDocument {
 	}
 	name {
 		var p;
-		if(document.isNil,{ 
+		if(document.isNil,{
 			p = this.path;
 			if(p.notNil,{
 				^PathName(p).fileName
@@ -59,7 +59,7 @@ MxDocument {
 		});
 		^[p, c]
 	}
-	
+
 	gui { arg parent,bounds;
 		if(document.notNil,{
 			^document.front

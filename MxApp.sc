@@ -3,7 +3,7 @@
 AbsApp {
 
 	var <model,mxapp;
-	
+
 	*new { arg model,mxapp;
 		^super.newCopyArgs(model,mxapp).prInit
 	}
@@ -21,7 +21,7 @@ AbsApp {
 
 
 MxApp : AbsApp {
-	
+
 	var cache,convertor,transactionCount = 0;
 
 	mx { ^model }
@@ -53,12 +53,12 @@ MxApp : AbsApp {
 	master {
 		^this.prFind( model.master )
 	}
-	
+
 	newChan {
 		^this.channel( model.channels.size )
 	}
 	add { arg ... sources;
-		// if one object supplied then adds it to a new channel and returns a single unit 
+		// if one object supplied then adds it to a new channel and returns a single unit
 		// if many then returns a channel filled with object(s)
 		var chan;
 		chan = this.prFind( model.add(*sources) );
@@ -69,7 +69,7 @@ MxApp : AbsApp {
 			^chan
 		})
 	}
-	
+
 	play { arg then;
 		if(model.isPlaying.not,{
 			if(then.notNil,{ model.onPlay(then) });
@@ -87,7 +87,7 @@ MxApp : AbsApp {
 	relocate { arg beat,q=4;
 		model.gotoBeat(beat,q);
 	}
-	
+
 	save {
 		model.save
 	}
@@ -101,7 +101,7 @@ MxApp : AbsApp {
 			model.gui(parent,bounds);
 		//})
 	}
-	
+
 	//select
 
 	transaction { arg function;
@@ -118,7 +118,7 @@ MxApp : AbsApp {
 			this.mx.changed('grid')
 		})
 	}
-	
+
 	//copy to an app buffer
 	//paste
 	prInit {
@@ -143,7 +143,7 @@ MxApp : AbsApp {
 
 
 MxChannelApp : AbsApp {
-	
+
 	at { arg i;
 		var unit;
 		unit = model.at(i) ?? {
@@ -169,7 +169,7 @@ MxChannelApp : AbsApp {
 		mxapp.commit;
 		^this.at(i)
 	}
-	
+
 	units {
 		^MxQuery(model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) }),mxapp)
 	}
@@ -179,7 +179,7 @@ MxChannelApp : AbsApp {
 	}
 	//next
 	//prev
-	
+
 	//select
 	add { arg ... sources; // add 1 or more to the end
 		var start,apps,ci;
@@ -202,7 +202,7 @@ MxChannelApp : AbsApp {
 		})
 	}
 	dup { arg fromIndex,toIndex;
-		// toIndex defaults to the next slot, pushing any others further down		
+		// toIndex defaults to the next slot, pushing any others further down
 		var unit,ci;
 		ci = this.channelNumber;
 		unit = this.mx.copy( ci, fromIndex, ci, 	toIndex ?? {fromIndex + 1} );
@@ -236,7 +236,7 @@ MxChannelApp : AbsApp {
 	soloed {
 		^model.fader.solo
 	}
-	
+
 	db {
 		^model.fader.db
 	}
@@ -247,7 +247,7 @@ MxChannelApp : AbsApp {
 	//fade { arg db,seconds=5; // easing
 		// will need a little engine in the frame rate engine
 	//}
-	
+
 	channelNumber {
 		^this.mx.indexOfChannel(model)
 	}
@@ -258,7 +258,7 @@ MxChannelApp : AbsApp {
 
 
 MxUnitApp : AbsApp {
-	
+
 	name {
 		^model.name
 	}
@@ -292,7 +292,7 @@ MxUnitApp : AbsApp {
 	gui { arg parent,bounds;
 		^model.gui(parent,bounds)
 	}
-	
+
 	remove {
 		this.mx.remove(*this.point.asArray);
 		mxapp.commit;
@@ -333,7 +333,7 @@ MxUnitApp : AbsApp {
 		})
 	}
 	copy { arg toPoint;
-		// toIndex defaults to the next slot, pushing any others further down		
+		// toIndex defaults to the next slot, pushing any others further down
 		var unit,ci,p;
 		p = this.point;
 		unit = this.mx.copy( p.x, p.y, toPoint.x, toPoint.y );
@@ -382,7 +382,7 @@ MxUnitApp : AbsApp {
 		};
 		mxapp.commit;
 	}
-	
+
 	i { ^this.inlets }
 	o { ^this.outlets }
 	inlets {
@@ -420,13 +420,13 @@ MxUnitApp : AbsApp {
 
 
 MxIOletsApp : AbsApp {
-	
+
 	var <unit;
-	
+
 	*new { arg model,mxapp,unit,desc;
 		^super.newCopyArgs(model,mxapp,unit).prInit
 	}
-	
+
 	at { arg key;
 		^this.prFindIOlet(key,true)
 	}
@@ -575,7 +575,7 @@ MxOutletApp : AbsApp {
 		this.mx.disconnectOutlet(model);
 		mxapp.commit;
 	}
-	
+
 	spec {
 		^model.spec
 	}
@@ -605,7 +605,7 @@ MxOutletApp : AbsApp {
 	get { ^model.get }
 
 	printOn { arg stream;
-		if(model.unit.isNil,{ 
+		if(model.unit.isNil,{
 			stream << "Nil unit::";
 		},{
 			stream << mxapp.prFind(model.unit) << "::";
@@ -616,7 +616,7 @@ MxOutletApp : AbsApp {
 
 
 MxCableApp : AbsApp {
-	
+
 	// insert
 	// outlet
 	// inlet

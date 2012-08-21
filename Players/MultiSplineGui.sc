@@ -2,10 +2,10 @@
 
 
 MultiSplineFrGui : ObjectGui {
-	
+
 	var splineGui,focusedDim=1,pointSelector,values,valuesD,times,maxTime,maxTimeV;
 	var thetas,rhos;
-	
+
 	writeName { arg layout;
 		CXLabel(layout,"Multi Dimensional Spline Designer",font:Font("Helvetica-Bold",14));
 		layout.startRow;
@@ -17,7 +17,7 @@ MultiSplineFrGui : ObjectGui {
 		splineGui.onSelect = { arg i;
 			pointSelector.activeValue = if(i.isNil,{-1},{i});
 		};
-		
+
 		layout.startRow;
 		CXLabel(layout,"Dimension",75);
 		focusedDim = NumberEditor(focusedDim.value,[1,model.spline.numDimensions-1,\lin,1]);
@@ -25,7 +25,7 @@ MultiSplineFrGui : ObjectGui {
 			this.update;
 		};
 		focusedDim.gui(layout);
-		
+
 		ActionButton(layout,"+dim",{
 			model.addDimension(model.spec.default).initTable.changed;
 			this.updateSplineGui;
@@ -34,7 +34,7 @@ MultiSplineFrGui : ObjectGui {
 			model.removeDimension(model.spline.numDimensions-1).initTable.changed
 		});
 
-		layout.startRow;		
+		layout.startRow;
 		// pause play / focus a point
 		pointSelector = NumberEditor(-1,[-1,model.spline.points.size-1,'lin',1]);
 		pointSelector.action = {
@@ -66,11 +66,11 @@ MultiSplineFrGui : ObjectGui {
 			pointSelector.activeValue = -1;
 			model.initTable.changed
 		});
-		
+
 		layout.startRow;
 		ActionButton(layout,"Values @ P",{
 			values.valueAction = values.value.collect { 1.0.rand };
-		},75);			
+		},75);
 		values = MultiSliderView(layout,100@150);
 		values.action = {
 			model.liveValues = model.spec.map( values.value );
@@ -83,17 +83,17 @@ MultiSplineFrGui : ObjectGui {
 		ActionButton(layout,"Values in DIM",{
 			model.setDimValues( focusedDim.value, model.spec.map( valuesD.value.collect { 1.0.rand } ) );
 			model.initTable.changed;
-		},75);			
+		},75);
 		valuesD = MultiSliderView(layout,100@150);
 		valuesD.action = {
 			model.setDimValues( focusedDim.value, model.spec.map( valuesD.value ) );
 			model.initTable.changed;
 		};
-		
+
 		layout.startRow;
 		ActionButton(layout,"Times",{
 			times.valueAction = times.value.collect { 1.0.rand };
-		},75);			
+		},75);
 		times = MultiSliderView(layout,100@150);
 		times.action = {
 			var t,total,scale,maxValue;
@@ -112,9 +112,9 @@ MultiSplineFrGui : ObjectGui {
 			times.action.value;
 		};
 		maxTimeV.smallGui(layout);
-		
+
 		// when move point on splineGui that should change the times		// and do sliders so they can be edited non-linear
-		
+
 		layout.startRow;
 		CXLabel(layout,"Theta",75);
 		thetas = MultiSliderView(layout,100@150);
@@ -130,9 +130,9 @@ MultiSplineFrGui : ObjectGui {
 			this.setControlPoints;
 			model.initTable.changed;
 		};
-		
+
 		this.update
-		
+
 	}
 	update { arg who,what;
 		var v,stop;
@@ -157,7 +157,7 @@ MultiSplineFrGui : ObjectGui {
 					gp = who.controlPoints[i].first;
 					[ Array.fill(model.numDimensions + 1,{ arg di;
 						var prev,cur,v,b,t;
-							
+
 						t = gp[0];
 						if(di == 0,{
 							t
@@ -183,21 +183,21 @@ MultiSplineFrGui : ObjectGui {
 			});
 
 			this.update(splineGui);
-		},{			
+		},{
 			values.value = v = model.spline.points[pointSelector.value.asInteger.max(0)].copyToEnd(1);
 			values.thumbSize = values.bounds.width / v.size * 0.9;
-	
+
 			v = model.spec.unmap( model.spline.points.collect({ arg p; p[focusedDim.value] }) );
 			valuesD.value = v;
 			valuesD.thumbSize = valuesD.bounds.width / v.size * 0.9;
-	
+
 			maxTime = model.spline.points.last[0];
 			maxTimeV.value = maxTime;
-			
+
 			v = model.spline.points.collect(_[0]).differentiate / maxTime;
 			times.value = v = v.copyToEnd(1);
 			times.thumbSize = times.bounds.width / v.size * 0.9;
-	
+
 			if( thetas.value.size != stop,{
 				thetas.value = Array.fill(stop,{0.5});
 			});
@@ -268,7 +268,7 @@ MultiSplineFrGui : ObjectGui {
 				newCP = newCP.add( newDimCp.y );
 			};
 			[newCP]
-		});	
+		});
 	}
 	setZoom { arg argFromX,argToX;
 		splineGui.setZoom(argFromX,argToX).update;

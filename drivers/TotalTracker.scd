@@ -3,7 +3,7 @@
 
 setSongControl
 	MxSetter
-	
+
 setPatternControl
 
 gotoPatternID
@@ -58,10 +58,10 @@ MxUnit.register('TotalTracker',
 	prepareToBundle:  { arg agroup, bundle, private, bus;
 		~source.prepareToBundle(agroup,bundle,private,bus)
 	},
-	spawnToBundle: { arg bundle; 
+	spawnToBundle: { arg bundle;
 		~source.spawnToBundle(bundle)
 	},
-	stopToBundle: { arg bundle; 
+	stopToBundle: { arg bundle;
 		~source.stopToBundle(bundle)
 	},
 	freeToBundle: { arg bundle;
@@ -71,7 +71,7 @@ MxUnit.register('TotalTracker',
 		bundle.addFunction({
 			sw.free;
 		});
-	},	
+	},
 
 	play: { arg group, atTime, bus;
 		~source.play(group,atTime,bus)
@@ -124,7 +124,7 @@ MxUnit.register('TotalTracker',
 		~source.app.gotoBeatAtBeat(beat,atBeat)
 	},
 	record: { arg boo,atTime;
-		~source.app.recordSong(boo)	
+		~source.app.recordSong(boo)
 	}
-	
+
 ));

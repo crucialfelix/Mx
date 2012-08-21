@@ -2,9 +2,9 @@
 
 
 MultiSplineFr : SplineFr {
-	
+
 	var <>liveValues,<focusedPoint;
-	
+
 	initTable {
 		var numPoints,step,t1,last,t,r;
 		last = spline.points.last[0];
@@ -12,7 +12,7 @@ MultiSplineFr : SplineFr {
 		// these points are unevenly spaced along u
 		t1 = spline.interpolate(numPoints);
 		step = last / numPoints;
-		
+
 		r = Routine({
 			 t1.do { arg p,i;
 				 if(p[0] >= t,{
@@ -21,7 +21,7 @@ MultiSplineFr : SplineFr {
 			 };
 			 [nil,nil].yield
 		});
-						
+
 		table = Array.fill(numPoints,{ arg i;
 					var p1,p2,u0,u1,b;
 					t = step * i;
@@ -63,12 +63,13 @@ MultiSplineFr : SplineFr {
 		spline.points = spline.points.collect { arg p; p.removeAt(di); p };
 	}
 	gui { arg parent,bounds,maxTime;
-		^this.guiClass.new(this).gui(parent,bounds,maxTime)	}
+		^this.guiClass.new(this).gui(parent,bounds,maxTime)
+	}
 	guiClass {
 		^MultiSplineFrGui
 	}
-	
-	savePoint { 
+
+	savePoint {
 		if(focusedPoint.notNil,{
 			spline.points[focusedPoint] = [spline.points[focusedPoint][0]] ++ liveValues;
 		});
@@ -97,7 +98,7 @@ MultiSplineFr : SplineFr {
 	}
 	setDimValues { arg di,vals;
 		spline.points = spline.points.collect { arg p,i; p.copy.put(di,vals[i]) };
-	}	
+	}
 	focusedPoint_ { arg fp;
 		focusedPoint = fp;
 		liveValues = nil;

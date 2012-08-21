@@ -1,7 +1,7 @@
 
 
 MxJack {
-	
+
 	*forSpec { arg spec,defArg;
 		if(defArg.isKindOf(MxJack),{
 			^defArg
@@ -18,7 +18,7 @@ MxJack {
 		if(spec.isKindOf(StreamSpec),{
 			^MxStreamJack(defArg ? spec.default,spec)
 		});
-		
+
 		if(spec.isKindOf(TrigSpec),{
 			^MxTrJack(defArg ? spec.default,spec)
 		});
@@ -40,11 +40,11 @@ MxJack {
 
 
 MxStreamJack : MxJack {
-	
+
 	var stream,<>spec;
 	var <source,firstVal,lastVal;
 	var <isConnected=false;
-	
+
 	*new { arg initialValue,spec;
 		^super.new.spec_(spec).value_(initialValue ? spec.default)
 	}
@@ -94,7 +94,7 @@ MxStreamJack : MxJack {
 		stream.reset;
 		firstVal = lastVal = nil;
 	}
-	
+
 	synthArg {
 		^this.value
 	}
@@ -104,7 +104,7 @@ MxStreamJack : MxJack {
 	instrArgFromControl { arg control;
 		^control
 	}
-	guiClass { ^MxStreamJackGui }		
+	guiClass { ^MxStreamJackGui }
 }
 
 
@@ -112,7 +112,7 @@ MxControlJack : MxJack { // abstract
 
 	var <value,<>spec;
 	var <patchOut, <>isConnected=false;
-	
+
 	storeArgs {
 		^[value,spec]
 	}
@@ -128,7 +128,7 @@ MxControlJack : MxJack { // abstract
 			bundle.add( patchIn.nodeControl.setMsg(v) );
 		}
 	}
-	
+
 	getNodeControlIndex { arg patchIn;
 		^patchIn.instVarAt('index')
 	}
@@ -173,9 +173,9 @@ MxControlJack : MxJack { // abstract
 
 
 MxKrJack : MxControlJack {
-	
+
 	var <>lag=0.1;
-	
+
 	*new { arg value,spec,lag=0.1;
 		^super.newCopyArgs(value,spec,lag)
 	}
@@ -191,19 +191,19 @@ MxKrJack : MxControlJack {
 		},{
 			^control
 		})
-	}	
-	guiClass { ^MxKrJackGui }	
+	}
+	guiClass { ^MxKrJackGui }
 }
 
 
 MxArJack : MxControlJack {
-	
+
 	/*
 		value is the bus
 	*/
-	
+
 	var <>numChannels=2;
-	
+
 	*new { arg numChannels=2,bus=126;
 		^super.new.numChannels_(numChannels).value_(bus)
 	}
@@ -234,7 +234,7 @@ MxArJack : MxControlJack {
 	}
 
 	rate { ^\audio }
-	
+
 	guiClass { ^MxArJackGui }
 }
 
@@ -269,22 +269,22 @@ MxTrJack : MxControlJack {
 // not yet
 /*
 MxBufferJack : MxJack {
-	
+
 }
 
 
 MxFFTJack : MxBufferJack {
-	
+
 }
 
 
 MxArrayJack : MxJack {
-	
+
 }
 
 
 MxEnvJack : MxArrayJack {
-	
+
 }
 
 */

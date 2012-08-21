@@ -1,10 +1,10 @@
 
 
 EventListPlayerGui : AbstractPlayerGui {
-	
+
 	var tg,zoomCalc,rs,hitAreas,selected,mouseDownPoint;
 	var manager;
-	
+
 	guiBody { arg parent,bounds;
 		// zoom control if top
 		// test buttons to click each one
@@ -109,7 +109,7 @@ EventListPlayerGui : AbstractPlayerGui {
 
 
 InstrEventListPlayerGui : EventListPlayerGui {
-	
+
 	writeName { arg parent;
 		super.writeName(parent);
 		this.addEventButton(parent)
@@ -118,7 +118,7 @@ InstrEventListPlayerGui : EventListPlayerGui {
 		ActionButton(parent,"+",{
 			this.addEventDialog(blend(zoomCalc.zoomedRange[0],zoomCalc.zoomedRange[1],0.5).round(1))
 		});
-	}		
+	}
 	addEventDialog { arg beat;
 		InstrBrowser({ arg parent,instr;
 			var patch,beatEditor,playingPatch,up;

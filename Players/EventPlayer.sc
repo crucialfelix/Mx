@@ -135,7 +135,7 @@ EventListPlayer : EventPlayer {
 		if(verbose,{ e.asCompileString.postln; "".postln; });
 		^e
 	}
-	
+
 	getEventBeat { arg i;
 		^events[i][\beat]
 	}
@@ -163,7 +163,7 @@ EventListPlayer : EventPlayer {
 
 // specialized for instr events only
 InstrEventListPlayer : EventListPlayer {
-	
+
 	instrArgs {
 		var an;
 		an = IdentityDictionary.new;
