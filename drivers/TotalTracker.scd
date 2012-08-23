@@ -101,10 +101,13 @@ MxUnit.register('TotalTracker',
 		t
 	},
 	name: { ~source.name },
-	gui: { arg layout;
+	gui: { arg layout,bounds;
 		var l;
-		l = layout ?? {PageLayout(~source.name,Rect(100,100,800,600))};
-		TrMxSongController(~source).gui(l);
+		bounds = bounds ? Rect(100,100,800,600);
+		l = layout ?? {
+			PageLayout(~source.name,bounds.moveTo(100,100))
+		};
+		TrMxSongController(~source).gui(l,bounds);
 		if(layout.isNil,{
 			l.resizeToFit
 		})
