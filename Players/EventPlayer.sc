@@ -3,18 +3,22 @@
 // when playEvent is called it spawns the event
 // otherwise silent
 EventPlayer : AbstractPlayer {
-	
+
+	// needs to make a group
+
 	var <>postFilter,<>protoEvent,<>spec;
 	var postStream,<>verbose=false;
-	
+
 	*new { arg postFilter,protoEvent,spec=\audio;
 		^super.new.init(postFilter,protoEvent).spec_(spec.asSpec)
 	}
-	storeArgs { ^[postFilter.enpath,protoEvent.enpath,spec] }
+	storeArgs {
+		^[postFilter.enpath, protoEvent.enpath, spec]
+	}
 	init { arg pf,pe;
 		postFilter = pf;
 		protoEvent = pe ? Event.default;
-	}		
+	}
 	playEvent { arg event;
 		var e;
 		e = protoEvent.copy.putAll(event);
@@ -62,20 +66,27 @@ EventPlayer : AbstractPlayer {
 		this.group.freeAll
 	}
 	isPlaying { ^(status == \isPlaying) }
+	/*group {
+		^group ?? {
+			group = Group(this.server.asTarget)
+		}
+	}*/
 }
 
 
 // plays the events at their \beat
 // or when playEventAt(i) is called
 EventListPlayer : EventPlayer {
-	
+
 	var <events;
 	var sched,ei=0;
 
 	*new { arg events,spec=\audio,postFilter,protoEvent;
 		^super.new(postFilter,protoEvent,spec).initElp.events_(events)
 	}
-	storeArgs { ^[events.enpath,spec,postFilter.enpath,protoEvent.enpath] }
+	storeArgs {
+		^[events.enpath,spec,postFilter.enpath,protoEvent.enpath]
+	}
 	initElp {
 		sched = BeatSched.new;
 		events = SortedList(128,{arg a,b;
