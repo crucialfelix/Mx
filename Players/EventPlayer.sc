@@ -75,9 +75,18 @@ EventListPlayer : EventPlayer {
 	storeArgs { ^[events.enpath,spec,postFilter.enpath,protoEvent.enpath] }
 	initElp {
 		sched = BeatSched.new;
+		events = SortedList(128,{arg a,b;
+			(a['beat']?inf) <= (b['beat']?inf)
+		});
 	}
 	events_ { arg evs;
-		events = evs ? [];
+		var start;
+		evs = evs ? #[];
+		start = events.size;
+		evs.do { arg e,i;
+			events.insert(start+i,e)
+		};
+		events.sort;
 	}
 	spawnToBundle { arg bundle;
 		bundle.addFunction({
@@ -155,8 +164,8 @@ EventListPlayer : EventPlayer {
 		})	
 	}
 	sorted {
-		^events.sort({ arg a,b; (a[\beat]?inf) <= (b[\beat]?inf) })
-	} 	
+		^events
+	}
 	guiClass { ^EventListPlayerGui }
 }
 
