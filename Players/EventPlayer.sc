@@ -67,8 +67,8 @@ EventPlayer : AbstractPlayer {
 EventListPlayer : EventPlayer {
 	
 	var <events;
-	var sched;
-	
+	var sched,ei=0;
+
 	*new { arg events,spec=\audio,postFilter,protoEvent;
 		^super.new(postFilter,protoEvent,spec).initElp.events_(events)
 	}
@@ -91,10 +91,10 @@ EventListPlayer : EventPlayer {
 	spawnToBundle { arg bundle;
 		bundle.addFunction({
 			sched.beat = 0.0;
-			this.schedAll;
+			this.schedNext(0);
 		});
 		super.spawnToBundle(bundle);
-		// TODO spawn event on 0.0 ?
+		// TODO spawn event on 0.0 in the bundle
 	}
 	stopToBundle { arg b;
 		b.addFunction({
@@ -102,26 +102,52 @@ EventListPlayer : EventPlayer {
 		});
 		super.stopToBundle(b)
 	}
-	schedAll {
+	schedFromNow {
 		sched.clear;
-		events.do { arg ev,i;
-			if(ev[\beat].notNil,{
-				sched.schedAbs(ev[\beat],{ this.playEvent(ev) })
+		this.schedNext(this.findNextAfter(sched.beat))
+	}
+	schedNext { arg newEi;
+		var e,delta;
+		ei = newEi;
+		e = events[ei];
+		if(e.notNil and: {e[\beat].notNil},{
+			delta = e['beat'] - sched.beat;
+			if(delta.inclusivelyBetween(-0.02,0.01),{
+				this.playEvent(e);
+				this.schedNext(ei + 1)
+			},{
+				sched.schedAbs(e[\beat],{
+					this.playEvent(e);
+					this.schedNext(ei + 1)
+				})
 			})
-		};
+		})
+	}
+	findNextAfter { arg beat;
+		var lasti;
+		lasti = events.lastIndexForWhich({ arg e; e[\beat] < beat });
+		if(lasti.isNil,{^0});
+		^lasti + 1
 	}
 	addEvent { arg ev;
+		var nei,evi;
 		events = events.add(ev);
 		if(this.isPlaying,{
 			if(ev['beat'].notNil,{
-				sched.schedAbs(ev[\beat], { this.playEvent(ev) })
+				// is it next ?
+				evi = events.indexOf(ev);
+				if(evi <= ei,{
+					this.schedFromNow(nei);
+				})
 			})
 		})
 	}
 	removeEvent { arg ev;
 		events.remove(ev);
 		if(ev['beat'].notNil and: {ev['beat'] >= sched.beat},{
-			this.schedAll;
+			// actually only needed if its next
+			// will optimize later
+			this.schedFromNow;
 		})
 	}
 	playEventAt { arg i,inval;
@@ -151,17 +177,20 @@ EventListPlayer : EventPlayer {
 	setEventBeat { arg i,beat;
 		events[i].put(\beat,beat);
 		if(this.isPlaying,{
-			this.schedAll;
+			this.schedFromNow;
 		})
 	}
 	beatDuration {
 		^events.maxValue({ arg e; e[\beat] ? 0 })
 	}
+	beat { ^sched.beat }
 	gotoBeat { arg beat,atBeat,bundle;
-		bundle.addFunction({
+		var f;
+		f = {
 			sched.beat = beat;
-			this.schedAll
-		})	
+			this.schedFromNow;
+		};
+		if(bundle.notNil,{bundle.addFunction(f)},f);
 	}
 	sorted {
 		^events
