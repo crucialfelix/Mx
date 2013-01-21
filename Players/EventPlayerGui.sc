@@ -9,7 +9,12 @@ EventListPlayerGui : AbstractPlayerGui {
 		// zoom control if top
 		// test buttons to click each one
 		ToggleButton(parent,"debug",{ model.verbose = true },{ model.verbose = false },model.verbose);
-		this.timeGui(parent,bounds ?? {Rect(0,0,parent.bounds.width,100)})
+		ActionButton(parent,"free children",{
+			model.freeAll
+		});
+		parent.startRow;
+		this.timeGui(parent,bounds ?? {Rect(0,0,parent.bounds.width,100)});
+		// needs a list view
 	}
 	timeGui { arg parent,bounds,maxTime;
 		tg = UserView(parent,bounds);
