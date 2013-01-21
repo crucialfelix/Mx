@@ -58,6 +58,9 @@ EventPlayer : AbstractPlayer {
 			this.prSetStatus(\isStopped)
 		})
 	}
+	freeAll {
+		this.group.freeAll
+	}
 	isPlaying { ^(status == \isPlaying) }
 }
 
