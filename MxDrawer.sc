@@ -126,7 +126,7 @@ MxDrawerGui : ObjectGui {
             // double click on a top level single item or unfolded sub-item => select
             if(clickCount == 2,action)
         };
-        
+
         lv.stringColor = fg;
         lv.focusColor = Color.clear;
         lv.font = GUI.font.new(GUI.skin.fontSpecs[0],10);
@@ -166,7 +166,7 @@ MxDrawerGui : ObjectGui {
     drillUp {
 	    var labels;
         keys = MxDrawer.registery.keys.as(Array).sort;
-        items = keys.collect { arg k; 
+        items = keys.collect { arg k;
 	        var it;
 	        it = MxDrawer.registery[k];
 	        if(it.isKindOf(MxDrawerItemGroup),{
@@ -194,7 +194,7 @@ MxDrawerGui : ObjectGui {
 	    lv.value = max(lv.value - 1,0)
     }
     focusSearch {
-        searchBox.focus   
+        searchBox.focus
     }
     search { arg q;
         if(currentItemGroup.isNil,{
@@ -213,35 +213,35 @@ MxDrawerGui : ObjectGui {
 		//  option
 		k.register(   \left  ,   false, false, true, false, {
 			this.prevItem
-		
+
 		});
 		//  option
 		k.register(   \right  ,   false, false, true, false, {
 			this.nextItem
-		
+
 		});
 		//  option
 		k.register(   \up  ,   false, false, true, false, {
             this.drillUp
-		
+
 		});
 		//  option
 		k.register(   \down  ,   false, false, true, false, {
             this.drillDown
-		
+
 		});
 		//  option enter
 		k.register(   3  ,   false, false, true, false, {
 			lv.enterKeyAction.value
-		
-		});        
+
+		});
         //  option 223
 		k.register(   223  ,   false, false, true, false, {
             searchBox.focus
 		});
 
-        
-//        //  shift-control arrow up 
+
+//        //  shift-control arrow up
 //        k.register(   \up  ,   false, false, false, false, {
 //            this.drillUp
 //        });
@@ -260,7 +260,7 @@ MxDrawerGui : ObjectGui {
 //		//  shift arrow down nav down
 //		k.register(   63233  ,   true, false, false, false, {
 //			this.nextItem
-//		});		
+//		});
 //		//  3 enter
 //		k.register(   3  ,   false, false, false, false, {
 //			lv.enterKeyAction.value

@@ -2,9 +2,9 @@
 
 
 MxChannelInput : AbstractPlayerProxy {
-	/* 
+	/*
 		used to listen to a bus that one or more units are playing onto
-		
+
 		channel input was playing on same bus it listens in on
 		thus adding to it.
 		really no point in this thing, eh ?
@@ -16,7 +16,7 @@ MxChannelInput : AbstractPlayerProxy {
 	*/
 
 	var instr,busJack,<>numChannels=2,inBus;
-	
+
 	*new { ^super.new.init }
 	init {
 		var instr;
@@ -29,7 +29,7 @@ MxChannelInput : AbstractPlayerProxy {
 		inBus = this.patchOut.allocBus("inBus",\audio,this.numChannels);
 		busJack.value = inBus.index;
 	}
-	
+
 	*instr {
 		if(Instr.isDefined("MxChannelInput").not,{
 			Instr("MxChannelInput", { arg numChannels=2,bus;
@@ -48,9 +48,9 @@ MxChannelFader : AbstractPlayerProxy {
 
 	var <numChannels,<db=0, <mute=false, <solo=false;
 	var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12,<>fuseBlown=false;
-	
+
 	var busJack,dbJack;
-	
+
 	*new { arg db=0.0, mute=false, solo=false,
 			limit=nil, breakOnBadValues=true, breakOnDbOver=12.0,numChannels=2;
 		^super.new.init(db,mute,solo,limit,breakOnBadValues,breakOnDbOver,numChannels)
@@ -58,7 +58,7 @@ MxChannelFader : AbstractPlayerProxy {
 	storeArgs {
 		^[db,mute,solo,limit,breakOnBadValues,breakOnDbOver,numChannels]
 	}
-				
+
 	init { arg argdb,argmute,argsolo,
 			arglimit,argbreakOnBadValues,argbreakOnDbOver,argnumChannels;
 		db = argdb;
@@ -121,7 +121,7 @@ MxChannelFader : AbstractPlayerProxy {
 		dbJack.value = -300;
 		dbJack.changed;
 	}
-	
+
 	draw { arg pen,bounds,style;
 		pen.color = style['fontColor'];
 		pen.font = style['font'];
@@ -130,7 +130,7 @@ MxChannelFader : AbstractPlayerProxy {
 		});
 		pen.stringCenteredIn(db.round(0.1).asString ++ "dB",bounds);
 	}
-		
+
 	*channelInstr {
 		// or create it on the fly so the on trigs can be sent
 		// could also pass a responder function in
@@ -181,4 +181,4 @@ MxChannelFader : AbstractPlayerProxy {
 	}
 }
 
-	
+

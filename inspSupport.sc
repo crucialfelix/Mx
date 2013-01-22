@@ -1,7 +1,7 @@
 
 
 + Mx {
-	
+
 	*initClass {
 		var busf;
 		if(\Insp.asClass.notNil,{
@@ -22,16 +22,16 @@
 					SimpleLabel(layout,"NO STRATEGY FOR CABLE");
 				}
 			});
-			
+
 			ObjectInsp.registerHook(MxCableStrategy,{ arg strategy,layout;
 				var name = MxCable.strategies.findKeyForValue(strategy);
 				SimpleLabel(layout,name.asString ? "Strategy was not registered");
 				//connectf sourceGui
 				//disconnectf
 			});
-			
+
 			busf = { arg pob,layout;
-					
+
 					var bus,listen;
 					try {
 						bus = pob.value;
@@ -46,12 +46,12 @@
 							},{
 								listen.stop
 							});
-						});	
+						});
 						layout.startRow.flow({ |f|
 							var ann;
 							SimpleLabel(f,"Annotations:");
 							ann = BusPool.getAnnotations(bus);
-	
+
 							if(ann.notNil,{
 								ann.keysValuesDo({ |client,name|
 									f.startRow;
@@ -65,11 +65,11 @@
 			[MxPlaysOnBus,MxListensToBus,MxHasBus,MxPlaysOnKrBus].do { arg klass;
 				ObjectInsp.registerHook(klass,busf);
 			};
-				
-						
+
+
 			/*
 			ObjectInsp.registerHook(MxCableStrategy,{ arg strategy,layout;
-				
+
 				ObjectInsp.sourceCodeGui
 				InspButton.captioned("connectf",cable.outlet.unit.source,layout.startRow);
 				InspButton.captioned("adapter",cable.outlet.adapter,layout.startRow);
@@ -85,9 +85,9 @@
 				}
 			})
 			*/
-			
+
 		})
 	}
-	
+
 }
-	
+

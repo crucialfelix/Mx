@@ -1,7 +1,7 @@
 
 
 MxKrJackGui : ObjectGui {
-	
+
 	var ne;
 
 	writeName {}
@@ -24,10 +24,10 @@ MxKrJackGui : ObjectGui {
 }
 
 MxArJackGui : ObjectGui {
-	
+
 }
 
-MxStreamJackGui : MxKrJackGui { 
+MxStreamJackGui : MxKrJackGui {
 
 /*
 	var lastVal;

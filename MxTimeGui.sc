@@ -1,16 +1,16 @@
 
 
 MxTimeGui : ObjectGui {
-	
+
 	var <from,<to,<maxTime,zoomCalc,playZoomCalc;
 	var xScale;
 	var <>laneHeight=150;
 	var zoom,timeRuler,updater,units;
-	
+
 	guiBody { arg parent;
 		var i = 0,width, focusColor,kdr,makeSidebar;
 		var sidebarSize = 100, buttonHeight = GUI.skin.buttonHeight,gap=GUI.skin.gap.x,currenty;
-		
+
 		parent.startRow;
 		width = parent.indentedRemaining.width;
 		focusColor = GUI.skin.focusColor ?? {Color.blue(alpha:0.4)};
@@ -20,7 +20,7 @@ MxTimeGui : ObjectGui {
 		makeSidebar = { arg side,main;
 			var s,m,maxUsedHeight,b;
 			var lane;
-			
+
 			lane = parent.comp({ arg l;
 				s = l.vert({ arg s;
 						side.value(s)
@@ -31,14 +31,14 @@ MxTimeGui : ObjectGui {
 			},Rect(0,0,width,laneHeight));
 
 			m.resizeToFit(true);
-			
+
 			maxUsedHeight = s.children.sum({arg c; c.bounds.height });
 			maxUsedHeight = max(maxUsedHeight,m.bounds.height);
-			
+
 			s.bounds = s.bounds.height_(maxUsedHeight);
 			lane.bounds = lane.bounds.height_(maxUsedHeight).top_(currenty);
 			currenty = currenty + maxUsedHeight + gap;
-		};	
+		};
 
 		maxTime = (model.endBeat ?? {model.beatDuration} ? 480) + 8;
 		SynthConsole(model,parent).play.stop.tempo;
@@ -71,7 +71,7 @@ MxTimeGui : ObjectGui {
 		zoom.background = Color.white;
 		zoom.keyDownAction = kdr;
 		zoom.focusColor = focusColor;
-		
+
 		makeSidebar.value({ arg s;
 			// goto start
 				ActionButton(s,"|<",{model.gotoBeat(0,1)})
@@ -81,13 +81,13 @@ MxTimeGui : ObjectGui {
 			});
 		timeRuler.keyDownAction = kdr;
 		timeRuler.mouseDownAction = { arg beat, modifiers, buttonNumber, clickCount;
-			model.gotoBeat( beat.trunc(4)  )		
+			model.gotoBeat( beat.trunc(4)  )
 		};
 		timeRuler.shiftSwipeAction = { arg start,end;
 			this.zoom(start,end,true)
 		};
 		this.prSetFromTo(0.0,maxTime);
-		
+
 		updater = Updater(model.position,{ arg pos;
 			{
 				if(timeRuler.isClosed.not,{
@@ -95,7 +95,7 @@ MxTimeGui : ObjectGui {
 				})
 			}.defer
 		}).removeOnClose(parent);
-		
+
 		units = [];
 		model.channels.do { arg chan,ci;
 			chan.units.do { arg unit;
@@ -133,7 +133,7 @@ MxTimeGui : ObjectGui {
 		};
 		if(updateZoomControl,{
 			zoom.setSpan( from / maxTime, to / maxTime )
-		}) 
+		})
 	}
 	zoomBy { arg percentage,round=4.0; // 0 .. 2
 		// zoom up or down, centered on the current middle
@@ -144,7 +144,7 @@ MxTimeGui : ObjectGui {
 		newfrom = newfrom.clip(0,maxTime - round);
 		newto = newto.clip(newfrom + round,maxTime);
 		newfrom = newfrom.round(round);
-		newto = newto.round(round);		
+		newto = newto.round(round);
 		this.zoom(newfrom,newto);
 	}
 	moveBy { arg percentage,round=4.0; // -1 .. 1
@@ -166,7 +166,7 @@ MxTimeGui : ObjectGui {
 		timeRuler.maxTime = maxTime;
 		model.allUnits.do { arg unit;
 			unit.callHandler('setMaxTime',maxTime)
-		};	
+		};
 	}
 	keyDownResponder {
 		var k,default;
@@ -190,17 +190,17 @@ MxTimeGui : ObjectGui {
 			this.moveBy(-0.1)
 		});
 		k.register(   \right  ,   false, false, false, false, {
-			this.moveBy(0.1)		
+			this.moveBy(0.1)
 		});
-		//  shift control 
+		//  shift control
 		k.register(   \left  ,   true, false, false, true, {
-			this.moveBy(-0.01,1)		
+			this.moveBy(-0.01,1)
 		});
-		//  shift control 
+		//  shift control
 		k.register(   \right  ,   true, false, false, true, {
 			this.moveBy(0.01,1)
 		});
-		^k		
+		^k
 	}
 	writeName {}
 	//background { ^Color(0.81176470588235, 0.80392156862745, 0.79607843137255) }

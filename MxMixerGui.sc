@@ -4,10 +4,11 @@ MxMixerGui : ObjectGui {
 
 	var scope,lastScope,freqScope,meters;
 	var faders,solos,mutes;
+	var numChans;
 
 	writeName {}
 	guiBody { arg parent,bounds,showScope=true;
-		var scopeSize = 275,faderHeight,chans;
+		var scopeSize = 275,faderHeight,chans, nr;
 		solos = Array.newClear(model.channels.size);
 		mutes = Array.newClear(model.channels.size + 1);
 		faders = Array.newClear(model.channels.size + 1);
@@ -34,10 +35,14 @@ MxMixerGui : ObjectGui {
 			*/
 		});
 		parent.startRow;
+		numChans = model.channels.size;
 		chans = (model.channels ++ [model.master]);
-		if(model.isPlaying and: {\BusMeters.asClass.notNil},{
+		if(\BusMeters.asClass.notNil,{
 			// else it doesnt have busses yet
 			// could allocate on demand
+			// or start them later, whenever model starts
+			// maybe make them into units instead
+			// and go directly to art / visualization
 			meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus }));
 		});
 		chans.do { arg chan,i;
@@ -85,25 +90,46 @@ MxMixerGui : ObjectGui {
 				});
 				if(chan !== model.master,{
 					parent.startRow;
-					solos.put(i, ToggleButton(parent,"S",{ arg button,bool; 
-									model.solo(i,bool); 
+					solos.put(i, ToggleButton(parent,"S",{ arg button,bool;
+									model.solo(i,bool);
 									model.changed('mixer',this);
-									this.updateButtons 
+									this.updateButtons
 								}) );
 				});
 				parent.startRow;
-				mutes.put(i, ToggleButton(parent,"M",{ arg button,bool; 
-					if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); }); 
+				mutes.put(i, ToggleButton(parent,"M",{ arg button,bool;
+					if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); });
 					model.changed('mixer',this);
-					this.updateButtons 
+					this.updateButtons
 				}) );
-					
+
 			},Rect(0,0,24,faderHeight));
 		};
 		this.updateButtons;
-		if(meters.notNil,{
-			meters.start
-		})
+
+		nr = NotificationCenter.register(model,\statusDidChange,this,{ arg status;
+			var chans;
+			if(model.isNil,{
+				"model was nil".warn;
+				this.remove // so annoying
+			},{
+				if(status == \isPlaying,{
+					if(model.channels.size == numChans,{
+						chans = (model.channels ++ [model.master]);
+						meters.busses = chans.collect({ arg chan; chan.fader.bus
+						});
+						// meters.start.debug("start meter")
+					}) // number of channels has changed,
+					// you have to regui or this has to dynamically add
+				},{
+					if(status == \isStopped,{
+						meters.stop
+					})
+				})
+			})
+		});
+		parent.removeOnClose(nr);
+		if(model.isPlaying,{ meters.start })
 	}
 	updateButtons {
 		model.channels.do { arg chan,i;
@@ -116,16 +142,22 @@ MxMixerGui : ObjectGui {
 		// needs to add remove, reorder faders
 		model.channels.do { arg chan,i;
 			faders[i].value = chan.fader.db
-		}
+		};
+		faders.last.value = model.master.fader.db
 	}
 	update { arg mx, what;
 		if(what == 'mixer',{
-			this.updateButtons;
-			this.updateFaders
+			if(model.channels.size == numChans,{
+				this.defer({
+					this.updateButtons;
+					this.updateFaders
+				})
+			})
 		})
 	}
 	remove {
 		meters.remove;
+		NotificationCenter.removeForListener(this);
 		if(freqScope.notNil,{
 			freqScope.kill
 		});

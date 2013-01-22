@@ -6,9 +6,9 @@
 */
 
 KrSplinePlayer : AbstractPlayer {
-	
+
 	var <>gen,>spec;
-	
+
 	*new { arg spline, dimension=0,loop=false;
 		^super.new.gen_(SplineGen(spline ?? {
 			BezierSpline(
@@ -35,12 +35,12 @@ KrSplinePlayer : AbstractPlayer {
 }
 
 
-SplineFr { 
-	
+SplineFr {
+
 	var <>spline,<>dimension=0,<>loop=false,<>spec,<>frameRate,<>interpolationDensity=0.25;
 	var valueToSetOnTick;
 	var table;
-	
+
 	*new { arg spline, dimension=0,loop=false,spec,frameRate;
 		^super.newCopyArgs(spline ?? {
 			spec = spec ?? {'unipolar'.asSpec};
@@ -116,6 +116,6 @@ SplineFr {
 	gui { arg parent,bounds,maxTime;
 		^spline.gui(parent,bounds,spec,ControlSpec(0,maxTime??{spline.points.last.x}))
 	}
-}	
+}
 
 

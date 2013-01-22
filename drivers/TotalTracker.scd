@@ -3,7 +3,7 @@
 
 setSongControl
 	MxSetter
-	
+
 setPatternControl
 
 gotoPatternID
@@ -30,13 +30,23 @@ MxUnit.register('TotalTracker',
 		~switcher = switcher;
 		// ok for midi note where you can choose
 		// but how to do a float that wanders over them ?
+		// how can I send nil to stop all ?
 		patter = MxInlet("pattern",0,ControlSpec(0,player.app.numPatterns,step:1),
 					MxSetter({ arg v;
-						var p;
 						switcher.wrapSelect(v.asInteger);
-					}));
+					}),
+					);
 		sips = sips.insert(0,patter);
 		sips = sips.add( MxInlet("audio",5,AudioSpec(2),MxListensToBus({ player.song.efxBus },{player.server},{player.group}) ) );
+		["12","34"].do { arg xyName,i;
+			sips = sips.add( MxInlet(xyName,6+(i*2),ArraySpec.new,
+				MxSetter({ arg xy; player.app.setSongControlXY(i,xy)},
+					{ player.server },
+					{ player.group },
+					nil,
+					nil
+				)));
+		};
 		inlets  = sips;
 		outlets = [ MxOutlet("out", 0, AudioSpec(2), MxPlaysOnBus({player.bus}) ) ];
 		player.numOuts.do { arg i;
@@ -48,10 +58,10 @@ MxUnit.register('TotalTracker',
 	prepareToBundle:  { arg agroup, bundle, private, bus;
 		~source.prepareToBundle(agroup,bundle,private,bus)
 	},
-	spawnToBundle: { arg bundle; 
+	spawnToBundle: { arg bundle;
 		~source.spawnToBundle(bundle)
 	},
-	stopToBundle: { arg bundle; 
+	stopToBundle: { arg bundle;
 		~source.stopToBundle(bundle)
 	},
 	freeToBundle: { arg bundle;
@@ -61,7 +71,7 @@ MxUnit.register('TotalTracker',
 		bundle.addFunction({
 			sw.free;
 		});
-	},	
+	},
 
 	play: { arg group, atTime, bus;
 		~source.play(group,atTime,bus)
@@ -91,10 +101,13 @@ MxUnit.register('TotalTracker',
 		t
 	},
 	name: { ~source.name },
-	gui: { arg layout;
+	gui: { arg layout,bounds;
 		var l;
-		l = layout ?? {PageLayout(~source.name,Rect(100,100,800,600))};
-		TrMxSongController(~source).gui(l);
+		bounds = bounds ? Rect(100,100,800,600);
+		l = layout ?? {
+			PageLayout(~source.name,bounds.moveTo(100,100))
+		};
+		TrMxSongController(~source).gui(l,bounds);
 		if(layout.isNil,{
 			l.resizeToFit
 		})
@@ -103,6 +116,9 @@ MxUnit.register('TotalTracker',
 	timeGui: { arg layout, bounds, maxTime;
 		~tg = TrMxSongTimeGui(~source);
 		~tg.gui(layout,bounds,maxTime);
+	},
+	setMaxTime: { arg maxTime;
+		~tg.setMaxTime(maxTime)
 	},
 	zoomTime: { arg from,to;
 		~tg.setZoom(from,to).update;
@@ -114,7 +130,7 @@ MxUnit.register('TotalTracker',
 		~source.app.gotoBeatAtBeat(beat,atBeat)
 	},
 	record: { arg boo,atTime;
-		~source.app.recordSong(boo)	
+		~source.app.recordSong(boo)
 	}
-	
+
 ));

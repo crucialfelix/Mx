@@ -7,14 +7,14 @@ time ruler
 	can move the range select and play head into here later
 		would take:
 			position,relocateFunction
-		
+
 MxTimeGui
 */
 
 
 TimeRuler {
 
-	var <maxTime;	
+	var <maxTime;
 	var view,zoomCalc,gridLines;
 	var <position;
 	var <>shiftSwipeAction,swipeStart,lastx;
@@ -22,13 +22,13 @@ TimeRuler {
 	*new { arg layout,bounds,maxTime;
 		^super.new.init(layout,bounds,maxTime)
 	}
-	
+
 	init { arg layout,bounds,mt;
 		maxTime = mt;
 		zoomCalc = ZoomCalc([0.0,maxTime],[0.0, bounds.width]);
 		this.gui(layout,bounds)
 	}
-		
+
 	gui { arg layout,bounds;
 		var pen,blue;
 		view = UserView(layout,bounds);
@@ -93,7 +93,7 @@ TimeRuler {
 	}
 	position_ { arg p;
 		position = p;
-		view.refresh;	
+		view.refresh;
 	}
 	keyDownAction_ { arg f;
 		view.keyDownAction = f;

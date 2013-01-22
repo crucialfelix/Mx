@@ -9,7 +9,7 @@ MxMatrixGui : SCViewHolder {
 
 	var <selected,hovering,dragging;
 	var points;
-	
+
 	var <>ioHeight=10,<>faderHeight=80.0;
 
 	var <>dragOn=4; // pixel distance to initiate drag or a symbol like \isCntrl
@@ -41,7 +41,7 @@ MxMatrixGui : SCViewHolder {
 		selected = [];
 		boxWidth = 100.0;//bounds.width.asFloat / numCols;
 		boxHeight = 50.0;//min( (bounds.height.asFloat - faderHeight) / numRows, 80 );
-	   
+
 		// will leave room for mixer control at bottom
 		bounds = argbounds ?? {Rect(20, 20, min(numCols * boxWidth,1000), numRows * boxHeight + faderHeight + ioHeight + ioHeight)};
 		bounds = bounds.asRect;
@@ -60,7 +60,7 @@ MxMatrixGui : SCViewHolder {
 				this.refresh;
 			});
 		}).removeOnClose(w);
-		
+
 		bounds = Rect(bounds.left+1, bounds.top+1, bounds.width, bounds.height);
 		view = UserView(w, bounds);
 
@@ -287,7 +287,7 @@ MxMatrixGui : SCViewHolder {
 				currentDragPoint = nil;
 				this.transferFocus(targetPoint);
 				dragging = nil;
-				
+
 				^this
 			})
 		});
@@ -296,10 +296,10 @@ MxMatrixGui : SCViewHolder {
 			// move it, copy it, replace it
 			dp = points[dragging];
 			if(modifiers.isAlt,{
-				mx.copy( this.asChannelIndex(dp.x), dp.y,  
+				mx.copy( this.asChannelIndex(dp.x), dp.y,
 					this.asChannelIndex(targetPoint.x), targetPoint.y );
 			},{
-				mx.move(this.asChannelIndex(dp.x), dp.y, 
+				mx.move(this.asChannelIndex(dp.x), dp.y,
 					this.asChannelIndex(targetPoint.x), targetPoint.y)
 			});
 			mx.update;
@@ -385,7 +385,7 @@ MxMatrixGui : SCViewHolder {
 		^Rect(0,boxBounds.bottom,boxBounds.width, faderHeight)
 	}
 	getFaderBounds { arg chani;
-		^Rect(chani * boxWidth,boxBounds.bottom,boxWidth,faderHeight)	
+		^Rect(chani * boxWidth,boxBounds.bottom,boxWidth,faderHeight)
 	}
 	detectFader { arg p; // which fader is the point inside of ?
 		var fb;
@@ -408,7 +408,7 @@ MxMatrixGui : SCViewHolder {
 		row = this.intFloor( p.y.asFloat / boxHeight );
 		^col@row
 	}
-	
+
 	intFloor { arg i; // a bandaid
 		if(i.frac.equalWithPrecision(1.0),{
 			^i.round.asInteger
@@ -464,12 +464,12 @@ MxMatrixGui : SCViewHolder {
 			if(fi.notNil,{
 				^mx.channels.at(fi) ?? { if(fi == masterCol,{mx.master},nil) }
 			});
-		});	
+		});
 		// + in top left
 		if(plus.contains(p),{
 			^nil // not yet
 		});
-		
+
 		// top level inlets
 		if(mx.inlets.size > 0,{
 			if(p.y < ioHeight) {
@@ -490,7 +490,7 @@ MxMatrixGui : SCViewHolder {
 		},{
 			mx.put( x,y,obj );
 		});
-	}		
+	}
 	findIOlet { arg iolets,ioArea,screenPoint;
 		// inside an iolet area find which one the point is on
 		var oi;
@@ -578,13 +578,13 @@ MxMatrixGui : SCViewHolder {
 				pen.stringLeftJustIn(title,rect.insetBy(1,1))
 			})
 		}
-	}		
+	}
 	drawGrid {
 		var d,box,style,r,fb;
 
 		Pen.capStyle = 1;
 		Pen.joinStyle = 1;
-		
+
 		d = { arg rect,unit,styleName,boxPoint,blown=false;
 			var style,styleNames,name,ioarea,iowidth;
 			// cascade styles: defaultStyle + box style + box's set styles (playing, selected) + temp style (down, focused)
@@ -625,7 +625,7 @@ MxMatrixGui : SCViewHolder {
 			if(unit.notNil,{
 				// central box draw writes the name
 				unit.draw(pen,rect,style);
-				
+
 				// outlets
 				if(unit.outlets.size > 0,{
 					this.drawIOlets(this.outletsArea(rect),unit.outlets);
@@ -657,9 +657,9 @@ MxMatrixGui : SCViewHolder {
 		mainInlets = Rect(bounds.left,bounds.top,bounds.width,ioHeight);
 		mainPlus = Rect(bounds.left,0,boxWidth,ioHeight).bottom_(bounds.bottom);
 		mainOutlets = Rect(bounds.left + boxWidth,bounds.top,bounds.width - boxWidth,ioHeight).bottom_(bounds.bottom);
-		
+
 		this.drawIOletBox(plus, Color(0.0, 0.23880597014925, 1.0, 0.35820895522388), false, "+",true );
-		
+
 		// main inlets / outlets
 		this.drawIOlets(mainInlets,mx.inlets);
 		this.drawIOlets(mainOutlets,mx.outlets);
@@ -677,13 +677,13 @@ MxMatrixGui : SCViewHolder {
 		// show:
 		// inlets that can accept what you are dragging
 		// hovering
-		
+
 		fb = this.fadersBounds;
 		mx.cables.do { arg cable,i;
 			var f,t,c,chan,ci,fcenter,tcenter;
-			
+
 			f = this.outletArea(cable.outlet);
-	
+
 			// if its to a MxChannel then draw to fader top
 			chan = cable.inlet.unit.source;
 			if(chan.class !== MxChannelInput,{ // no messy cables to master channel input
@@ -696,7 +696,7 @@ MxMatrixGui : SCViewHolder {
 				},{
 					t = this.inletArea(cable.inlet);
 				});
-	
+
 				if(f.notNil and: t.notNil,{
 					c = cable.outlet.spec.color;
 					if(cable.active.not,{
@@ -742,7 +742,7 @@ MxMatrixGui : SCViewHolder {
 				pen.color = Color.blue;
 				pen.strokeOval( r );
 			});
-		});		
+		});
 	}
 	makeDefaultStyles { arg skin;
 		background = Color(0.85236548378624, 0.86567164179104, 0.82691022499443); //skin.background;

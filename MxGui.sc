@@ -1,7 +1,7 @@
 
 
 MxGui : AbstractPlayerGui {
-	
+
 	var boxes,drawerGui;
 
 	writeName {}
@@ -29,14 +29,14 @@ MxGui : AbstractPlayerGui {
 			var subject,unit,spec;
 			if(boxes.selected.size == 1,{
 				subject = boxes.selected.first;
-				// unit 
+				// unit
 				if(subject.isKindOf(MxUnit),{
 					unit = subject;
 					subject = subject.outlets.first
 				},{
 					if(subject.isKindOf(MxOutlet),{
 						unit = subject.unit
-					});	
+					});
 				});
 				if(subject.isKindOf(MxOutlet),{
 					spec = subject.spec;
@@ -53,7 +53,7 @@ MxGui : AbstractPlayerGui {
 							if(model.isPlaying,{
 								b = MixedBundle.new;
 								model.update(b);
-							});												
+							});
 							// connect old to filter
 							oldcables = model.cables.fromOutlet(subject);
 							model.connect(unit, subject, newUnit, newUnit.getInlet( instr.specs.detectIndex({ arg sp,i; sp == spec }) ) );
@@ -132,7 +132,7 @@ MxGui : AbstractPlayerGui {
 			},{
 				model.updateAutoCables
 			});
-		};			
+		};
 		d = MxDrawer({ arg obj;
 			var placeIt,fp;
 			fp = boxes.focusedPoint;
@@ -160,9 +160,9 @@ MxGui : AbstractPlayerGui {
 	so it doesn't activate immediately
 */
 MxDeferredDrawerAction {
-	
+
 	var <>func;
-	
+
 	value { arg object;
 		^func.value(object)
 	}

@@ -1,7 +1,7 @@
 
 MxQuery : AbsApp {
 
-	/* further refining the search result. returns a new query 
+	/* further refining the search result. returns a new query
 		functions are supplied:   source, i, app
 	*/
     select { arg function;
@@ -11,7 +11,7 @@ MxQuery : AbsApp {
 		^MxQuery(this.objects.reject({ arg obj,i; function.value(obj.source,i,obj) }),mxapp)
 	}
 	//distinct
-	
+
     units {
 		var all,h;
 		all = IdentitySet.new;
@@ -22,7 +22,7 @@ MxQuery : AbsApp {
 				MxIOletsApp: { arg app; all.add(app.unit) },
 				MxUnitApp: { arg app; all.add(app) }
 			);
-				
+
 		this.do { arg obj,i,app;
 			h[app.class.name].value(app)
 		};
@@ -66,7 +66,7 @@ MxQuery : AbsApp {
 	whereAppClassIs { arg class;
 		^MxQuery(this.select({ arg obj,i,app; app.class === class }),mxapp)
 	}
-	
+
 	/*  iteration */
 	do { arg function;
 		// iterates giving the source object. ie. the Instr/Env/thing not the MxUnitApp
@@ -76,7 +76,7 @@ MxQuery : AbsApp {
     collect { arg function;
 		^this.objects.collect({ arg obj,i; function.value(obj.source,i,obj) })
 	}
-	
+
 	/* collection support */
     size {
 		^this.objects.size
@@ -146,7 +146,7 @@ MxQuery : AbsApp {
 	respawn {
 		this.prUnitsDo({ arg unit; unit.respawn })
 	}
-	
+
 	// channels
 	mute { arg boo = true;
 		this.prChannelsDo({ arg chan; chan.mute(boo) })
@@ -177,7 +177,7 @@ MxQuery : AbsApp {
 			this.channels.do({ arg obj,i,app; function.value(app) })
 		})
 	}
-	
+
 /*
 
     connectToOutlet(outlet)
@@ -188,7 +188,7 @@ MxQuery : AbsApp {
                 mx.connect( outlet, inlet )
 	connectToQuery(query)
 		do them zipped
-	
+
 	*/
 	objects { ^model }
 	sources { ^model.collect(_.source) }

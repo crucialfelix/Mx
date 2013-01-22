@@ -1,18 +1,18 @@
 
 MxLoader {
-	
+
 	classvar <>verbose=false;
-	
+
 	var f,registerData;
 	var <registery,<channels,<master,<cables,<inlets,<outlets;
 	var allocator = 100000, allInlets,allOutlets;
-	
+
 	/*  SAVE   */
 	*saveData { arg mx,register;
-		
+
 		var f,registerData,cables;
 		f = IdentityDictionary.new;
-		
+
 		f[MxUnit] = { arg unit;
 			[	MxUnit,
 				unit.saveData,
@@ -107,7 +107,7 @@ MxLoader {
 		rd.do(registerData.add(_));
 		allInlets = Dictionary.new;
 		allOutlets = Dictionary.new;
-		
+
 		// load functions
 		f = IdentityDictionary.new;
 		f[Mx] = { arg uid,data;

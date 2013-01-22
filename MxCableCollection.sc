@@ -8,7 +8,7 @@ but also records the units
 
 
 MxCableCollection : List {
-	
+
 	var toUnits, fromUnits;
 
 	*new {
@@ -22,7 +22,7 @@ MxCableCollection : List {
 		array = [];
 		aColl.do(this.add(_));
 	}
-	
+
 	add { arg cable;
 		var h;
 		super.add(cable);

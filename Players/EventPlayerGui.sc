@@ -1,15 +1,20 @@
 
 
 EventListPlayerGui : AbstractPlayerGui {
-	
+
 	var tg,zoomCalc,rs,hitAreas,selected,mouseDownPoint;
 	var manager;
-	
+
 	guiBody { arg parent,bounds;
 		// zoom control if top
 		// test buttons to click each one
 		ToggleButton(parent,"debug",{ model.verbose = true },{ model.verbose = false },model.verbose);
-		this.timeGui(parent,bounds ?? {Rect(0,0,parent.bounds.width,100)})
+		ActionButton(parent,"free children",{
+			model.freeAll
+		});
+		parent.startRow;
+		this.timeGui(parent,bounds ?? {Rect(0,0,parent.bounds.width,100)});
+		// needs a list view
 	}
 	timeGui { arg parent,bounds,maxTime;
 		tg = UserView(parent,bounds);
@@ -22,46 +27,50 @@ EventListPlayerGui : AbstractPlayerGui {
 			})
 		});
 		zoomCalc = ZoomCalc([0,maxTime],[0,bounds.width]);
-		manager = UserViewObjectsManager(tg,bounds);
-		manager.bindAll;
-		manager.onDoubleClick = { arg obj;
-			Editor.for(obj).gui
-		};
-		manager.onMoved = { arg obj,by;
-			var r,pixelPos,beat;
-			pixelPos = zoomCalc.modelToDisplay(obj['beat']) + by.x;
-			beat = zoomCalc.displayToModel(pixelPos);
-			obj[\beat] = beat;
+		if(\UserViewObjectsManager.asClass.notNil,{
+			manager = UserViewObjectsManager(tg,bounds);
+			manager.bindAll;
+			manager.onDoubleClick = { arg obj;
+				Editor.for(obj).gui
+			};
+			manager.onMoved = { arg obj,by;
+				var r,pixelPos,beat;
+				pixelPos = zoomCalc.modelToDisplay(obj['beat']) + by.x;
+				beat = zoomCalc.displayToModel(pixelPos);
+				obj[\beat] = beat;
+				this.updateTimeGui;
+			};
+			manager.onCopy = { arg obj,by;
+				var nobj;
+				nobj = obj.copy;
+				nobj['beat'] = obj['beat'] + by;
+				model.addEvent(nobj);
+			};
+			manager.onDelete = { arg obj;
+				model.removeEvent(obj);
+			};
+			manager.onDoubleClick = { arg obj,p,modifiers;
+				if(modifiers.isCmd,{
+					DictionaryEditor(obj).gui(nil,nil,{ arg ev;
+						var beatChanged = ev['beat'] != obj['beat'];
+						ev.keysValuesDo { arg k,v;
+							obj.put(k,v)
+						};
+						if(beatChanged,{
+							model.schedAll
+						})
+					});
+				},{
+					model.playEvent(obj)
+				})
+			};
+			// control would be mute it
+	
 			this.updateTimeGui;
-		};
-		manager.onCopy = { arg obj,by;
-			var nobj;
-			nobj = obj.copy;
-			nobj['beat'] = obj['beat'] + by;
-			model.addEvent(nobj);
-		};
-		manager.onDelete = { arg obj;
-			model.removeEvent(obj);
-		};
-		manager.onDoubleClick = { arg obj,p,modifiers;
-			if(modifiers.isCmd,{
-				DictionaryEditor(obj).gui(nil,nil,{ arg ev;
-					var beatChanged = ev['beat'] != obj['beat'];
-					ev.keysValuesDo { arg k,v;
-						obj.put(k,v)
-					};
-					if(beatChanged,{
-						model.schedAll
-					})
-				});
-			},{
-				model.playEvent(obj)
-			})
-		};
-		// control would be mute it
-
-		this.updateTimeGui;
-		tg.drawFunc = manager;
+			tg.drawFunc = manager;
+		},{
+			"UserViewObjectsManager from crucialviews quark required for the EventListPlayer timeline gui".inform;
+		});
 	}
 	updateTimeGui {
 		var h,black;
@@ -102,14 +111,16 @@ EventListPlayerGui : AbstractPlayerGui {
 		zoomCalc.setZoom(from,to);
 	}
 	update {
-		this.updateTimeGui;
+		if(\UserViewObjectsManager.asClass.notNil,{
+			this.updateTimeGui;
+		});
 		tg.refresh
 	}
 }
 
 
 InstrEventListPlayerGui : EventListPlayerGui {
-	
+
 	writeName { arg parent;
 		super.writeName(parent);
 		this.addEventButton(parent)
@@ -118,7 +129,7 @@ InstrEventListPlayerGui : EventListPlayerGui {
 		ActionButton(parent,"+",{
 			this.addEventDialog(blend(zoomCalc.zoomedRange[0],zoomCalc.zoomedRange[1],0.5).round(1))
 		});
-	}		
+	}
 	addEventDialog { arg beat;
 		InstrBrowser({ arg parent,instr;
 			var patch,beatEditor,playingPatch,up;

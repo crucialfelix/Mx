@@ -1,13 +1,13 @@
 
 
-MxUnit  { 
-	
+MxUnit  {
+
 	classvar registery,<protoHandler;
 
 	var <>source,<inlets,<outlets,<>handlers,<varPooling=false;
 	var <>onLoad;
 	var <>group,status;
-	
+
 	*make { arg source,class;
 		var handlers;
 		if(source.isKindOf(MxUnit) or: {source.isNil},{
@@ -58,7 +58,7 @@ MxUnit  {
 	*handlersForClass { arg class;
 		var match,path;
 		match = registery[class.name] ?? {
-			path = PathName(MxUnit.class.filenameSymbol.asString).parentPath 
+			path = PathName(MxUnit.class.filenameSymbol.asString).parentPath
 							+/+ "drivers" +/+ class.name.asString ++ ".scd";
 			if(File.exists(path),{
 				path.debug("Loading driver").load;
@@ -71,7 +71,7 @@ MxUnit  {
 				};
 				if(match.isNil and: {class !== Object},{
 					^this.handlersForClass(class.superclass)
-				});			
+				});
 				match
 			})
 		};
@@ -127,7 +127,7 @@ MxUnit  {
 	*register { arg classname,handlers;
 		var e,class,superclassHandlers;
 		classname = classname.asSymbol;
-		e = registery.at(classname); 
+		e = registery.at(classname);
 		if(e.notNil,{ // updating
 			e.keys.do { arg k;
 				e.removeAt(k)
@@ -173,26 +173,26 @@ MxUnit  {
 			this.onLoad.value();
 		}
 	}
-	
+
 	// methods delegated to the handlers
 	prepareToBundle { arg agroup, bundle, private, bus;
 		bundle.addFunction({this.prSetStatus('isPrepared')});
 		^this.delegate('prepareToBundle',agroup,bundle,true,bus);
 	}
 	spawnToBundle { arg bundle;
-		^this.use { 
+		^this.use {
 			~spawnToBundle.value(bundle);
 			bundle.addFunction({ this.prSetStatus('isPlaying') })
 		}
 	}
 	stopToBundle { arg bundle;
-		^this.use { 
+		^this.use {
 			~stopToBundle.value(bundle);
 			bundle.addFunction({ this.prSetStatus('isStopped') })
 		}
 	}
 	freeToBundle { arg bundle;
-		^this.use { 
+		^this.use {
 			~freeToBundle.value(bundle);
 			bundle.addFunction({ this.prSetStatus('isFreed') })
 		}
@@ -200,13 +200,13 @@ MxUnit  {
 	respawnToBundle { arg bundle;
 		this.stopToBundle(bundle);
 		this.spawnToBundle(bundle);
-	}	
+	}
 	moveToHead { arg aGroup,bundle;
 		^this.use {
 			~moveToHead.value(aGroup,bundle,group)
 		}
 	}
-	
+
 	use { arg function,rollback;
 		var result, saveEnvir;
 
@@ -259,7 +259,7 @@ MxUnit  {
 		};
 		^result
 	}
-	
+
 	play { arg group,atTime,bus;
 		^this.use { ~play.value(group,atTime,bus) }
 	}
@@ -268,7 +268,7 @@ MxUnit  {
 	}
 	respawn { arg atTime;
 		^this.use { ~respawn.value(atTime) }
-	}		
+	}
 	isPlaying {
 		^this.use { ~isPlaying.value }
 	}
@@ -290,7 +290,7 @@ MxUnit  {
 	}
 	gui { arg parent,bounds;
 		^this.use { ~gui.value(parent,bounds) }
-	}	
+	}
 	draw { arg pen,bounds,style;
 		^this.use { ~draw.value(pen,bounds,style) }
 	}
