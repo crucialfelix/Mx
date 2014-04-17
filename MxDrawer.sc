@@ -47,9 +47,9 @@ MxDrawerItem {
         ^super.newCopyArgs(title,buildItemFunc)
     }
     make { arg i,onMake;
-	    {
-	         onMake.value(buildItemFunc.value)
-	    }.fork(AppClock)
+        {
+             onMake.value(buildItemFunc.value)
+        }.fork(AppClock)
     }
 }
 
@@ -77,9 +77,9 @@ MxDrawerSubItem {
         ^super.newCopyArgs(title,drawerItem,data)
     }
     make { arg i,onMake;
-	    {
-	         onMake.value(drawerItem.buildItemFunc.value(data,title))
-	    }.fork(AppClock)
+        {
+             onMake.value(drawerItem.buildItemFunc.value(data,title))
+        }.fork(AppClock)
     }
 }
 
@@ -108,11 +108,11 @@ MxDrawerGui : ObjectGui {
 
         // using ListView, though it cannot drag directly into a unit yet
         lv = ListView(layout,width@(layout.bounds.height-17-4));
-		lv.background = bg;
+        lv.background = bg;
         // all top level items, nothing unfolded
         this.drillUp;
 
-		action = {
+        action = {
             var item;
                 item = items[lv.value];
                 if(item.isKindOf(MxDrawerItemGroup).not,{
@@ -121,7 +121,7 @@ MxDrawerGui : ObjectGui {
                 },{
                     this.drillDown(item);
                 })
-		};
+        };
         lv.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             // double click on a top level single item or unfolded sub-item => select
             if(clickCount == 2,action)
@@ -142,7 +142,7 @@ MxDrawerGui : ObjectGui {
             item
         };
         lv.enterKeyAction = {
-	        action.value;
+            action.value;
             this.update;
         };
         lv.keyDownAction = this.keyDownResponder;
@@ -150,12 +150,12 @@ MxDrawerGui : ObjectGui {
     drillDown { arg itemGroup;
         var item;
         itemGroup = currentItemGroup = itemGroup ?? {
-        		item = items[lv.value];
-         		if(item.isKindOf(MxDrawerItemGroup),{
-	          	item;
-         		},{
-	         		^nil
-         		})
+                item = items[lv.value];
+                 if(item.isKindOf(MxDrawerItemGroup),{
+                  item;
+                 },{
+                     ^nil
+                 })
         };
         items = itemGroup.drill; // title, data
         keys = items.collect(_.title);
@@ -164,34 +164,34 @@ MxDrawerGui : ObjectGui {
         lv.refresh
     }
     drillUp {
-	    var labels;
+        var labels;
         keys = MxDrawer.registery.keys.as(Array).sort;
         items = keys.collect { arg k;
-	        var it;
-	        it = MxDrawer.registery[k];
-	        if(it.isKindOf(MxDrawerItemGroup),{
-		        labels = labels.add( "*" ++ k ++ "*" )
-	        },{
-		        labels = labels.add( k.asString )
-	        });
-	        it
-	    };
+            var it;
+            it = MxDrawer.registery[k];
+            if(it.isKindOf(MxDrawerItemGroup),{
+                labels = labels.add( "*" ++ k ++ "*" )
+            },{
+                labels = labels.add( k.asString )
+            });
+            it
+        };
         currentItemGroup = nil;
         lv.items = labels;
         this.prSetColors;
     }
     prSetColors {
         if(GUI.scheme.id == 'qt',{
-	        lv.colors = bg ! items.size;
+            lv.colors = bg ! items.size;
         },{
-			lv.background = bg;
+            lv.background = bg;
         });
     }
     nextItem {
-	    lv.value = min(lv.value + 1,lv.items.size-1)
+        lv.value = min(lv.value + 1,lv.items.size-1)
     }
     prevItem {
-	    lv.value = max(lv.value - 1,0)
+        lv.value = max(lv.value - 1,0)
     }
     focusSearch {
         searchBox.focus
@@ -210,35 +210,35 @@ MxDrawerGui : ObjectGui {
     keyDownResponder {
         var k;
         k = KeyResponder.new;
-		//  option
-		k.register(   \left  ,   false, false, true, false, {
-			this.prevItem
+        //  option
+        k.register(   \left  ,   false, false, true, false, {
+            this.prevItem
 
-		});
-		//  option
-		k.register(   \right  ,   false, false, true, false, {
-			this.nextItem
+        });
+        //  option
+        k.register(   \right  ,   false, false, true, false, {
+            this.nextItem
 
-		});
-		//  option
-		k.register(   \up  ,   false, false, true, false, {
+        });
+        //  option
+        k.register(   \up  ,   false, false, true, false, {
             this.drillUp
 
-		});
-		//  option
-		k.register(   \down  ,   false, false, true, false, {
+        });
+        //  option
+        k.register(   \down  ,   false, false, true, false, {
             this.drillDown
 
-		});
-		//  option enter
-		k.register(   3  ,   false, false, true, false, {
-			lv.enterKeyAction.value
+        });
+        //  option enter
+        k.register(   3  ,   false, false, true, false, {
+            lv.enterKeyAction.value
 
-		});
+        });
         //  option 223
-		k.register(   223  ,   false, false, true, false, {
+        k.register(   223  ,   false, false, true, false, {
             searchBox.focus
-		});
+        });
 
 
 //        //  shift-control arrow up
@@ -253,23 +253,21 @@ MxDrawerGui : ObjectGui {
 //        k.register(   19  ,   false, false, false, true, {
 //            searchBox.focus
 //        });
-//		//  shift arrow down  nav up
-//		k.register(   \up  ,   true, false, false, false, {
-//			this.prevItem
-//		});
-//		//  shift arrow down nav down
-//		k.register(   63233  ,   true, false, false, false, {
-//			this.nextItem
-//		});
-//		//  3 enter
-//		k.register(   3  ,   false, false, false, false, {
-//			lv.enterKeyAction.value
-//		});
+//        //  shift arrow down  nav up
+//        k.register(   \up  ,   true, false, false, false, {
+//            this.prevItem
+//        });
+//        //  shift arrow down nav down
+//        k.register(   63233  ,   true, false, false, false, {
+//            this.nextItem
+//        });
+//        //  3 enter
+//        k.register(   3  ,   false, false, false, false, {
+//            lv.enterKeyAction.value
+//        });
 
         ^k /*++ { arg view, char,modifier,unicode,keycode;
                 lv.defaultKeyDownAction(char,modifier,unicode)
             };*/
     }
 }
-
-
