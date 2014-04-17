@@ -3,10 +3,10 @@
 
 MultiSplineFr : SplineFr {
 
-    var <>liveValues,<focusedPoint;
+    var <>liveValues, <focusedPoint;
 
     initTable {
-        var numPoints,step,t1,last,t,r;
+        var numPoints, step, t1, last, t, r;
         last = spline.points.last[0];
         numPoints = (frameRate*interpolationDensity) * last;
         // these points are unevenly spaced along u
@@ -14,16 +14,16 @@ MultiSplineFr : SplineFr {
         step = last / numPoints;
 
         r = Routine({
-             t1.do { arg p,i;
+             t1.do { arg p, i;
                  if(p[0] >= t,{
-                     [p,t1.at(i+1)].yield
+                     [p, t1.at(i+1)].yield
                  });
              };
-             [nil,nil].yield
+             [nil, nil].yield
         });
 
         table = Array.fill(numPoints,{ arg i;
-                    var p1,p2,u0,u1,b;
+                    var p1, p2, u0, u1, b;
                     t = step * i;
                     #p1, p2 = r.next;
                     if(p2.notNil,{
@@ -38,19 +38,19 @@ MultiSplineFr : SplineFr {
                 });
     }
     value { arg time;
-        var p1,p2;
+        var p1, p2;
         if(focusedPoint.notNil,{
             ^spline.points.clipAt(focusedPoint.floor.asInteger)
         });
         ^super.value(time); // from the table, with no time val
     }
-    setValue { arg value,time;
+    setValue { arg value, time;
         var i, point;
         # i , point = this.findInsertIndex(time);
 //        if(point.notNil,{
 //            point[0+1] = value
 //        },{
-//            spline.createPoint([time,value],i+1)
+//            spline.createPoint([time, value], i+1)
 //        })
     }
     numDimensions {
@@ -62,8 +62,8 @@ MultiSplineFr : SplineFr {
     removeDimension { arg di;
         spline.points = spline.points.collect { arg p; p.removeAt(di); p };
     }
-    gui { arg parent,bounds,maxTime;
-        ^this.guiClass.new(this).gui(parent,bounds,maxTime)
+    gui { arg parent, bounds, maxTime;
+        ^this.guiClass.new(this).gui(parent, bounds, maxTime)
     }
     guiClass {
         ^MultiSplineFrGui
@@ -75,7 +75,7 @@ MultiSplineFr : SplineFr {
         });
     }
     createPoint {
-        var i,p,time;
+        var i, p, time;
         if(focusedPoint.isNil,{
             i = spline.points.size;
             // extend time
@@ -96,8 +96,8 @@ MultiSplineFr : SplineFr {
             spline.deletePoint(focusedPoint.floor.asInteger)
         });
     }
-    setDimValues { arg di,vals;
-        spline.points = spline.points.collect { arg p,i; p.copy.put(di,vals[i]) };
+    setDimValues { arg di, vals;
+        spline.points = spline.points.collect { arg p, i; p.copy.put(di, vals[i]) };
     }
     focusedPoint_ { arg fp;
         focusedPoint = fp;

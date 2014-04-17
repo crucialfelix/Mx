@@ -6,16 +6,16 @@ EventPlayer : AbstractPlayer {
 
     // needs to make a group
 
-    var <>postFilter,<>protoEvent,<>spec;
-    var postStream,<>verbose=false;
+    var <>postFilter, <>protoEvent, <>spec;
+    var postStream, <>verbose=false;
 
-    *new { arg postFilter,protoEvent,spec=\audio;
-        ^super.new.init(postFilter,protoEvent).spec_(spec.asSpec)
+    *new { arg postFilter, protoEvent, spec=\audio;
+        ^super.new.init(postFilter, protoEvent).spec_(spec.asSpec)
     }
     storeArgs {
         ^[postFilter.enpath, protoEvent.enpath, spec]
     }
-    init { arg pf,pe;
+    init { arg pf, pe;
         postFilter = pf;
         protoEvent = pe ? Event.default;
     }
@@ -29,13 +29,13 @@ EventPlayer : AbstractPlayer {
         if(verbose,{ e.debug });
         ^e
     }
-    postFilterPut { arg k,v;
+    postFilterPut { arg k, v;
         var pf;
         pf = (postFilter ?? { postFilter = Event.new});
         if(v.notNil,{
-            pf.put(k,v);
+            pf.put(k, v);
             if(this.isPlaying,{
-                v.prepareForPlay(this.group,true)
+                v.prepareForPlay(this.group, true)
             });
         },{
             pf.removeAt(k)
@@ -79,17 +79,17 @@ EventPlayer : AbstractPlayer {
 EventListPlayer : EventPlayer {
 
     var <events;
-    var sched,ei=0;
+    var sched, ei=0;
 
-    *new { arg events,spec=\audio,postFilter,protoEvent;
-        ^super.new(postFilter,protoEvent,spec).initElp.events_(events)
+    *new { arg events, spec=\audio, postFilter, protoEvent;
+        ^super.new(postFilter, protoEvent, spec).initElp.events_(events)
     }
     storeArgs {
-        ^[events.enpath,spec,postFilter.enpath,protoEvent.enpath]
+        ^[events.enpath, spec, postFilter.enpath, protoEvent.enpath]
     }
     initElp {
         sched = BeatSched.new;
-        events = SortedList(128,{arg a,b;
+        events = SortedList(128,{arg a, b;
             (a['beat']?inf) <= (b['beat']?inf)
         });
     }
@@ -97,8 +97,8 @@ EventListPlayer : EventPlayer {
         var start;
         evs = evs ? #[];
         start = events.size;
-        evs.do { arg e,i;
-            events.insert(start+i,e)
+        evs.do { arg e, i;
+            events.insert(start+i, e)
         };
         events.sort;
     }
@@ -121,12 +121,12 @@ EventListPlayer : EventPlayer {
         this.schedNext(this.findNextAfter(sched.beat))
     }
     schedNext { arg newEi;
-        var e,delta;
+        var e, delta;
         ei = newEi;
         e = events[ei];
         if(e.notNil and: {e[\beat].notNil},{
             delta = e['beat'] - sched.beat;
-            if(delta.inclusivelyBetween(-0.02,0.01),{
+            if(delta.inclusivelyBetween(-0.02, 0.01),{
                 this.playEvent(e);
                 this.schedNext(ei + 1)
             },{
@@ -144,7 +144,7 @@ EventListPlayer : EventPlayer {
         ^lasti + 1
     }
     addEvent { arg ev;
-        var nei,evi;
+        var nei, evi;
         events = events.add(ev);
         if(this.isPlaying,{
             if(ev['beat'].notNil,{
@@ -164,14 +164,14 @@ EventListPlayer : EventPlayer {
             this.schedFromNow;
         })
     }
-    playEventAt { arg i,inval;
+    playEventAt { arg i, inval;
         var te;
         te = events[i];
         if(te.notNil,{
-            this.playEvent(te,inval)
+            this.playEvent(te, inval)
         })
     }
-    playEvent { arg event,inval;
+    playEvent { arg event, inval;
         var e;
         e = protoEvent.copy.putAll(event);
         if(postStream.notNil,{
@@ -188,8 +188,8 @@ EventListPlayer : EventPlayer {
     getEventBeat { arg i;
         ^events[i][\beat]
     }
-    setEventBeat { arg i,beat;
-        events[i].put(\beat,beat);
+    setEventBeat { arg i, beat;
+        events[i].put(\beat, beat);
         if(this.isPlaying,{
             this.schedFromNow;
         })
@@ -198,13 +198,13 @@ EventListPlayer : EventPlayer {
         ^events.maxValue({ arg e; e[\beat] ? 0 })
     }
     beat { ^sched.beat }
-    gotoBeat { arg beat,atBeat,bundle;
+    gotoBeat { arg beat, atBeat, bundle;
         var f;
         f = {
             sched.beat = beat;
             this.schedFromNow;
         };
-        if(bundle.notNil,{bundle.addFunction(f)},f);
+        if(bundle.notNil,{bundle.addFunction(f)}, f);
     }
     sorted {
         ^events
@@ -223,7 +223,7 @@ InstrEventListPlayer : EventListPlayer {
             var instr;
             if(e['instr'].notNil,{
                 instr = e['instr'].asInstr;
-                instr.argNames.do { arg aname,i;
+                instr.argNames.do { arg aname, i;
                     an.put(aname, instr.specs.at(i) )
                 }
             })

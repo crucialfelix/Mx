@@ -26,31 +26,31 @@
 
 SynthiX {
 
-    var <>outlets,<>inlets;
-    var uv,pen;
-    var <>labelSize = 100,<>on,<>off,<>cant,<>font,bigFont;
-    var black,blue,faint,background;
-    var gridRect,width,height;
-    var ins,outs;
-    var <updateRate=0.5,animator;
-    var drawInlets=true,drawOutlets=true,drawGrid=true;
+    var <>outlets, <>inlets;
+    var uv, pen;
+    var <>labelSize = 100, <>on, <>off, <>cant, <>font, bigFont;
+    var black, blue, faint, background;
+    var gridRect, width, height;
+    var ins, outs;
+    var <updateRate=0.5, animator;
+    var drawInlets=true, drawOutlets=true, drawGrid=true;
 
-    *new { arg outlets,inlets;
-        ^super.newCopyArgs(outlets,inlets)
+    *new { arg outlets, inlets;
+        ^super.newCopyArgs(outlets, inlets)
     }
-    gui { arg parent,bounds;
+    gui { arg parent, bounds;
         if(parent.notNil,{
             parent = parent.asFlowView(bounds);
-            uv = UserView(parent,bounds ?? {parent.indentedRemaining});
+            uv = UserView(parent, bounds ?? {parent.indentedRemaining});
         },{
-            bounds = bounds ?? {Rect(0,0,500,500)};
-            parent = Window("SynthiX",bounds).front;
-            uv = UserView(parent,parent.bounds.moveTo(0,0));
+            bounds = bounds ?? {Rect(0, 0, 500, 500)};
+            parent = Window("SynthiX", bounds).front;
+            uv = UserView(parent, parent.bounds.moveTo(0, 0));
             uv.resize = 5;
         });
         uv.drawFunc = {this.draw};
         uv.clearOnRefresh = false;
-        uv.mouseDownAction = Message(this,\mouseDownAction,[]);
+        uv.mouseDownAction = Message(this, \mouseDownAction,[]);
         pen = GUI.pen;
         on = Color.yellow;
         off = Color.black;
@@ -59,7 +59,7 @@ SynthiX {
         bigFont = Font.sansSerif(12);
         black = Color.black;
         blue = Color.yellow(alpha:0.9);
-        faint = Color.white;//Color(0.6,0.6,0.8,0.7);
+        faint = Color.white;//Color(0.6, 0.6, 0.8, 0.7);
         background = Color.grey(181/255.0);
         this.update;
         if(ins.size > 0,{
@@ -68,20 +68,20 @@ SynthiX {
     }
     update {
         // if what is 'grid'
-        ins = inlets.asArray.sort({ arg a,b; a.unit.point <= b.unit.point });
-        outs = outlets.asArray.sort({ arg a,b; a.unit.point <= b.unit.point });
+        ins = inlets.asArray.sort({ arg a, b; a.unit.point <= b.unit.point });
+        outs = outlets.asArray.sort({ arg a, b; a.unit.point <= b.unit.point });
     }
     draw {
-        var b,gr;
-        b = uv.bounds.moveTo(0,0);
+        var b, gr;
+        b = uv.bounds.moveTo(0, 0);
 
 
-        gr = Rect(labelSize,17,b.width - labelSize,b.height - 17);
+        gr = Rect(labelSize, 17, b.width - labelSize, b.height - 17);
         if(gr != gridRect,{
             gridRect = gr;
             drawInlets = drawGrid = drawOutlets = true;
-            height = max(gridRect.height / outs.size.asFloat,0);
-            width = max(gridRect.width / ins.size.asFloat,0);
+            height = max(gridRect.height / outs.size.asFloat, 0);
+            width = max(gridRect.width / ins.size.asFloat, 0);
         });
 
         pen.font = font;
@@ -100,34 +100,34 @@ SynthiX {
         });
         if(animator.notNil,{
             pen.color = blue;
-            pen.fillRect(Rect(0,0,labelSize,height))
+            pen.fillRect(Rect(0, 0, labelSize, height))
         })
     }
     drawInlets {
         var curs;
         pen.use {
-            ins.do { arg in,ii;
-                var r,v;
-                r = Rect(width*ii+labelSize,0,width,17);
+            ins.do { arg in, ii;
+                var r, v;
+                r = Rect(width*ii+labelSize, 0, width, 17);
                 pen.color = in.spec.color;
                 pen.fillRect(r);
-                pen.stringInRect(in.name,r.moveBy(1,1),font,black);
+                pen.stringInRect(in.name, r.moveBy(1, 1), font, black);
 
                 // mark value of inlet value
                 if(in.canGet,{
                     v = in.spec.unmap(in.get);
                     pen.color = blue;
-                    r = r.moveBy( v * width,0 );
+                    r = r.moveBy( v * width, 0 );
                     r.width = 2;
                     pen.fillRect( r );
                 });
             };
             curs = labelSize;
-            ins.separate({ arg a,b; a.unit !== b.unit }).do { arg clump,i;
+            ins.separate({ arg a, b; a.unit !== b.unit }).do { arg clump, i;
                 var r;
                 if(clump.size > 0,{
-                    r = Rect( curs,0,clump.size * width,17 );
-                    pen.stringCenteredIn(clump.first.unit.name,r,bigFont,faint);
+                    r = Rect( curs, 0, clump.size * width, 17 );
+                    pen.stringCenteredIn(clump.first.unit.name, r, bigFont, faint);
                     pen.strokeColor = faint;
                     pen.strokeRect(r);
                     curs = r.right;
@@ -140,26 +140,26 @@ SynthiX {
         pen.color = background;
         pen.fillRect(gridRect);
         pen.use {
-            pen.translate(0,17);
-            outs.do { arg out,oi;
+            pen.translate(0, 17);
+            outs.do { arg out, oi;
                 var to;
                 pen.use {
-                    pen.translate(labelSize,0);
+                    pen.translate(labelSize, 0);
                     to = out.to.asArray;
-                    ins.do { arg in,ii;
-                        var can,r;
-                        r = Rect(0,0,width,height).insetAll(0,0,1,1);
+                    ins.do { arg in, ii;
+                        var can, r;
+                        r = Rect(0, 0, width, height).insetAll(0, 0, 1, 1);
                         can = out.unit !== in.unit;
                         if(can,{
-                            pen.color = if(to.includes(in),on,off);
+                            pen.color = if(to.includes(in), on, off);
                         },{
                             pen.color = cant;
                         });
                         pen.fillRect(r);
-                        pen.translate(width,0)
+                        pen.translate(width, 0)
                     };
                 };
-                pen.translate(0,height)
+                pen.translate(0, height)
             };
         };
         drawGrid = false;
@@ -167,32 +167,32 @@ SynthiX {
     drawOutlets {
         var curs = 17; // label height
         pen.color = background;
-        pen.fillRect(Rect(0,curs,labelSize,gridRect.height));
+        pen.fillRect(Rect(0, curs, labelSize, gridRect.height));
         pen.use {
-            pen.translate(0,17);
-            outs.do { arg out,oi;
+            pen.translate(0, 17);
+            outs.do { arg out, oi;
                 pen.use {
-                    var r,v;
-                    r = Rect(1,1,labelSize,height);
+                    var r, v;
+                    r = Rect(1, 1, labelSize, height);
                     pen.color = out.spec.color;
                     pen.fillRect(r);
-                    pen.stringInRect(out.name,r,font,black);
+                    pen.stringInRect(out.name, r, font, black);
                     if(out.canGet,{
                         v = out.spec.unmap(out.get);
                         pen.color = blue;
-                        r = r.moveBy( v * labelSize,0 );
+                        r = r.moveBy( v * labelSize, 0 );
                         r.width = 2;
                         pen.fillRect( r );
                     });
                 };
-                pen.translate(0,height)
+                pen.translate(0, height)
             };
         };
-        outs.separate({ arg a,b; a.unit !== b.unit }).do { arg clump,i;
+        outs.separate({ arg a, b; a.unit !== b.unit }).do { arg clump, i;
             var r;
             if(clump.size > 0,{
-                r = Rect( 0,curs,labelSize, clump.size * height );
-                pen.stringCenteredIn(clump.first.unit.name,r,bigFont,faint);
+                r = Rect( 0, curs, labelSize, clump.size * height );
+                pen.stringCenteredIn(clump.first.unit.name, r, bigFont, faint);
                 pen.strokeColor = faint;
                 pen.strokeRect(r);
                 curs = r.bottom;
@@ -201,8 +201,8 @@ SynthiX {
         drawOutlets = false;
     }
     mouseDownAction { arg view, x, y, modifiers, buttonNumber, clickCount;
-        var p,col,row;
-        var out,in,v;
+        var p, col, row;
+        var out, in, v;
         p = x@y;
         if(gridRect.contains(p),{
             p = p - gridRect.origin;

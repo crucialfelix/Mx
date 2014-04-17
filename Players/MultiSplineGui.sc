@@ -2,24 +2,24 @@
 
 MultiSplineFrGui : ObjectGui {
 
-    var splineGui,focusedDim=1,pointSelector,values,valuesD,times,maxTime,maxTimeV;
-    var thetas,rhos;
+    var splineGui, focusedDim=1, pointSelector, values, valuesD, times, maxTime, maxTimeV;
+    var thetas, rhos;
 
     writeName { arg layout;
-        CXLabel(layout,"Multi Dimensional Spline Designer",font:Font("Helvetica-Bold",14));
+        CXLabel(layout,"Multi Dimensional Spline Designer", font:Font("Helvetica-Bold", 14));
         layout.startRow;
     }
-    guiBody { arg layout,bounds,argMaxTime;
+    guiBody { arg layout, bounds, argMaxTime;
 
         maxTime = argMaxTime ?? {model.spline.points.last[0]};
-        splineGui = this.make2DSpline(focusedDim).gui(layout,Rect(0,0,layout.bounds.width,150),model.spec,ControlSpec(0,maxTime));
+        splineGui = this.make2DSpline(focusedDim).gui(layout, Rect(0, 0, layout.bounds.width, 150), model.spec, ControlSpec(0, maxTime));
         splineGui.onSelect = { arg i;
             pointSelector.activeValue = if(i.isNil,{-1},{i});
         };
 
         layout.startRow;
-        CXLabel(layout,"Dimension",75);
-        focusedDim = NumberEditor(focusedDim.value,[1,model.spline.numDimensions-1,\lin,1]);
+        CXLabel(layout,"Dimension", 75);
+        focusedDim = NumberEditor(focusedDim.value,[1, model.spline.numDimensions-1, \lin, 1]);
         focusedDim.action = {
             this.update;
         };
@@ -35,7 +35,7 @@ MultiSplineFrGui : ObjectGui {
 
         layout.startRow;
         // pause play / focus a point
-        pointSelector = NumberEditor(-1,[-1,model.spline.points.size-1,'lin',1]);
+        pointSelector = NumberEditor(-1,[-1, model.spline.points.size-1, 'lin', 1]);
         pointSelector.action = {
             if(pointSelector.value >= 0,{
                 model.focusedPoint = pointSelector.value;
@@ -45,7 +45,7 @@ MultiSplineFrGui : ObjectGui {
                 this.update;
             })
         };
-        CXLabel(layout,"Point",75);
+        CXLabel(layout,"Point", 75);
         pointSelector.gui(layout);
 
         ActionButton(layout,"+",{
@@ -55,7 +55,7 @@ MultiSplineFrGui : ObjectGui {
             model.deletePoint.initTable.changed
         });
         ActionButton(layout,"RND all",{
-            model.spline.points.do { arg p,i;
+            model.spline.points.do { arg p, i;
                 if(i > 0,{
                     model.focusedPoint = i;
                     model.liveValues = model.spec.map( Array.fill(model.spline.numDimensions - 1,{1.0.rand}) );
@@ -69,8 +69,8 @@ MultiSplineFrGui : ObjectGui {
         layout.startRow;
         ActionButton(layout,"Values @ P",{
             values.valueAction = values.value.collect { 1.0.rand };
-        },75);
-        values = MultiSliderView(layout,100@150);
+        }, 75);
+        values = MultiSliderView(layout, 100@150);
         values.action = {
             model.liveValues = model.spec.map( values.value );
             if(model.focusedPoint.notNil,{
@@ -82,8 +82,8 @@ MultiSplineFrGui : ObjectGui {
         ActionButton(layout,"Values in DIM",{
             model.setDimValues( focusedDim.value, model.spec.map( valuesD.value.collect { 1.0.rand } ) );
             model.initTable.changed;
-        },75);
-        valuesD = MultiSliderView(layout,100@150);
+        }, 75);
+        valuesD = MultiSliderView(layout, 100@150);
         valuesD.action = {
             model.setDimValues( focusedDim.value, model.spec.map( valuesD.value ) );
             model.initTable.changed;
@@ -92,10 +92,10 @@ MultiSplineFrGui : ObjectGui {
         layout.startRow;
         ActionButton(layout,"Times",{
             times.valueAction = times.value.collect { 1.0.rand };
-        },75);
-        times = MultiSliderView(layout,100@150);
+        }, 75);
+        times = MultiSliderView(layout, 100@150);
         times.action = {
-            var t,total,scale,maxValue;
+            var t, total, scale, maxValue;
             t = times.value;
             total = t.sum;
             scale = maxTime / total;
@@ -104,8 +104,8 @@ MultiSplineFrGui : ObjectGui {
             model.initTable.changed;
         };
         // maxTime
-        CXLabel(layout,"maxTime:",75);
-        maxTimeV = NumberEditor(maxTime,[0,10000,\lin,1]);
+        CXLabel(layout,"maxTime:", 75);
+        maxTimeV = NumberEditor(maxTime,[0, 10000, \lin, 1]);
         maxTimeV.action = {
             maxTime = maxTimeV.value;
             times.action.value;
@@ -115,15 +115,15 @@ MultiSplineFrGui : ObjectGui {
         // when move point on splineGui that should change the times        // and do sliders so they can be edited non-linear
 
         layout.startRow;
-        CXLabel(layout,"Theta",75);
-        thetas = MultiSliderView(layout,100@150);
+        CXLabel(layout,"Theta", 75);
+        thetas = MultiSliderView(layout, 100@150);
         thetas.value = Array.fill(model.spline.points.size - 1,{0.5});
         thetas.action = {
             this.setControlPoints;
             model.initTable.changed;
         };
-        CXLabel(layout,"Rho",75);
-        rhos = MultiSliderView(layout,100@150);
+        CXLabel(layout,"Rho", 75);
+        rhos = MultiSliderView(layout, 100@150);
         rhos.value = Array.fill(model.spline.points.size - 1,{0.5});
         rhos.action = {
             this.setControlPoints;
@@ -133,12 +133,12 @@ MultiSplineFrGui : ObjectGui {
         this.update
 
     }
-    update { arg who,what;
-        var v,stop;
+    update { arg who, what;
+        var v, stop;
         stop = model.spline.points.size - 1;
         if(who.isKindOf(BezierSpline),{
             // update from editable spline
-            who.points.do { arg p,i;
+            who.points.do { arg p, i;
                 var di = focusedDim.value;
                 if(model.spline.points[i][0] != p[0],{
                     model.spline.points[i][0] = p[0]
@@ -149,13 +149,13 @@ MultiSplineFrGui : ObjectGui {
             };
             model.spline.controlPoints = Array.fill(stop,{ arg i;
                 var gp;
-                // return [ ] or [ [t,x,y,z] ]
+                // return [ ] or [ [t, x, y, z] ]
                 if(who.controlPoints[i].size == 0,{
                     []
                 },{
                     gp = who.controlPoints[i].first;
                     [ Array.fill(model.numDimensions + 1,{ arg di;
-                        var prev,cur,v,b,t;
+                        var prev, cur, v, b, t;
 
                         t = gp[0];
                         if(di == 0,{
@@ -204,9 +204,9 @@ MultiSplineFrGui : ObjectGui {
                 rhos.value = Array.fill(stop,{0.5});
             });
 
-            pointSelector.spec = [-1,stop,'lin',1].asSpec;
+            pointSelector.spec = [-1, stop, 'lin', 1].asSpec;
             pointSelector.value = model.focusedPoint ? -1;
-            focusedDim.spec = [1,model.spline.numDimensions-1,\lin,1].asSpec;
+            focusedDim.spec = [1, model.spline.numDimensions-1, \lin, 1].asSpec;
             // bad juggling : if the update did not come due to the splineGui
             if(who !== splineGui,{
                 this.focusDim;
@@ -222,30 +222,30 @@ MultiSplineFrGui : ObjectGui {
         })
     }
     updateSplineGui {
-        splineGui.setDomainSpec( [0,maxTime,\lin].asSpec );
+        splineGui.setDomainSpec( [0, maxTime, \lin].asSpec );
         splineGui.model = this.make2DSpline(focusedDim.value.asInteger);
-        splineGui.select(if(pointSelector.value == -1,nil,{pointSelector.value}));
+        splineGui.select(if(pointSelector.value == -1, nil,{pointSelector.value}));
     }
     make2DSpline { arg di;
         var bs;
         if(splineGui.notNil,{
             splineGui.model.removeDependant(this)
         });
-        bs = model.spline.sliceDimensions([0,di]);
+        bs = model.spline.sliceDimensions([0, di]);
         bs.addDependant(this);
         ^bs
     }
     setControlPoints {
-        var t,r;
+        var t, r;
         t = thetas.value - 0.5 * 2pi / 32.0;
         r = rhos.value;
         model.spline.controlPoints = Array.fill(model.spline.points.size - 1, { arg i;
-            var prev,next,newCP;
+            var prev, next, newCP;
             prev = model.spline.points[i];
             next = model.spline.points.clipAt(i+1);
             newCP = [ blend( prev[0], next[0], r[i] ? 0.5 ) ];
             model.numDimensions.do { arg di;
-                var vs,vals,cp,p,n,newDimCp;
+                var vs, vals, cp, p, n, newDimCp;
                 di = di + 1;
                 p = Point( prev[0], prev[di] );
                 n = Point( next[0], next[di] );
@@ -257,8 +257,8 @@ MultiSplineFrGui : ObjectGui {
             [newCP]
         });
     }
-    setZoom { arg argFromX,argToX;
-        splineGui.setZoom(argFromX,argToX).update;
+    setZoom { arg argFromX, argToX;
+        splineGui.setZoom(argFromX, argToX).update;
     }
     setMaxTime { arg mt;
         maxTime = mt;

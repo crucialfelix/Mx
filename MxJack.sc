@@ -2,7 +2,7 @@
 
 MxJack {
 
-    *forSpec { arg spec,defArg;
+    *forSpec { arg spec, defArg;
         if(defArg.isKindOf(MxJack),{
             ^defArg
         });
@@ -16,23 +16,23 @@ MxJack {
         // ArraySpec
         // StreamSpec
         if(spec.isKindOf(StreamSpec),{
-            ^MxStreamJack(defArg ? spec.default,spec)
+            ^MxStreamJack(defArg ? spec.default, spec)
         });
 
         if(spec.isKindOf(TrigSpec),{
-            ^MxTrJack(defArg ? spec.default,spec)
+            ^MxTrJack(defArg ? spec.default, spec)
         });
         if(spec.isKindOf(StaticSpec),{
-            ^NumberEditor(defArg ? spec.default,spec)
+            ^NumberEditor(defArg ? spec.default, spec)
         });
         if(spec.isKindOf(NamedIntegersSpec),{
             ^spec.defaultControl(defArg)
         });
         if(spec.isKindOf(NoLagControlSpec),{
-            ^MxKrJack(defArg ? spec.default,spec,nil)
+            ^MxKrJack(defArg ? spec.default, spec, nil)
         });
         if(spec.isKindOf(ControlSpec),{
-            ^MxKrJack(defArg ? spec.default,spec)
+            ^MxKrJack(defArg ? spec.default, spec)
         });
         ^defArg
     }
@@ -41,15 +41,15 @@ MxJack {
 
 MxStreamJack : MxJack {
 
-    var stream,<>spec;
-    var <source,firstVal,lastVal;
+    var stream, <>spec;
+    var <source, firstVal, lastVal;
     var <isConnected=false;
 
-    *new { arg initialValue,spec;
+    *new { arg initialValue, spec;
         ^super.new.spec_(spec).value_(initialValue ? spec.default)
     }
     storeArgs {
-        ^[this.value,spec]
+        ^[this.value, spec]
     }
     source_ { arg v;
         source = v;
@@ -98,8 +98,8 @@ MxStreamJack : MxJack {
     synthArg {
         ^this.value
     }
-    addToSynthDef {  arg synthDef,name;
-        synthDef.addIr(name,this.synthArg);
+    addToSynthDef {  arg synthDef, name;
+        synthDef.addIr(name, this.synthArg);
     }
     instrArgFromControl { arg control;
         ^control
@@ -110,17 +110,17 @@ MxStreamJack : MxJack {
 
 MxControlJack : MxJack { // abstract
 
-    var <value,<>spec;
+    var <value, <>spec;
     var <patchOut, <>isConnected=false;
 
     storeArgs {
-        ^[value,spec]
+        ^[value, spec]
     }
     value_ { arg v;
         value = v;
         this.changed;
     }
-    setValueToBundle { arg v,bundle;
+    setValueToBundle { arg v, bundle;
         bundle.addFunction({
             value = v;
         });
@@ -136,7 +136,7 @@ MxControlJack : MxJack { // abstract
         // does not work in Patch spawn because connectedTo does not happen till didSpawn
         // so this only works after already playing
         patchOut.connectedTo.do { arg patchIn;
-            bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),bus) );
+            bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl), bus) );
         };
         bundle.addFunction({ isConnected = true });
     }
@@ -156,17 +156,17 @@ MxControlJack : MxJack { // abstract
     synthArg {
         ^value
     }
-    addToSynthDef {  arg synthDef,name;
-        synthDef.addKr(name,value);
+    addToSynthDef {  arg synthDef, name;
+        synthDef.addKr(name, value);
     }
     instrArgFromControl { arg control;
         ^control
     }
     makePatchOut {
-        patchOut = UpdatingScalarPatchOut(this,enabled: false);
+        patchOut = UpdatingScalarPatchOut(this, enabled: false);
     }
-    connectToPatchIn { arg patchIn,needsValueSetNow = true;
-        patchOut.connectTo(patchIn,needsValueSetNow);
+    connectToPatchIn { arg patchIn, needsValueSetNow = true;
+        patchOut.connectTo(patchIn, needsValueSetNow);
     }
     rate { ^\control }
 }
@@ -176,18 +176,18 @@ MxKrJack : MxControlJack {
 
     var <>lag=0.1;
 
-    *new { arg value,spec,lag=0.1;
-        ^super.newCopyArgs(value,spec,lag)
+    *new { arg value, spec, lag=0.1;
+        ^super.newCopyArgs(value, spec, lag)
     }
     storeArgs {
-        ^[value,spec,lag]
+        ^[value, spec, lag]
     }
     instrArgFromControl { arg control;
         // actually if its patched up to a kr on the server
         // then you don't want Lag
         // this assumes you are sending values from client
         if(lag.notNil and: {spec.isKindOf(NoLagControlSpec).not},{
-            ^Lag.kr(control,lag)
+            ^Lag.kr(control, lag)
         },{
             ^control
         })
@@ -204,7 +204,7 @@ MxArJack : MxControlJack {
 
     var <>numChannels=2;
 
-    *new { arg numChannels=2,bus=126;
+    *new { arg numChannels=2, bus=126;
         ^super.new.numChannels_(numChannels).value_(bus)
     }
     storeArgs {
@@ -219,18 +219,18 @@ MxArJack : MxControlJack {
         });
         this.changed;
     }
-    addToSynthDef {  arg synthDef,name;
-        synthDef.addKr(name,value);
+    addToSynthDef {  arg synthDef, name;
+        synthDef.addKr(name, value);
     }
     instrArgFromControl { arg control;
-        ^In.ar(control,numChannels)
+        ^In.ar(control, numChannels)
     }
 
     readFromBusToBundle { arg bus, bundle;
-        this.setValueToBundle(bus.index,bundle);
+        this.setValueToBundle(bus.index, bundle);
     }
     stopReadFromBusToBundle { arg bundle;
-        this.setValueToBundle(126,bundle);
+        this.setValueToBundle(126, bundle);
     }
 
     rate { ^\audio }
@@ -241,11 +241,11 @@ MxArJack : MxControlJack {
 
 MxIrJack : MxControlJack {
 
-    *new { arg value,spec;
-        ^super.newCopyArgs(value,spec)
+    *new { arg value, spec;
+        ^super.newCopyArgs(value, spec)
     }
-    addToSynthDef {  arg synthDef,name;
-        synthDef.addIr(name,value);
+    addToSynthDef {  arg synthDef, name;
+        synthDef.addIr(name, value);
     }
     makePatchOut {
         patchOut = ScalarPatchOut(this);
@@ -256,11 +256,11 @@ MxIrJack : MxControlJack {
 
 MxTrJack : MxControlJack {
 
-    *new { arg value,spec;
-        ^super.newCopyArgs(value,spec)
+    *new { arg value, spec;
+        ^super.newCopyArgs(value, spec)
     }
-    addToSynthDef {  arg synthDef,name;
-        synthDef.addTr(name,value);
+    addToSynthDef {  arg synthDef, name;
+        synthDef.addTr(name, value);
     }
 }
 

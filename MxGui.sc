@@ -2,20 +2,20 @@
 
 MxGui : AbstractPlayerGui {
 
-    var boxes,drawerGui;
+    var boxes, drawerGui;
 
     writeName {}
     saveConsole { arg layout;
         super.saveConsole(layout);
         layout.startRow;
         ActionButton(layout,"Timeline",{
-            MxTimeGui(model).gui(nil,Rect(0,0,1000,800));
+            MxTimeGui(model).gui(nil, Rect(0, 0, 1000, 800));
         });
         ActionButton(layout,"Mixer",{
-            MxMixerGui(model).gui(nil,Rect(0,0,1000,500));
+            MxMixerGui(model).gui(nil, Rect(0, 0, 1000, 500));
         });
         ActionButton(layout,"SynthiX",{
-            SynthiX(model.app.outlets,model.app.inlets).gui(nil,Rect(0,0,1000,500))
+            SynthiX(model.app.outlets, model.app.inlets).gui(nil, Rect(0, 0, 1000, 500))
         });
 
         ActionButton(layout,"respawn",{
@@ -26,7 +26,7 @@ MxGui : AbstractPlayerGui {
             }
         });
         ActionButton(layout,"+filter",{
-            var subject,unit,spec;
+            var subject, unit, spec;
             if(boxes.selected.size == 1,{
                 subject = boxes.selected.first;
                 // unit
@@ -40,14 +40,14 @@ MxGui : AbstractPlayerGui {
                 });
                 if(subject.isKindOf(MxOutlet),{
                     spec = subject.spec;
-                    InstrBrowser({ arg layout,instr;
+                    InstrBrowser({ arg layout, instr;
                         ActionButton(layout,"INSERT FILTER",{
-                            var point,filter,newUnit,b,oldcables;
+                            var point, filter, newUnit, b, oldcables;
                             point = boxes.boxPointForUnit(unit);
-                            if(model.at(point.x,point.y + 1).notNil,{
-                                newUnit = model.insert(point.x,point.y + 1,instr)
+                            if(model.at(point.x, point.y + 1).notNil,{
+                                newUnit = model.insert(point.x, point.y + 1, instr)
                             },{
-                                newUnit = model.put(point.x,point.y + 1,instr)
+                                newUnit = model.put(point.x, point.y + 1, instr)
                             });
                             // new needs to be prepared because no patchOut to connect to
                             if(model.isPlaying,{
@@ -56,7 +56,7 @@ MxGui : AbstractPlayerGui {
                             });
                             // connect old to filter
                             oldcables = model.cables.fromOutlet(subject);
-                            model.connect(unit, subject, newUnit, newUnit.getInlet( instr.specs.detectIndex({ arg sp,i; sp == spec }) ) );
+                            model.connect(unit, subject, newUnit, newUnit.getInlet( instr.specs.detectIndex({ arg sp, i; sp == spec }) ) );
                             // connect filter to what the unit was connected to
                             oldcables.do { arg cable;
                                 var outSpec;
@@ -76,15 +76,15 @@ MxGui : AbstractPlayerGui {
                             });
                             model.changed('grid');
                         })
-                    },nil,false).rate_(spec.rate).inputSpec_(spec).outputSpec_(spec).init.gui
+                    }, nil, false).rate_(spec.rate).inputSpec_(spec).outputSpec_(spec).init.gui
                 })
             })
         });
         if(\InspButton.asClass.notNil,{
-            InspButton.icon(model,layout);
+            InspButton.icon(model, layout);
             // these will move into an MxAction
             ActionButton(layout,"Insp selected",{
-                var inspMe,in,out,cable;
+                var inspMe, in, out, cable;
                 inspMe = boxes.selected;
                 if(boxes.selected.size == 2,{
                     out = boxes.selected.detect({ arg io; io.class === MxOutlet });
@@ -102,13 +102,13 @@ MxGui : AbstractPlayerGui {
         });
     }
 
-    guiBody { arg layout,bounds;
-        var bb,updater;
-        bounds = bounds ?? {layout.innerBounds.moveTo(0,0)};
-        bb = bounds.resizeBy(-200,0);
+    guiBody { arg layout, bounds;
+        var bb, updater;
+        bounds = bounds ?? {layout.innerBounds.moveTo(0, 0)};
+        bb = bounds.resizeBy(-200, 0);
         boxes = MxMatrixGui(model, layout, bb );
         boxes.transferFocus(0@0);
-        this.drawer(layout,(bounds - bb).resizeTo(200,bounds.height));
+        this.drawer(layout,(bounds - bb).resizeTo(200, bounds.height));
         boxes.focus;
 
         updater = SimpleController(model);
@@ -121,8 +121,8 @@ MxGui : AbstractPlayerGui {
         layout.removeOnClose(updater)
     }
 
-    drawer { arg layout,bounds;
-        var d,doIt;
+    drawer { arg layout, bounds;
+        var d, doIt;
         doIt = { arg obj, placeIt;
             // which puts to master or channels
             placeIt.value(obj);
@@ -134,20 +134,20 @@ MxGui : AbstractPlayerGui {
             });
         };
         d = MxDrawer({ arg obj;
-            var placeIt,fp;
+            var placeIt, fp;
             fp = boxes.focusedPoint;
             if(fp.notNil,{
                 placeIt = {
-                    boxes.put(fp.x,fp.y,obj);
+                    boxes.put(fp.x, fp.y, obj);
                 };
                 if(obj.isKindOf(MxDeferredDrawerAction),{
-                    obj.func = { arg obj; doIt.value(obj,placeIt) };
+                    obj.func = { arg obj; doIt.value(obj, placeIt) };
                 },{
-                    doIt.value(obj,placeIt)
+                    doIt.value(obj, placeIt)
                 })
             })
         });
-        drawerGui = d.gui(layout,bounds);
+        drawerGui = d.gui(layout, bounds);
     }
     keyDownResponder {
         ^boxes.keyDownResponder ++ drawerGui.keyDownResponder

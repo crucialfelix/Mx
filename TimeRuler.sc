@@ -6,7 +6,7 @@ time ruler
 
     can move the range select and play head into here later
         would take:
-            position,relocateFunction
+            position, relocateFunction
 
 MxTimeGui
 */
@@ -15,25 +15,25 @@ MxTimeGui
 TimeRuler {
 
     var <maxTime;
-    var view,zoomCalc,gridLines;
+    var view, zoomCalc, gridLines;
     var <position;
-    var <>shiftSwipeAction,swipeStart,lastx;
+    var <>shiftSwipeAction, swipeStart, lastx;
 
-    *new { arg layout,bounds,maxTime;
-        ^super.new.init(layout,bounds,maxTime)
+    *new { arg layout, bounds, maxTime;
+        ^super.new.init(layout, bounds, maxTime)
     }
 
-    init { arg layout,bounds,mt;
+    init { arg layout, bounds, mt;
         maxTime = mt;
-        zoomCalc = ZoomCalc([0.0,maxTime],[0.0, bounds.width]);
-        this.gui(layout,bounds)
+        zoomCalc = ZoomCalc([0.0, maxTime],[0.0, bounds.width]);
+        this.gui(layout, bounds)
     }
 
-    gui { arg layout,bounds;
-        var pen,blue;
-        view = UserView(layout,bounds);
+    gui { arg layout, bounds;
+        var pen, blue;
+        view = UserView(layout, bounds);
         view.background = Color.white;
-        gridLines = DrawGrid(bounds,GridLines([0.0,maxTime]),nil);
+        gridLines = DrawGrid(bounds, GridLines([0.0, maxTime]), nil);
         pen = GUI.pen;
         blue = Color.blue;
         view.drawFunc = {
@@ -52,27 +52,27 @@ TimeRuler {
             if(swipeStart.notNil,{
                 pen.use {
                     pen.color = Color.blue(alpha:0.3);
-                    pen.fillRect( Rect(min(swipeStart,lastx),0,(lastx - swipeStart).abs, bounds.height) )
+                    pen.fillRect( Rect(min(swipeStart, lastx), 0,(lastx - swipeStart).abs, bounds.height) )
                 }
             });
         };
-        view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+        view.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             lastx = x;
             if(modifiers.isShift,{
                 if(clickCount == 2,{
-                    shiftSwipeAction.value(0,maxTime)
+                    shiftSwipeAction.value(0, maxTime)
                 },{
                     swipeStart = x;
                 })
             })
         };
-        view.mouseUpAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+        view.mouseUpAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             if(modifiers.isShift and: swipeStart.notNil,{
-                shiftSwipeAction.value(zoomCalc.displayToModel(swipeStart),zoomCalc.displayToModel(x))
+                shiftSwipeAction.value(zoomCalc.displayToModel(swipeStart), zoomCalc.displayToModel(x))
             });
             swipeStart = nil;
         };
-        view.mouseMoveAction = { arg view,x;
+        view.mouseMoveAction = { arg view, x;
             lastx = x;
             view.refresh;
         };
@@ -81,15 +81,15 @@ TimeRuler {
     refresh {
         view.refresh
     }
-    setZoom { arg from,to;
-        zoomCalc.setZoom(from,to);
-        gridLines.x.setZoom(from,to);
+    setZoom { arg from, to;
+        zoomCalc.setZoom(from, to);
+        gridLines.x.setZoom(from, to);
         view.refresh;
     }
     maxTime_ { arg mt;
         maxTime = mt;
-        zoomCalc.modelRange = [0.0,maxTime];
-        gridLines.x.setZoom(0.0,maxTime);
+        zoomCalc.modelRange = [0.0, maxTime];
+        gridLines.x.setZoom(0.0, maxTime);
     }
     position_ { arg p;
         position = p;
@@ -99,13 +99,13 @@ TimeRuler {
         view.keyDownAction = f;
     }
     mouseDownAction_ { arg f;
-        view.mouseDownAction = { arg view,x,y,modifiers,buttonNumber,clickCount;
+        view.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             lastx = x;
             if(modifiers.isShift.not,{
-                f.value( zoomCalc.displayToModel(x), modifiers,buttonNumber,clickCount )
+                f.value( zoomCalc.displayToModel(x), modifiers, buttonNumber, clickCount )
             },{
                 if(clickCount == 2,{
-                    shiftSwipeAction.value(0,maxTime)
+                    shiftSwipeAction.value(0, maxTime)
                 },{
                     swipeStart = x;
                 })

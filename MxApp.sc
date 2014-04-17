@@ -2,10 +2,10 @@
 
 AbsApp {
 
-    var <model,mxapp;
+    var <model, mxapp;
 
-    *new { arg model,mxapp;
-        ^super.newCopyArgs(model,mxapp).prInit
+    *new { arg model, mxapp;
+        ^super.newCopyArgs(model, mxapp).prInit
     }
     prInit {}
     mx { ^mxapp.model }
@@ -22,24 +22,24 @@ AbsApp {
 
 MxApp : AbsApp {
 
-    var cache,convertor,transactionCount = 0;
+    var cache, convertor, transactionCount = 0;
 
     mx { ^model }
     at { arg point;
         var u;
-        u = model.at(point.x,point.y) ?? { ^nil };
+        u = model.at(point.x, point.y) ?? { ^nil };
         ^this.prFind( u )
     }
-    put { arg point,object;
-        ^this.prFind( model.put(point.x,point.y,object) )
+    put { arg point, object;
+        ^this.prFind( model.put(point.x, point.y, object) )
     }
     units {
-        ^MxQuery(model.allUnits(false).all.collect(this.prFind(_)),this)
+        ^MxQuery(model.allUnits(false).all.collect(this.prFind(_)), this)
     }
     outlets { ^this.units.outlets }
     inlets { ^this.units.inlets }
     channels {
-        ^MxQuery(model.channels.collect(this.prFind(_)),this)
+        ^MxQuery(model.channels.collect(this.prFind(_)), this)
     }
     channel { arg i;
         var c;
@@ -74,31 +74,31 @@ MxApp : AbsApp {
         if(model.isPlaying.not,{
             if(then.notNil,{ model.onPlay(then) });
             model.play
-        },then)
+        }, then)
     }
     stop { arg then;
         if(model.isPlaying,{
             if(then.notNil,{ model.onFree(then) });
             model.free
-        },then)
+        }, then)
     }
 
     beat { ^model.beat }
-    relocate { arg beat,q=4;
-        model.gotoBeat(beat,q);
+    relocate { arg beat, q=4;
+        model.gotoBeat(beat, q);
     }
 
     save {
         model.save
     }
-    gui { arg parent,bounds;
+    gui { arg parent, bounds;
         // detect and front
         //var open;
         //open = model.dependants.detect(_.isKindOf(MxGui));
         //if(open.notNil and: { open.isClosed.not },{
         //    open.front
         //},{
-            model.gui(parent,bounds);
+            model.gui(parent, bounds);
         //})
     }
 
@@ -108,7 +108,7 @@ MxApp : AbsApp {
         var result;
         transactionCount = transactionCount + 1;
         result = function.value;
-        transactionCount = max(transactionCount - 1,0);
+        transactionCount = max(transactionCount - 1, 0);
         this.commit;
         ^result
     }
@@ -127,7 +127,7 @@ MxApp : AbsApp {
     prFind { arg obj;
         var app;
         ^cache[obj] ?? {
-            app = (obj.class.name.asString ++ "App").asSymbol.asClass.new(obj,this);
+            app = (obj.class.name.asString ++ "App").asSymbol.asClass.new(obj, this);
             cache[obj] = app;
             app
         }
@@ -154,7 +154,7 @@ MxChannelApp : AbsApp {
         };
         ^mxapp.prFind( unit )
     }
-    put { arg i,source;
+    put { arg i, source;
         this.mx.put( this.channelNumber, i, source );
         mxapp.commit;
         ^this.at(i)
@@ -163,7 +163,7 @@ MxChannelApp : AbsApp {
         this.mx.remove( this.channelNumber, i );
         mxapp.commit;
     }
-    insertAt { arg i,source;
+    insertAt { arg i, source;
         // source.asArray.do
         this.mx.insert( this.channelNumber, i, source );
         mxapp.commit;
@@ -171,7 +171,7 @@ MxChannelApp : AbsApp {
     }
 
     units {
-        ^MxQuery(model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) }),mxapp)
+        ^MxQuery(model.units.select(_.notNil).collect({ arg u; mxapp.prFind(u) }), mxapp)
     }
     fader {
         // the audio inlet to the fader
@@ -182,13 +182,13 @@ MxChannelApp : AbsApp {
 
     //select
     add { arg ... sources; // add 1 or more to the end
-        var start,apps,ci;
+        var start, apps, ci;
         start = model.units.size;
         ci = this.channelNumber;
-        apps = sources.collect { arg source,i;
+        apps = sources.collect { arg source, i;
             var unit;
             if(source.notNil,{
-                unit = this.mx.put( ci,start + i, source );
+                unit = this.mx.put( ci, start + i, source );
                 mxapp.prFind(unit)
             },{
                 nil
@@ -201,9 +201,9 @@ MxChannelApp : AbsApp {
             ^apps
         })
     }
-    dup { arg fromIndex,toIndex;
+    dup { arg fromIndex, toIndex;
         // toIndex defaults to the next slot, pushing any others further down
-        var unit,ci;
+        var unit, ci;
         ci = this.channelNumber;
         unit = this.mx.copy( ci, fromIndex, ci,     toIndex ?? {fromIndex + 1} );
         mxapp.commit;
@@ -211,26 +211,26 @@ MxChannelApp : AbsApp {
         ^mxapp.prFind( unit )
     }
     mute { arg boo=true;
-        this.mx.mute(this.channelNumber,boo);
+        this.mx.mute(this.channelNumber, boo);
         this.mx.changed('mixer');
     }
     muted {
         ^model.fader.mute
     }
     unmute {
-        this.mx.mute(this.channelNumber,false);
+        this.mx.mute(this.channelNumber, false);
         this.mx.changed('mixer');
     }
     toggle {
-        this.mx.mute(this.channelNumber,model.fader.mute.not);
+        this.mx.mute(this.channelNumber, model.fader.mute.not);
         this.mx.changed('mixer');
     }
     solo { arg boo=true;
-        this.mx.solo(this.channelNumber,boo);
+        this.mx.solo(this.channelNumber, boo);
         this.mx.changed('mixer');
     }
     unsolo {
-        this.mx.solo(this.channelNumber,false);
+        this.mx.solo(this.channelNumber, false);
         this.mx.changed('mixer');
     }
     soloed {
@@ -244,7 +244,7 @@ MxChannelApp : AbsApp {
         model.fader.db = db;
         this.mx.changed('mixer');
     }
-    //fade { arg db,seconds=5; // easing
+    //fade { arg db, seconds=5; // easing
         // will need a little engine in the frame rate engine
     //}
 
@@ -289,8 +289,8 @@ MxUnitApp : AbsApp {
     beatDuration {
         model.beatDuration
     }
-    gui { arg parent,bounds;
-        ^model.gui(parent,bounds)
+    gui { arg parent, bounds;
+        ^model.gui(parent, bounds)
     }
 
     remove {
@@ -301,27 +301,27 @@ MxUnitApp : AbsApp {
     moveTo { arg point;
         var me;
         me = this.point;
-        this.mx.move(me.x,me.y,point.x,point.y);
+        this.mx.move(me.x, me.y, point.x, point.y);
         mxapp.commit;
     }
     moveBy { arg vector;
-        var me,dort;
+        var me, dort;
         me = this.point;
         dort = me + vector;
-        this.mx.move(me.x,me.y,dort.x,dort.y);
+        this.mx.move(me.x, me.y, dort.x, dort.y);
         mxapp.commit;
     }
     dup { arg num=1;
         // insert copies below self
-        var p,below,bp,cop;
+        var p, below, bp, cop;
         p = this.point;
         ^mxapp.transaction({
             var results;
             results = Array.fill(num,{ arg i;
-                bp = Point(p.x,p.y+(i+1));
-                below = this.mx.at(bp.x,bp.y);
+                bp = Point(p.x, p.y+(i+1));
+                below = this.mx.at(bp.x, bp.y);
                     if(below.notNil,{
-                        this.channel.insertAt(bp,nil);
+                        this.channel.insertAt(bp, nil);
                     });
                     this.copy(bp);
                 });
@@ -334,7 +334,7 @@ MxUnitApp : AbsApp {
     }
     copy { arg toPoint;
         // toIndex defaults to the next slot, pushing any others further down
-        var unit,ci,p;
+        var unit, ci, p;
         p = this.point;
         unit = this.mx.copy( p.x, p.y, toPoint.x, toPoint.y );
         mxapp.commit;
@@ -351,15 +351,15 @@ MxUnitApp : AbsApp {
 
         ^mxapp.transaction({
             var new;
-            new = mxapp.put(p,source);
-            insFrom.do { arg outs,i;
+            new = mxapp.put(p, source);
+            insFrom.do { arg outs, i;
                 outs.do { arg out;
                     if(new.i.size > i,{
                         out >> new.i[i]
                     })
                 }
             };
-            outsTo.do { arg ins,i;
+            outsTo.do { arg ins, i;
                 ins.do { arg in;
                     if(new.o.size > i,{
                         new.o[i] >> in
@@ -386,10 +386,10 @@ MxUnitApp : AbsApp {
     i { ^this.inlets }
     o { ^this.outlets }
     inlets {
-        ^MxIOletsApp(model.inlets,mxapp,model)
+        ^MxIOletsApp(model.inlets, mxapp, model)
     }
     outlets {
-        ^MxIOletsApp(model.outlets,mxapp,model)
+        ^MxIOletsApp(model.outlets, mxapp, model)
     }
     cables { ^this.i.cables ++ this.o.cables }
     out {
@@ -404,16 +404,16 @@ MxUnitApp : AbsApp {
             this.outlets >> that
         })
     }
-    addInlet { arg name,spec,adapter;
-        model.addInlet(name,spec,adapter)
+    addInlet { arg name, spec, adapter;
+        model.addInlet(name, spec, adapter)
     }
-    addOutlet { arg name,spec,adapter;
-        model.addOutlet(name,spec,adapter)
+    addOutlet { arg name, spec, adapter;
+        model.addOutlet(name, spec, adapter)
     }
     point { ^this.mx.pointForUnit(model) }
     printOn { arg stream;
         var p;
-        p = this.point ? Point(nil,nil);
+        p = this.point ? Point(nil, nil);
         stream << p.x << "@" << p.y << "(" << this.name << ")"
     }
 }
@@ -423,24 +423,24 @@ MxIOletsApp : AbsApp {
 
     var <unit;
 
-    *new { arg model,mxapp,unit,desc;
-        ^super.newCopyArgs(model,mxapp,unit).prInit
+    *new { arg model, mxapp, unit, desc;
+        ^super.newCopyArgs(model, mxapp, unit).prInit
     }
 
     at { arg key;
-        ^this.prFindIOlet(key,true)
+        ^this.prFindIOlet(key, true)
     }
     first {
-        ^this.prFindIOlet(0,true)
+        ^this.prFindIOlet(0, true)
     }
     size { ^model.size }
     out {
         // shortcut to the first output
-        ^this.prFindIOlet('out') ?? {this.prFindIOlet(0,true)}
+        ^this.prFindIOlet('out') ?? {this.prFindIOlet(0, true)}
     }
     cables {
         var cables = [];
-        model.do { arg io,i;
+        model.do { arg io, i;
             cables.addAll(io.cables)
         };
         ^cables
@@ -462,8 +462,8 @@ MxIOletsApp : AbsApp {
     }
     prRedirected { arg function;
         // curry the function for collect/select while supplying the app objects
-        ^{ arg io,i;
-            function.value(mxapp.prFind(io),i)
+        ^{ arg io, i;
+            function.value(mxapp.prFind(io), i)
         }
     }
     // finds iolet by name
@@ -483,7 +483,7 @@ MxIOletsApp : AbsApp {
         };
         mxapp.commit;
     }
-    prFindIOlet { arg i,warn=false;
+    prFindIOlet { arg i, warn=false;
         if(i.isNumber,{
             if(i >= model.size,{
                 if(warn,{
@@ -516,7 +516,7 @@ MxInletApp : AbsApp {
 
     << { arg outlet;
         //this.checkThat(outlet);
-        this.mx.connect(outlet.model.unit,outlet.model,model.unit,model);
+        this.mx.connect(outlet.model.unit, outlet.model, model.unit, model);
         mxapp.commit;
         ^outlet
     }
@@ -569,7 +569,7 @@ MxOutletApp : AbsApp {
         }); */
         //this.checkThat(inlet);
         if(inlet.isKindOf(MxInletApp).not,{
-            //[model,inlet,inlet.model].insp("connect these");
+            //[model, inlet, inlet.model].insp("connect these");
             // will support this later: connect to unit by finding first usable inlet
             Error("" + this + "cannot >> to" + inlet).throw;
         });
@@ -581,7 +581,7 @@ MxOutletApp : AbsApp {
             }
             ^inlet // return query
         });
-        this.mx.connect(model.unit,model,inlet.model.unit,inlet.model);
+        this.mx.connect(model.unit, model, inlet.model.unit, inlet.model);
         mxapp.commit;
         ^inlet // or magically find the outlet of that unit; or return that unit
     }

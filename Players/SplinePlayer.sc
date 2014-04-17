@@ -8,9 +8,9 @@
 
 KrSplinePlayer : AbstractPlayer {
 
-    var <>gen,>spec;
+    var <>gen, >spec;
 
-    *new { arg spline, dimension=0,loop=false;
+    *new { arg spline, dimension=0, loop=false;
         ^super.new.gen_(SplineGen(spline ?? {
             BezierSpline(
                 0@0,
@@ -18,7 +18,7 @@ KrSplinePlayer : AbstractPlayer {
                 120@1,
                   [],
                 false
-            )},dimension,loop))
+            )}, dimension, loop))
     }
     storeArgs { ^gen.storeArgs }
     kr {
@@ -38,11 +38,11 @@ KrSplinePlayer : AbstractPlayer {
 
 SplineFr {
 
-    var <>spline,<>dimension=0,<>loop=false,<>spec,<>frameRate,<>interpolationDensity=0.25;
+    var <>spline, <>dimension=0, <>loop=false, <>spec, <>frameRate, <>interpolationDensity=0.25;
     var valueToSetOnTick;
     var table;
 
-    *new { arg spline, dimension=0,loop=false,spec,frameRate;
+    *new { arg spline, dimension=0, loop=false, spec, frameRate;
         ^super.newCopyArgs(spline ?? {
             spec = spec ?? {'unipolar'.asSpec};
             BezierSpline(
@@ -51,16 +51,16 @@ SplineFr {
                 120@1,
                   [],
                 false
-            )},dimension,loop,spec,frameRate ?? {Mx.defaultFrameRate}).init
+            )}, dimension, loop, spec, frameRate ?? {Mx.defaultFrameRate}).init
     }
-    storeArgs { ^[spline,dimension,loop,spec] }
+    storeArgs { ^[spline, dimension, loop, spec] }
 
     init {
         this.initTable;
         spline.addDependant(this);
     }
     initTable {
-        table = spline.bilinearInterpolate((frameRate*interpolationDensity) * spline.points.last[dimension],dimension,true);
+        table = spline.bilinearInterpolate((frameRate*interpolationDensity) * spline.points.last[dimension], dimension, true);
     }
     update {
         this.initTable
@@ -72,7 +72,7 @@ SplineFr {
         var t = (time * frameRate * interpolationDensity);
         var vals;
         if(valueToSetOnTick.notNil,{
-            this.setValue(valueToSetOnTick,time);
+            this.setValue(valueToSetOnTick, time);
             vals = valueToSetOnTick;
             valueToSetOnTick = nil;
             // note: table is not yet recalculated
@@ -83,20 +83,20 @@ SplineFr {
             // and/or blank till end or do a loop record
             ^vals
         });
-        vals = table.clipAt(t.floor + [0,1]);
-        ^vals[0].blend(vals[1],t.frac)
+        vals = table.clipAt(t.floor + [0, 1]);
+        ^vals[0].blend(vals[1], t.frac)
     }
     setValueOnNextTick { arg value;
         valueToSetOnTick = value;
     }
-    setValue { arg value,time;
+    setValue { arg value, time;
         // assuming it was sorted when created
         var i, point;
         # i , point = this.findInsertIndex(time);
         if(point.notNil,{
             point[dimension+1] = value
         },{
-            spline.createPoint([time,value],i+1)
+            spline.createPoint([time, value], i+1)
         })
     }
     findInsertIndex { arg time;
@@ -106,15 +106,15 @@ SplineFr {
                 prev = i;
             } {
                 if(elem[dimension] == time) {
-                    ^[prev,elem]
+                    ^[prev, elem]
                 } {
-                    ^[prev,nil]
+                    ^[prev, nil]
                 }
             }
         };
-        ^[prev,nil]
+        ^[prev, nil]
     }
-    gui { arg parent,bounds,maxTime;
-        ^spline.gui(parent,bounds,spec,ControlSpec(0,maxTime??{spline.points.last.x}))
+    gui { arg parent, bounds, maxTime;
+        ^spline.gui(parent, bounds, spec, ControlSpec(0, maxTime??{spline.points.last.x}))
     }
 }

@@ -2,13 +2,13 @@
 
 MxUnit  {
 
-    classvar registery,<protoHandler;
+    classvar registery, <protoHandler;
 
-    var <>source,<inlets,<outlets,<>handlers,<varPooling=false;
+    var <>source, <inlets, <outlets, <>handlers, <varPooling=false;
     var <>onLoad;
-    var <>group,status;
+    var <>group, status;
 
-    *make { arg source,class;
+    *make { arg source, class;
         var handlers;
         if(source.isKindOf(MxUnit) or: {source.isNil},{
             ^source
@@ -28,19 +28,19 @@ MxUnit  {
         }
     }
     saveData {
-        var data,ids;
+        var data, ids;
         data = this.use { ~save.value(source) };
-        ^[source.class.name,data]
+        ^[source.class.name, data]
     }
     *loadData { arg data;
-        var source,class;
+        var source, class;
         # class, data = data;
         class = class.asClass;
         source = this.handlersFor(class).use { ~load.value(data) };
-        ^this.make(source,class)
+        ^this.make(source, class)
     }
-    *new { arg source,inlets,outlets;
-        ^super.newCopyArgs(source,inlets,outlets).init
+    *new { arg source, inlets, outlets;
+        ^super.newCopyArgs(source, inlets, outlets).init
     }
     init {
         inlets.do(_.unit = this);
@@ -53,10 +53,10 @@ MxUnit  {
             Error("No MxUnit driver found for " + class).throw;
         });
         // this is actually a variable space dict, not just handlers
-        ^Environment(32,classHandlers,nil,true);
+        ^Environment(32, classHandlers, nil, true);
     }
     *handlersForClass { arg class;
-        var match,path;
+        var match, path;
         match = registery[class.name] ?? {
             path = PathName(MxUnit.class.filenameSymbol.asString).parentPath
                             +/+ "drivers" +/+ class.name.asString ++ ".scd";
@@ -108,24 +108,24 @@ MxUnit  {
         });
         Error("Outlet not found:" + index).throw
     }
-    addInlet { arg name,spec,adapter;
+    addInlet { arg name, spec, adapter;
         var inlet;
-        inlet = MxInlet(name,inlets.size,spec,adapter);
+        inlet = MxInlet(name, inlets.size, spec, adapter);
         inlet.unit = this;
         inlets = inlets.add(inlet);
         handlers.at(\mx).register(inlet);
     }
-    addOutlet { arg name,spec,adapter;
+    addOutlet { arg name, spec, adapter;
         var outlet;
-        outlet = MxOutlet(name,outlets.size,spec,adapter);
+        outlet = MxOutlet(name, outlets.size, spec, adapter);
 
         outlet.unit = this;
         outlets = outlets.add(outlet);
         handlers.at(\mx).register(outlet);
     }
 
-    *register { arg classname,handlers;
-        var e,class,superclassHandlers;
+    *register { arg classname, handlers;
+        var e, class, superclassHandlers;
         classname = classname.asSymbol;
         e = registery.at(classname);
         if(e.notNil,{ // updating
@@ -140,10 +140,10 @@ MxUnit  {
                     superclassHandlers.notNil
                 }
             };
-            e = Environment(32,superclassHandlers,nil,true);
+            e = Environment(32, superclassHandlers, nil, true);
         });
-        handlers.keysValuesDo { arg k,v;
-            e.put(k,v)
+        handlers.keysValuesDo { arg k, v;
+            e.put(k, v)
         };
         registery.put(classname, e)
     }
@@ -161,11 +161,11 @@ MxUnit  {
         ^handlers.parent
     }
     isPrepared {
-        ^['isPrepared','isPlaying','isStopped'].includes(status)
+        ^['isPrepared', 'isPlaying', 'isStopped'].includes(status)
     }
     prSetStatus { arg newStatus;
         status = newStatus;
-        NotificationCenter.notify(this,\didChangeStatus,newStatus)
+        NotificationCenter.notify(this, \didChangeStatus, newStatus)
     }
     didLoad {
         this.use {
@@ -177,7 +177,7 @@ MxUnit  {
     // methods delegated to the handlers
     prepareToBundle { arg agroup, bundle, private, bus;
         bundle.addFunction({this.prSetStatus('isPrepared')});
-        ^this.delegate('prepareToBundle',agroup,bundle,true,bus);
+        ^this.delegate('prepareToBundle', agroup, bundle, true, bus);
     }
     spawnToBundle { arg bundle;
         ^this.use {
@@ -201,13 +201,13 @@ MxUnit  {
         this.stopToBundle(bundle);
         this.spawnToBundle(bundle);
     }
-    moveToHead { arg aGroup,bundle;
+    moveToHead { arg aGroup, bundle;
         ^this.use {
-            ~moveToHead.value(aGroup,bundle,group)
+            ~moveToHead.value(aGroup, bundle, group)
         }
     }
 
-    use { arg function,rollback;
+    use { arg function, rollback;
         var result, saveEnvir;
 
         saveEnvir = currentEnvironment;
@@ -260,11 +260,11 @@ MxUnit  {
         ^result
     }
 
-    play { arg group,atTime,bus;
-        ^this.use { ~play.value(group,atTime,bus) }
+    play { arg group, atTime, bus;
+        ^this.use { ~play.value(group, atTime, bus) }
     }
-    stop { arg atTime,andFreeResources=true;
-        ^this.use { ~stop.value(atTime,andFreeResources) }
+    stop { arg atTime, andFreeResources=true;
+        ^this.use { ~stop.value(atTime, andFreeResources) }
     }
     respawn { arg atTime;
         ^this.use { ~respawn.value(atTime) }
@@ -288,26 +288,26 @@ MxUnit  {
     name {
         ^this.use { ~name.value }
     }
-    gui { arg parent,bounds;
-        ^this.use { ~gui.value(parent,bounds) }
+    gui { arg parent, bounds;
+        ^this.use { ~gui.value(parent, bounds) }
     }
-    draw { arg pen,bounds,style;
-        ^this.use { ~draw.value(pen,bounds,style) }
+    draw { arg pen, bounds, style;
+        ^this.use { ~draw.value(pen, bounds, style) }
     }
-    timeGui { arg parent,bounds,maxTime;
-        ^this.use { ~timeGui.value(parent,bounds,maxTime) }
+    timeGui { arg parent, bounds, maxTime;
+        ^this.use { ~timeGui.value(parent, bounds, maxTime) }
     }
-    zoomTime { arg fromTime,toTime;
-        ^this.use { ~zoomTime.value(fromTime,toTime) }
+    zoomTime { arg fromTime, toTime;
+        ^this.use { ~zoomTime.value(fromTime, toTime) }
     }
-    gotoBeat { arg beat,atBeat,bundle;
-        ^this.use { ~gotoBeat.value(beat,atBeat,bundle) }
+    gotoBeat { arg beat, atBeat, bundle;
+        ^this.use { ~gotoBeat.value(beat, atBeat, bundle) }
     }
     canRecord {
         ^handlers['record'].notNil
     }
-    record { arg boo=true,atTime;
-        ^this.use { ~record.value(boo,atTime) }
+    record { arg boo=true, atTime;
+        ^this.use { ~record.value(boo, atTime) }
     }
     *initClass {
         registery = IdentityDictionary.new;
@@ -318,11 +318,11 @@ MxUnit  {
 
 MxInlet {
 
-    var <>name,<>index,<>spec,<>adapter;
+    var <>name, <>index, <>spec, <>adapter;
     var <>unit;
 
-    *new { arg name,index,spec,adapter;
-        ^super.newCopyArgs(name.asSymbol,index,spec.asSpec,adapter)
+    *new { arg name, index, spec, adapter;
+        ^super.newCopyArgs(name.asSymbol, index, spec.asSpec, adapter)
     }
 
     // one-time adhoc get/set of a value, usually a float
@@ -334,7 +334,7 @@ MxInlet {
     storeArgs {
         // adapter: AbsMxAdapter subclass
         // which is not really savable
-        ^[name,index,spec,adapter]
+        ^[name, index, spec, adapter]
     }
     printOn { arg stream;
         stream << "in:" << name

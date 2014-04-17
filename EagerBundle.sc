@@ -16,9 +16,9 @@ EagerBundle : MixedBundle {
     }
 
     addMessage { arg receiver, selector, args;
-        Message(receiver,selector,args).value
+        Message(receiver, selector, args).value
     }
     addOnSendMessage { arg receiver, selector, args;
-        Message(receiver,selector,args).value
+        Message(receiver, selector, args).value
     }
 }

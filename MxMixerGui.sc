@@ -2,13 +2,13 @@
 
 MxMixerGui : ObjectGui {
 
-    var scope,lastScope,freqScope,meters;
-    var faders,solos,mutes;
+    var scope, lastScope, freqScope, meters;
+    var faders, solos, mutes;
     var numChans;
 
     writeName {}
-    guiBody { arg parent,bounds,showScope=true;
-        var scopeSize = 275,faderHeight,chans, nr;
+    guiBody { arg parent, bounds, showScope=true;
+        var scopeSize = 275, faderHeight, chans, nr;
         solos = Array.newClear(model.channels.size);
         mutes = Array.newClear(model.channels.size + 1);
         faders = Array.newClear(model.channels.size + 1);
@@ -23,11 +23,11 @@ MxMixerGui : ObjectGui {
         if(showScope,{
             parent.startRow;
             parent.flow({ arg parent;
-                scope = Stethoscope(model.server,2,model.master.fader.bus.index,bufsize: 4096 * 4 ,zoom:1.0,rate:\audio,view:parent);
+                scope = Stethoscope(model.server, 2, model.master.fader.bus.index, bufsize: 4096 * 4 , zoom:1.0, rate:\audio, view:parent);
                 scope.xZoom = 16;
-            },scopeSize@scopeSize);
+            }, scopeSize@scopeSize);
             /*
-            freqScope = PlusFreqScope(parent,Rect(0,0,scopeSize,scopeSize));
+            freqScope = PlusFreqScope(parent, Rect(0, 0, scopeSize, scopeSize));
             freqScope.inBus = model.master.bus.index;
             freqScope.dbRange = 18;
             freqScope.freqMode = 1;
@@ -43,24 +43,24 @@ MxMixerGui : ObjectGui {
             // or start them later, whenever model starts
             // maybe make them into units instead
             // and go directly to art / visualization
-            meters = BusMeters(model.server,chans.collect({ arg chan; chan.fader.bus }));
+            meters = BusMeters(model.server, chans.collect({ arg chan; chan.fader.bus }));
         });
-        chans.do { arg chan,i;
-            var f,ab;
-            f = NumberEditor(chan.fader.db,ControlSpec(-80,12,default:0,units:"dB"));
+        chans.do { arg chan, i;
+            var f, ab;
+            f = NumberEditor(chan.fader.db, ControlSpec(-80, 12, default:0, units:"dB"));
             f.action = {
                 chan.fader.db = f.value;
-                model.changed('mixer',this);
+                model.changed('mixer', this);
             };
-            faders.put(i,f);
-            f.gui(parent,40@faderHeight);
+            faders.put(i, f);
+            f.gui(parent, 40@faderHeight);
 
             // meter
             if(meters.notNil,{
                 parent.comp({ arg parent;
-                    meters.makePeak(i,parent,Rect(0,0,28, GUI.skin.buttonHeight));
-                    meters.makeBusMeter(i,parent,Rect(0,GUI.skin.buttonHeight+1,30,faderHeight - GUI.skin.buttonHeight - 1));
-                },Rect(0,0,30,faderHeight))
+                    meters.makePeak(i, parent, Rect(0, 0, 28, GUI.skin.buttonHeight));
+                    meters.makeBusMeter(i, parent, Rect(0, GUI.skin.buttonHeight+1, 30, faderHeight - GUI.skin.buttonHeight - 1));
+                }, Rect(0, 0, 30, faderHeight))
             });
             parent.flow({ arg parent;
                 if(scope.notNil,{
@@ -90,24 +90,24 @@ MxMixerGui : ObjectGui {
                 });
                 if(chan !== model.master,{
                     parent.startRow;
-                    solos.put(i, ToggleButton(parent,"S",{ arg button,bool;
-                                    model.solo(i,bool);
-                                    model.changed('mixer',this);
+                    solos.put(i, ToggleButton(parent,"S",{ arg button, bool;
+                                    model.solo(i, bool);
+                                    model.changed('mixer', this);
                                     this.updateButtons
                                 }) );
                 });
                 parent.startRow;
-                mutes.put(i, ToggleButton(parent,"M",{ arg button,bool;
-                    if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i,bool); });
-                    model.changed('mixer',this);
+                mutes.put(i, ToggleButton(parent,"M",{ arg button, bool;
+                    if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i, bool); });
+                    model.changed('mixer', this);
                     this.updateButtons
                 }) );
 
-            },Rect(0,0,24,faderHeight));
+            }, Rect(0, 0, 24, faderHeight));
         };
         this.updateButtons;
 
-        nr = NotificationCenter.register(model,\statusDidChange,this,{ arg status;
+        nr = NotificationCenter.register(model, \statusDidChange, this,{ arg status;
             var chans;
             if(model.isNil,{
                 "model was nil".warn;
@@ -132,7 +132,7 @@ MxMixerGui : ObjectGui {
         if(model.isPlaying,{ meters.start })
     }
     updateButtons {
-        model.channels.do { arg chan,i;
+        model.channels.do { arg chan, i;
             solos[i].value = chan.fader.solo;
             mutes[i].value = chan.fader.mute;
         };
@@ -140,7 +140,7 @@ MxMixerGui : ObjectGui {
     }
     updateFaders {
         // needs to add remove, reorder faders
-        model.channels.do { arg chan,i;
+        model.channels.do { arg chan, i;
             faders[i].value = chan.fader.db
         };
         faders.last.value = model.master.fader.db

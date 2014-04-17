@@ -10,11 +10,11 @@ MxDocument {
         or if being edited by another app
     */
 
-    var >path,>content;
+    var >path, >content;
     var document;
 
-    *new { arg path,content;
-        ^super.newCopyArgs(path,content)
+    *new { arg path, content;
+        ^super.newCopyArgs(path, content)
     }
     eval {
         if(document.notNil,{
@@ -42,7 +42,7 @@ MxDocument {
             if(p.notNil,{
                 ^PathName(p).fileName
             });
-            ^((content?"").copyRange(0,10) ++ "...")
+            ^((content?"").copyRange(0, 10) ++ "...")
         });
         ^document.name
     }
@@ -51,7 +51,7 @@ MxDocument {
         stream << (this.name ?? {this.path})
     }
     storeArgs {
-        var c,p = this.path;
+        var c, p = this.path;
         if(p.isNil,{
             c = this.content
         },{
@@ -60,14 +60,14 @@ MxDocument {
         ^[p, c]
     }
 
-    gui { arg parent,bounds;
+    gui { arg parent, bounds;
         if(document.notNil,{
             ^document.front
         });
         if(path.notNil,{
-            document = Document.open(Document.standardizePath(path),envir:currentEnvironment)
+            document = Document.open(Document.standardizePath(path), envir:currentEnvironment)
         },{
-            document = Document(string:content ? "",envir:currentEnvironment)
+            document = Document(string:content ? "", envir:currentEnvironment)
         });
         document.onClose = {
             path = document.path;

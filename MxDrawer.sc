@@ -2,7 +2,7 @@
 
 MxDrawer {
 
-    classvar >registery,<>registrationFilePaths;
+    classvar >registery, <>registrationFilePaths;
     var <>onSelect;
 
     *new { arg onSelect;
@@ -10,10 +10,10 @@ MxDrawer {
     }
 
     *add { arg title,  buildItemFunc;
-        this.registery[title] = MxDrawerItem(title,buildItemFunc)
+        this.registery[title] = MxDrawerItem(title, buildItemFunc)
     }
-    *addGroup { arg title,itemsFunc,buildItemFunc;
-        this.registery[title] = MxDrawerItemGroup(title,itemsFunc,buildItemFunc)
+    *addGroup { arg title, itemsFunc, buildItemFunc;
+        this.registery[title] = MxDrawerItemGroup(title, itemsFunc, buildItemFunc)
     }
 
     *registery {
@@ -41,12 +41,12 @@ MxDrawer {
 
 MxDrawerItem {
 
-    var <>title,<>buildItemFunc;
+    var <>title, <>buildItemFunc;
 
-    *new { arg title,buildItemFunc;
-        ^super.newCopyArgs(title,buildItemFunc)
+    *new { arg title, buildItemFunc;
+        ^super.newCopyArgs(title, buildItemFunc)
     }
-    make { arg i,onMake;
+    make { arg i, onMake;
         {
              onMake.value(buildItemFunc.value)
         }.fork(AppClock)
@@ -56,14 +56,14 @@ MxDrawerItem {
 
 MxDrawerItemGroup {
 
-    var <>title,<>itemsFunc,<>buildItemFunc;
+    var <>title, <>itemsFunc, <>buildItemFunc;
 
-    *new { arg title,itemsFunc,buildItemFunc;
-        ^super.newCopyArgs(title,itemsFunc,buildItemFunc)
+    *new { arg title, itemsFunc, buildItemFunc;
+        ^super.newCopyArgs(title, itemsFunc, buildItemFunc)
     }
     drill {
-        ^itemsFunc.value.collect { arg it,i;
-            MxDrawerSubItem(it[0],this,it[1])
+        ^itemsFunc.value.collect { arg it, i;
+            MxDrawerSubItem(it[0], this, it[1])
         }
     }
 }
@@ -71,14 +71,14 @@ MxDrawerItemGroup {
 
 MxDrawerSubItem {
 
-    var <>title, <>drawerItem,<>data;
+    var <>title, <>drawerItem, <>data;
 
-    *new { arg title,drawerItem,data;
-        ^super.newCopyArgs(title,drawerItem,data)
+    *new { arg title, drawerItem, data;
+        ^super.newCopyArgs(title, drawerItem, data)
     }
-    make { arg i,onMake;
+    make { arg i, onMake;
         {
-             onMake.value(drawerItem.buildItemFunc.value(data,title))
+             onMake.value(drawerItem.buildItemFunc.value(data, title))
         }.fork(AppClock)
     }
 }
@@ -86,16 +86,16 @@ MxDrawerSubItem {
 
 MxDrawerGui : ObjectGui {
 
-    var lv,keys,items,currentItemGroup,searchBox,bg,fg;
+    var lv, keys, items, currentItemGroup, searchBox, bg, fg;
 
     writeName {}
 
-    guiBody { arg layout,bounds;
-        var width,action;
+    guiBody { arg layout, bounds;
+        var width, action;
         bg = Color(0.21652929382936, 0.23886961779588, 0.26865671641791);
         fg = Color(0.94029850746269, 0.96588486140725, 1.0);
-        width = min(layout.bounds.width,200);
-        // view = userView ?? { UserView(layout,bounds ?? { Rect(0,0,100,800) }) };
+        width = min(layout.bounds.width, 200);
+        // view = userView ?? { UserView(layout, bounds ?? { Rect(0, 0, 100, 800) }) };
         ActionButton(layout,"..",{
             this.drillUp
         });
@@ -107,7 +107,7 @@ MxDrawerGui : ObjectGui {
         searchBox.focusColor = Color.blue;
 
         // using ListView, though it cannot drag directly into a unit yet
-        lv = ListView(layout,width@(layout.bounds.height-17-4));
+        lv = ListView(layout, width@(layout.bounds.height-17-4));
         lv.background = bg;
         // all top level items, nothing unfolded
         this.drillUp;
@@ -117,21 +117,21 @@ MxDrawerGui : ObjectGui {
                 item = items[lv.value];
                 if(item.isKindOf(MxDrawerItemGroup).not,{
                     item.title.inform("Loading");
-                    item.make(lv.value,model.onSelect)
+                    item.make(lv.value, model.onSelect)
                 },{
                     this.drillDown(item);
                 })
         };
         lv.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             // double click on a top level single item or unfolded sub-item => select
-            if(clickCount == 2,action)
+            if(clickCount == 2, action)
         };
 
         lv.stringColor = fg;
         lv.focusColor = Color.clear;
-        lv.font = GUI.font.new(GUI.skin.fontSpecs[0],10);
+        lv.font = GUI.font.new(GUI.skin.fontSpecs[0], 10);
         lv.beginDragAction = {
-            var key,item;
+            var key, item;
             item = items[lv.value];
             if(item.isKindOf(MxDrawerItemGroup).not,{
                 item = item.make(lv.value);
@@ -188,10 +188,10 @@ MxDrawerGui : ObjectGui {
         });
     }
     nextItem {
-        lv.value = min(lv.value + 1,lv.items.size-1)
+        lv.value = min(lv.value + 1, lv.items.size-1)
     }
     prevItem {
-        lv.value = max(lv.value - 1,0)
+        lv.value = max(lv.value - 1, 0)
     }
     focusSearch {
         searchBox.focus
@@ -266,8 +266,8 @@ MxDrawerGui : ObjectGui {
 //            lv.enterKeyAction.value
 //        });
 
-        ^k /*++ { arg view, char,modifier,unicode,keycode;
-                lv.defaultKeyDownAction(char,modifier,unicode)
+        ^k /*++ { arg view, char, modifier, unicode, keycode;
+                lv.defaultKeyDownAction(char, modifier, unicode)
             };*/
     }
 }

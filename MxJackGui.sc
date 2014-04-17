@@ -6,7 +6,7 @@ MxKrJackGui : ObjectGui {
 
     writeName {}
     guiBody { arg layout;
-        ne = NumberEditor(model.value,model.spec);
+        ne = NumberEditor(model.value, model.spec);
         ne.gui(layout);
         ne.action = {
             // as long as you didn't get jacked into from something else
@@ -35,7 +35,7 @@ MxStreamJackGui : MxKrJackGui {
     var lastVal;
     writeName {}
     guiBody { arg layout;
-        lastVal = CXLabel(layout,model.lastVal.asString);
+        lastVal = CXLabel(layout, model.lastVal.asString);
         if(model.source.isKindOf(NumberEditor),{ // default control
             model.source.gui(layout);
         })

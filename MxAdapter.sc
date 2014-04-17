@@ -19,10 +19,10 @@ AbsMxAdapter {}
 
 AbsMxFuncAdapter : AbsMxAdapter {
 
-    var <>func,>getServer,>getGroup,>getValue,>setValue;
+    var <>func, >getServer, >getGroup, >getValue, >setValue;
 
-    *new { arg thingGetter,getServer,getGroup,getValue,setValue;
-        ^super.newCopyArgs( thingGetter,getServer,getGroup,getValue,setValue )
+    *new { arg thingGetter, getServer, getGroup, getValue, setValue;
+        ^super.newCopyArgs( thingGetter, getServer, getGroup, getValue, setValue )
     }
     value { ^func.value }
     server { ^getServer.value }

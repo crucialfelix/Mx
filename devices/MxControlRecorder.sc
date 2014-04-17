@@ -39,7 +39,7 @@ status:
 
 MxControlRecorder {
 
-    var <inlets,<cc,app,<nums;
+    var <inlets, <cc, app, <nums;
 
     didLoad {
         // will change ~this to be the unit app for all
@@ -47,11 +47,11 @@ MxControlRecorder {
         cc = CCBank.new;
         inlets = IdentityDictionary.new;
         nums = IdentityDictionary.new;
-        app.mx.app.units.inlets.select({ arg inlet,i,iapp;
+        app.mx.app.units.inlets.select({ arg inlet, i, iapp;
 
-        inlet.spec.isKindOf(ControlSpec) and: {iapp.from.size == 0} }).do { arg inlet,i,iapp;
+        inlet.spec.isKindOf(ControlSpec) and: {iapp.from.size == 0} }).do { arg inlet, i, iapp;
             this.addInlet(iapp);
-            this.addCC(iapp,nil);
+            this.addCC(iapp, nil);
         };
     }
     makeKey { arg iapp;
@@ -60,31 +60,31 @@ MxControlRecorder {
         ^(uid ++ "#" ++ iapp.unit.name.asString ++ ":" ++ iapp.name.asString).asSymbol
     }
     addInlet { arg iapp;
-        var key,ne;
+        var key, ne;
         key = this.makeKey(iapp);
         inlets[key] = iapp;
         // get current value from inlet
-        nums[key] = ne = NumberEditor(iapp.spec.default,iapp.spec);
-        app.addOutlet(key,iapp.spec,
+        nums[key] = ne = NumberEditor(iapp.spec.default, iapp.spec);
+        app.addOutlet(key, iapp.spec,
             MxHasAction({arg action;
                 ne.action = action
             })
         );
         app.o.at(key) >> iapp
     }
-    addCC { arg iapp,ccnum;
+    addCC { arg iapp, ccnum;
         // remember to make the num too
         // if adding later
         var key;
         key = this.makeKey(iapp);
-        cc.add(key,ccnum);
+        cc.add(key, ccnum);
         /* already active as soon as its created,
             does not wait for play */
         cc.responder(key,{ arg val;
-            this.ccEvent(key,val)
+            this.ccEvent(key, val)
         });
     }
-    ccEvent { arg key,val;
+    ccEvent { arg key, val;
         nums[key].valueAction = nums[key].spec.map(val / 127.0);
         // record it
     }
@@ -94,12 +94,12 @@ MxControlRecorder {
 
 MxControlRecorderGui : ObjectGui {
 
-    guiBody { arg layout,bounds;
+    guiBody { arg layout, bounds;
         var inlets;
         //model.cc.initGui;
         // sort by point, index
-        inlets = model.inlets.values.sort({ arg a,b;
-            var ap,bp;
+        inlets = model.inlets.values.sort({ arg a, b;
+            var ap, bp;
             ap = a.unit.point;
             bp = b.unit.point;
             if(ap == bp,{
@@ -112,8 +112,8 @@ MxControlRecorderGui : ObjectGui {
             var key;
             key = model.makeKey(iapp);
             //cc
-            model.cc.guiOne(layout.startRow,model.cc.findSet(key),200);
-            model.nums[key].gui(layout,150@17);
+            model.cc.guiOne(layout.startRow, model.cc.findSet(key), 200);
+            model.nums[key].gui(layout, 150@17);
             (model.nums[key].spec.units ? "").asString.gui(layout)
         }
     }

@@ -4,21 +4,21 @@ MxCable {
 
     classvar <strategies;
 
-    var <>outlet,<>inlet,<>mapping,<>active=true,<>pending=false;
+    var <>outlet, <>inlet, <>mapping, <>active=true, <>pending=false;
     var <state;
 
-    *new { arg outlet,inlet,mapping,active=true;
-        ^super.newCopyArgs(outlet,inlet,mapping,active).init
+    *new { arg outlet, inlet, mapping, active=true;
+        ^super.newCopyArgs(outlet, inlet, mapping, active).init
     }
 
     init {
         state = Environment.new;
     }
     asString {
-        ^format("%[%]->%[%] MxCable",this.outlet.unit.source.class,this.outlet.adapter.class,
-                                this.inlet.unit.source.class,this.inlet.adapter.class)
+        ^format("%[%]->%[%] MxCable", this.outlet.unit.source.class, this.outlet.adapter.class,
+                                this.inlet.unit.source.class, this.inlet.adapter.class)
     }
-    *hasStrategy { arg outlet,inlet;
+    *hasStrategy { arg outlet, inlet;
         ^strategies[ [outlet.adapter.class.name, inlet.adapter.class.name] ].notNil
     }
     strategy {
@@ -30,11 +30,11 @@ MxCable {
         this.strategy.setInitial(this)
     }
     spawnToBundle { arg bundle;
-        this.strategy.connect(this,bundle);
+        this.strategy.connect(this, bundle);
         bundle.addFunction({this.pending=false})
     }
     stopToBundle { arg bundle;
-        this.strategy.disconnect(this,bundle)
+        this.strategy.disconnect(this, bundle)
     }
     freeToBundle { arg bundle;
         ^this.stopToBundle(bundle)
@@ -45,54 +45,54 @@ MxCable {
         if(mapping.notNil,{
             ^mapping.value(v)
         },{
-            ^outlet.spec.mapToSpec(v,inlet.spec)
+            ^outlet.spec.mapToSpec(v, inlet.spec)
         })
     }
 
-    *register { arg outAdapterClassName,inAdapterClassName, strategy;
+    *register { arg outAdapterClassName, inAdapterClassName, strategy;
         strategies[ [outAdapterClassName, inAdapterClassName] ] = strategy;
     }
     *instr {
         if(Instr.isDefined("MxCable.cableAr").not,{
-            ^Instr("MxCable.cableAr",{ arg inBus=126,outBus=126,inNumChannels=2,outNumChannels=2;
+            ^Instr("MxCable.cableAr",{ arg inBus=126, outBus=126, inNumChannels=2, outNumChannels=2;
                 Out.ar(outBus,
-                    NumChannels.ar( In.ar(inBus,inNumChannels), outNumChannels )
+                    NumChannels.ar( In.ar(inBus, inNumChannels), outNumChannels )
                 )
             },[
-                ControlSpec(0,127),
-                ControlSpec(0,127),
-                StaticIntegerSpec(1,128),
-                StaticIntegerSpec(1,128)
-            ],\audio);
+                ControlSpec(0, 127),
+                ControlSpec(0, 127),
+                StaticIntegerSpec(1, 128),
+                StaticIntegerSpec(1, 128)
+            ], \audio);
         });
         ^Instr.at("MxCable.cableAr")
     }
     *initClass {
         strategies = Dictionary.new;
 
-        this.register(\MxPlaysOnBus,\MxHasJack,
-            MxCableStrategy({ arg cable,bundle;
+        this.register(\MxPlaysOnBus, \MxHasJack,
+            MxCableStrategy({ arg cable, bundle;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 // no patchOut on jack
                 jack = cable.inlet.adapter.value;
                 if(bus.numChannels == jack.numChannels,{
-                    jack.readFromBusToBundle(bus,bundle);
+                    jack.readFromBusToBundle(bus, bundle);
                 },{
                     // mono -> stereo audio requires a wire synth
-                    ~wireBus = Bus.audio(bus.server,jack.numChannels);
+                    ~wireBus = Bus.audio(bus.server, jack.numChannels);
 
                     ~wireSynth = this.instr.head(cable.inlet.adapter.group, [
                                                 bus.index,
                                                 ~wireBus.index,
                                                 bus.numChannels,
                                                 jack.numChannels
-                                             ],bundle);
+                                             ], bundle);
 
                     AbstractPlayer.annotate(~wireSynth, cable,"wireSynth");
-                    jack.readFromBusToBundle(~wireBus,bundle);
+                    jack.readFromBusToBundle(~wireBus, bundle);
                 });
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
@@ -118,8 +118,8 @@ MxCable {
             })
         );
 
-        this.register(\MxPlaysOnKrBus,\MxHasKrJack,
-            MxCableStrategy({ arg cable,bundle;
+        this.register(\MxPlaysOnKrBus, \MxHasKrJack,
+            MxCableStrategy({ arg cable, bundle;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
@@ -134,12 +134,12 @@ MxCable {
                 AbstractPlayer.annotate(~cableGroup,"cableGroup" + cable.asString);
                 bundle.add( ~cableGroup.addToHeadMsg(cable.inlet.adapter.group) );
 
-                ~cableKr.prepareToBundle(~cableGroup,bundle);
+                ~cableKr.prepareToBundle(~cableGroup, bundle);
                 ~cableKr.spawnToBundle(bundle);
 
-                jack.readFromBusToBundle(~cableKr.bus,bundle);
+                jack.readFromBusToBundle(~cableKr.bus, bundle);
 
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
@@ -158,11 +158,11 @@ MxCable {
             })
         );
 
-        this.register(\MxPlaysOnBus,\MxListensToBus,
+        this.register(\MxPlaysOnBus, \MxListensToBus,
             // depends on being on the same server
-            MxCableStrategy({ arg cable,bundle;
+            MxCableStrategy({ arg cable, bundle;
                 cable.state.use {
-                    var inbus,outbus,def,group;
+                    var inbus, outbus, def, group;
                     inbus = cable.outlet.adapter.value ?? {cable.inlet.debug("no inbus")};
                     outbus = cable.inlet.adapter.value ?? {cable.outlet.debug("no outbus")};
 
@@ -173,14 +173,14 @@ MxCable {
                                 outbus.numChannels
                              ]);
                     // loads if needed
-                    InstrSynthDef.loadDefFileToBundle(def,bundle,inbus.server);
+                    InstrSynthDef.loadDefFileToBundle(def, bundle, inbus.server);
 
                     group = cable.inlet.adapter.group ?? {cable.inlet.debug("no group")};
-                    ~synth = Synth.basicNew(def.name,group.server);
-                    AbstractPlayer.annotate(~synth,cable.asString+"synth");
-                    bundle.add( ~synth.addToHeadMsg(group,[\inBus,inbus.index,\outBus,outbus.index]) );
+                    ~synth = Synth.basicNew(def.name, group.server);
+                    AbstractPlayer.annotate(~synth, cable.asString+"synth");
+                    bundle.add( ~synth.addToHeadMsg(group,[\inBus, inbus.index, \outBus, outbus.index]) );
                 }
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 var synth;
                 synth = cable.state.at('synth');
                 if(synth.notNil,{
@@ -192,11 +192,11 @@ MxCable {
             })
         );
 
-        this.register(\MxHasAction,\MxHasKrJack,
+        this.register(\MxHasAction, \MxHasKrJack,
             // always active, doesn't wait for play
             // not sure thats a good idea
-            MxCableStrategy({ arg cable,bundle;
-                var jack,action;
+            MxCableStrategy({ arg cable, bundle;
+                var jack, action;
                 jack = cable.inlet.adapter.value;
                 // listener
                 ~nr = NotificationCenter.register( cable.outlet, \didAction, cable.inlet,
@@ -212,17 +212,17 @@ MxCable {
                     NotificationCenter.notify(cable.outlet, \didAction, [ val ])
                 };
                 cable.outlet.adapter.value(action);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     ~nr.remove;
                 }.inEnvir);
             })
         );
 
-        this.register(\MxHasAction,\MxSetter,
+        this.register(\MxHasAction, \MxSetter,
             // always active, doesn't wait for play
-            MxCableStrategy({ arg cable,bundle;
-                var setter,action;
+            MxCableStrategy({ arg cable, bundle;
+                var setter, action;
                 setter = cable.inlet.adapter;
                 // listener
                 ~nr = NotificationCenter.register( cable.outlet, \didAction, cable.inlet,
@@ -234,41 +234,41 @@ MxCable {
                     NotificationCenter.notify(cable.outlet, \didAction, [ val ])
                 };
                 cable.outlet.adapter.value(action);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     ~nr.remove;
                 }.inEnvir);
             })
         );
 
-        this.register(\MxSendsValueOnChanged,\MxHasKrJack,
-            MxCableStrategy({ arg cable,bundle;
-                var model,ina;
+        this.register(\MxSendsValueOnChanged, \MxHasKrJack,
+            MxCableStrategy({ arg cable, bundle;
+                var model, ina;
                 model = cable.outlet.adapter.value();
                 ina = cable.inlet.adapter.value();
                 bundle.addFunction({
-                    ~updater = Updater(model,{ arg sender,value;
+                    ~updater = Updater(model,{ arg sender, value;
                         ina.value = cable.map(value);
                     });
                 }.inEnvir);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir)
             })
         );
 
-        this.register(\MxSendsValueOnChanged,\MxSetter,
-            MxCableStrategy({ arg cable,bundle;
-                var model,ina;
+        this.register(\MxSendsValueOnChanged, \MxSetter,
+            MxCableStrategy({ arg cable, bundle;
+                var model, ina;
                 model = cable.outlet.adapter.value();
                 ina = cable.inlet.adapter;
                 bundle.addFunction({
-                    ~updater = Updater(model,{ arg sender,value;
+                    ~updater = Updater(model,{ arg sender, value;
                         ina.value(cable.map(value))
                     });
                 }.inEnvir);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir);
@@ -277,17 +277,17 @@ MxCable {
             }*/)
         );
 
-        this.register(\MxSendSelfOnChanged,\MxSetter,
-            MxCableStrategy({ arg cable,bundle;
-                var model,ina;
+        this.register(\MxSendSelfOnChanged, \MxSetter,
+            MxCableStrategy({ arg cable, bundle;
+                var model, ina;
                 model = cable.outlet.adapter.value();
                 ina = cable.inlet.adapter;
                 bundle.addFunction({
-                    ~updater = Updater(model,{ arg sender,value;
+                    ~updater = Updater(model,{ arg sender, value;
                         ina.value(cable.map(model))
                     });
                 }.inEnvir);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     cable.inlet.adapter.value( nil );
                     ~updater.remove
@@ -297,15 +297,15 @@ MxCable {
             })
         );
 
-        this.register(\MxPlaysOnBus,\MxSetter,
-            MxCableStrategy({ arg cable,bundle;
-                var bus,ina;
+        this.register(\MxPlaysOnBus, \MxSetter,
+            MxCableStrategy({ arg cable, bundle;
+                var bus, ina;
                 bundle.addFunction({
                     bus = cable.outlet.adapter.value();
                     ina = cable.inlet.adapter;
                     ina.value(bus)
                 }.inEnvir);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     cable.inlet.adapter.value( nil );
                 }.inEnvir);
@@ -314,24 +314,24 @@ MxCable {
             })
         );
 
-        this.register(\MxIsFrameRateDevice,\MxHasKrJack,
-            MxCableStrategy({ arg cable,bundle;
-                var jack,getValue;
+        this.register(\MxIsFrameRateDevice, \MxHasKrJack,
+            MxCableStrategy({ arg cable, bundle;
+                var jack, getValue;
 
                 getValue = cable.outlet.adapter ? { arg val; val };
                 jack = cable.inlet.adapter.value();
                 bundle.addFunction({
-                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice),{ arg sender,value;
+                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice),{ arg sender, value;
                         value = getValue.value(value);
                         jack.value = cable.map(value);
                     });
                 }.inEnvir);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir);
             },{ arg cable;
-                var model,jack,value, getValue;
+                var model, jack, value, getValue;
                 getValue = cable.outlet.adapter ? { arg val; val };
                 value = getValue.value( cable.outlet.unit.handlers.at(\mxFrameRateDevice).lastValue );
 
@@ -340,24 +340,24 @@ MxCable {
             })
         );
 
-        this.register(\MxIsFrameRateDevice,\MxSetter,
-            MxCableStrategy({ arg cable,bundle;
-                var ina,getValue;
+        this.register(\MxIsFrameRateDevice, \MxSetter,
+            MxCableStrategy({ arg cable, bundle;
+                var ina, getValue;
 
                 getValue = cable.outlet.adapter ? { arg val; val };
                 ina = cable.inlet.adapter;
                 bundle.addFunction({
-                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice),{ arg sender,value;
+                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice),{ arg sender, value;
                         value = getValue.value(value);
                         ina.value(cable.map(value))
                     });
                 }.inEnvir);
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir);
             },{ arg cable;
-                var model,ina,value, getValue;
+                var model, ina, value, getValue;
                 getValue = cable.outlet.adapter ? { arg val; val };
                 value = getValue.value( cable.outlet.unit.handlers.at(\mxFrameRateDevice).lastValue );
 
@@ -367,10 +367,10 @@ MxCable {
         );
 
         // to HasMxStreamJack
-        this.register(\MxIsStream,\MxHasStreamJack,{
+        this.register(\MxIsStream, \MxHasStreamJack,{
             var connect;
             connect = { arg cable;
-                var streamable,jack,mapper,stream;
+                var streamable, jack, mapper, stream;
                 streamable = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
                 if(cable.outlet.spec != jack.spec and: {cable.outlet.spec.notNil},{
@@ -386,11 +386,11 @@ MxCable {
                 jack.source = streamable.debug("set stream");
                 ~connected = true;
             };
-            MxCableStrategy({ arg cable,bundle;
+            MxCableStrategy({ arg cable, bundle;
                 if(~connected.isNil,{
                     connect.value(cable)
                 })
-            },{ arg cable,bundle;
+            },{ arg cable, bundle;
                 bundle.addFunction({
                     cable.inlet.adapter.value.source = nil;
                     ~connected = false;
@@ -407,15 +407,15 @@ MxCable {
 
 MxCableStrategy {
 
-    var <>connectf,<>disconnectf,<>setInitialf;
+    var <>connectf, <>disconnectf, <>setInitialf;
 
-    *new { arg connect,disconnect,setInitial;
-        ^super.newCopyArgs(connect,disconnect,setInitial)
+    *new { arg connect, disconnect, setInitial;
+        ^super.newCopyArgs(connect, disconnect, setInitial)
     }
-    connect { arg cable,bundle;
+    connect { arg cable, bundle;
         try({
             cable.state.use {
-                connectf.value(cable,bundle)
+                connectf.value(cable, bundle)
             }
         },{ arg exc;
             "".postln;
@@ -430,9 +430,9 @@ MxCableStrategy {
             this.halt;
         })
     }
-    disconnect { arg cable,bundle;
+    disconnect { arg cable, bundle;
         cable.state.use {
-            disconnectf.value(cable,bundle)
+            disconnectf.value(cable, bundle)
         }
     }
     setInitial { arg cable;
@@ -445,6 +445,6 @@ MxCableStrategy {
 
 MxCableMapping {
 
-    var <>mapToSpec,<>mapCurve,<>enabled=false;
+    var <>mapToSpec, <>mapCurve, <>enabled=false;
 
 }

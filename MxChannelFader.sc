@@ -14,29 +14,29 @@ MxChannelInput : AbstractPlayerProxy {
         currently making an extra bus and copying it
     */
 
-    var instr,busJack,<>numChannels=2,inBus;
+    var instr, busJack, <>numChannels=2, inBus;
 
     *new { ^super.new.init }
     init {
         var instr;
         instr = MxChannelInput.instr;
         busJack = MxIrJack(126).spec_(instr.specs.at(1));
-        source = Patch(instr,[ this.numChannels,busJack ])
+        source = Patch(instr,[ this.numChannels, busJack ])
     }
-    prepareToBundle { arg agroup,bundle,private = false, argbus;
-        super.prepareToBundle(agroup,bundle,private , argbus);
-        inBus = this.patchOut.allocBus("inBus",\audio,this.numChannels);
+    prepareToBundle { arg agroup, bundle, private = false, argbus;
+        super.prepareToBundle(agroup, bundle, private , argbus);
+        inBus = this.patchOut.allocBus("inBus", \audio, this.numChannels);
         busJack.value = inBus.index;
     }
 
     *instr {
         if(Instr.isDefined("MxChannelInput").not,{
-            Instr("MxChannelInput", { arg numChannels=2,bus;
-                In.ar(bus,numChannels)
+            Instr("MxChannelInput", { arg numChannels=2, bus;
+                In.ar(bus, numChannels)
             },[
                 StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
                 ScalarSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
-            ],AudioSpec.new);
+            ], AudioSpec.new);
         });
         ^Instr.at("MxChannelInput")
     }
@@ -45,21 +45,21 @@ MxChannelInput : AbstractPlayerProxy {
 
 MxChannelFader : AbstractPlayerProxy {
 
-    var <numChannels,<db=0, <mute=false, <solo=false;
-    var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12,<>fuseBlown=false;
+    var <numChannels, <db=0, <mute=false, <solo=false;
+    var <>limit=nil, <>breakOnBadValues=true, <>breakOnDbOver=12, <>fuseBlown=false;
 
-    var busJack,dbJack;
+    var busJack, dbJack;
 
     *new { arg db=0.0, mute=false, solo=false,
-            limit=nil, breakOnBadValues=true, breakOnDbOver=12.0,numChannels=2;
-        ^super.new.init(db,mute,solo,limit,breakOnBadValues,breakOnDbOver,numChannels)
+            limit=nil, breakOnBadValues=true, breakOnDbOver=12.0, numChannels=2;
+        ^super.new.init(db, mute, solo, limit, breakOnBadValues, breakOnDbOver, numChannels)
     }
     storeArgs {
-        ^[db,mute,solo,limit,breakOnBadValues,breakOnDbOver,numChannels]
+        ^[db, mute, solo, limit, breakOnBadValues, breakOnDbOver, numChannels]
     }
 
-    init { arg argdb,argmute,argsolo,
-            arglimit,argbreakOnBadValues,argbreakOnDbOver,argnumChannels;
+    init { arg argdb, argmute, argsolo,
+            arglimit, argbreakOnBadValues, argbreakOnDbOver, argnumChannels;
         db = argdb;
         mute = argmute;
         solo = argsolo;
@@ -69,7 +69,7 @@ MxChannelFader : AbstractPlayerProxy {
         numChannels = argnumChannels ? 2;
 
         busJack = MxKrJack(126).spec_(ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"));
-        dbJack = MxKrJack(db).spec_(ControlSpec(-1000,24,'db',0.0,0.0,\db));
+        dbJack = MxKrJack(db).spec_(ControlSpec(-1000, 24, 'db', 0.0, 0.0, \db));
 
          source = Patch(MxChannelFader.channelInstr,[
                     numChannels,
@@ -79,11 +79,11 @@ MxChannelFader : AbstractPlayerProxy {
                     breakOnBadValues.binaryValue,
                     breakOnDbOver,
                     { arg val; val.inform; fuseBlown = true; }
-                ],ReplaceOut);
+                ], ReplaceOut);
     }
-    prepareToBundle { arg agroup,bundle,private = false, argbus;
+    prepareToBundle { arg agroup, bundle, private = false, argbus;
         fuseBlown = false;
-        super.prepareToBundle(agroup,bundle,private , argbus);
+        super.prepareToBundle(agroup, bundle, private , argbus);
         busJack.value = this.bus.index;
     }
     db_ { arg d;
@@ -121,23 +121,23 @@ MxChannelFader : AbstractPlayerProxy {
         dbJack.changed;
     }
 
-    draw { arg pen,bounds,style;
+    draw { arg pen, bounds, style;
         pen.color = style['fontColor'];
         pen.font = style['font'];
         if(mute,{
-            ^pen.stringCenteredIn("muted",bounds);
+            ^pen.stringCenteredIn("muted", bounds);
         });
-        pen.stringCenteredIn(db.round(0.1).asString ++ "dB",bounds);
+        pen.stringCenteredIn(db.round(0.1).asString ++ "dB", bounds);
     }
 
     *channelInstr {
         // or create it on the fly so the on trigs can be sent
         // could also pass a responder function in
         if(Instr.isDefined("MxChannelFader").not,{
-            Instr("MxChannelFader",{ arg numChannels=2,inBus=126,
-                            db=0,limit=0.999,breakOnBadValues=1,breakOnDbOver=12,onBad;
-                var ok,threshold,c,k,in;
-                in = In.ar(inBus,numChannels);
+            Instr("MxChannelFader",{ arg numChannels=2, inBus=126,
+                            db=0, limit=0.999, breakOnBadValues=1, breakOnDbOver=12, onBad;
+                var ok, threshold, c, k, in;
+                in = In.ar(inBus, numChannels);
                 if(breakOnBadValues > 0,{
                     ok = BinaryOpUGen('==', CheckBadValues.kr(Mono(in), 0, 2), 0);
                     (1.0 - ok).onTrig({
@@ -148,14 +148,14 @@ MxChannelFader : AbstractPlayerProxy {
                 });
                 if(breakOnDbOver > 0,{
                     threshold = breakOnDbOver.dbamp;
-                    c = max(0.0,(Amplitude.ar(Mono(in),0.001,0.001) - 2.0));
+                    c = max(0.0,(Amplitude.ar(Mono(in), 0.001, 0.001) - 2.0));
                     k = c > threshold;
                     A2K.kr(k).onTrig({
                         "amp > threshold, muting".inform;
                         onBad.value("over threshold");
                     });
                     k = 1.0 - k;
-                    in = in * k; //Lag.kr(k,0.01);
+                    in = in * k; //Lag.kr(k, 0.01);
                 });
                 if(limit > 0,{
                     Limiter.ar(
@@ -165,16 +165,16 @@ MxChannelFader : AbstractPlayerProxy {
                 },{
                     in = in * db.dbamp
                 });
-                NumChannels.ar(in,numChannels)
+                NumChannels.ar(in, numChannels)
             },[
                 StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
                 ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"),
-                ControlSpec(-1000,24,'db',0.0,0.0,\db),
-                StaticSpec(0,1.0),
-                StaticSpec(0,1),
-                StaticSpec(0,100),
+                ControlSpec(-1000, 24, 'db', 0.0, 0.0, \db),
+                StaticSpec(0, 1.0),
+                StaticSpec(0, 1),
+                StaticSpec(0, 100),
                 ObjectSpec.new
-            ],AudioSpec(2))
+            ], AudioSpec(2))
         });
         ^Instr("MxChannelFader")
     }
