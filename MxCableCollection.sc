@@ -25,6 +25,11 @@ MxCableCollection : List {
 
     add { arg cable;
         var h;
+		if(cable.inlet.isNil or: {cable.outlet.isNil}, {
+			"Broken cable, discarding".warn;
+			cable.dump;
+			^this
+		});
         super.add(cable);
         h = cable.inlet.unit.identityHash;
         toUnits[h] = toUnits[h].add(cable);

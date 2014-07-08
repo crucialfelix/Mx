@@ -15,6 +15,9 @@ MxCable {
         state = Environment.new;
     }
     asString {
+		if(this.outlet.unit.isNil or: {this.inlet.isNil}, {
+			^format("%->% MxCable", this.outlet, this.inlet);
+		});
         ^format("%[%]->%[%] MxCable", this.outlet.unit.source.class, this.outlet.adapter.class,
                                 this.inlet.unit.source.class, this.inlet.adapter.class)
     }
