@@ -17,6 +17,7 @@
   asJSON {
     ^(
         name: this.name,
+        id: this.id,
         point: this.point.asArray,
         spec: this.spec.asJSON,
         inlets: this.inlets.collect(_.asJSON),

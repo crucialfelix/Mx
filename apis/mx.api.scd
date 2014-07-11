@@ -1,13 +1,20 @@
 
 var get = { arg uuid;
-  API('player').call('_get', uuid);
-};
+      API('player').call('_get', uuid);
+    },
+    set = { arg uuid, mx;
+      API('player').call('_set', uuid, mx);
+    },
+    getUnit = { arg uuid, id;
+      var mx = get.(uuid);
+      mx.atID(id);
+    };
 
 
 (
   new: { arg reply, uuid;
     var x = Mx.new.app;
-    uuid = API('player').call('_set', uuid, x);
+    uuid = set.(uuid, x);
     reply.value(uuid);
   },
   info: { arg reply, uuid;
@@ -15,14 +22,14 @@ var get = { arg uuid;
     reply.(mx.asJSON);
     // does not include cables yet
   },
-  unitInfoAt: { arg reply, uuid, x, y;
-    var mx = get.(uuid);
-    reply.(mx.at(x@y).asJSON);
+  unitInfoAt: { arg reply, uuid, id;
+    var unit = getUnit.(uuid, id);
+    reply.(unit.asJSON);
   },
 
-  setInletValue: { arg reply, uuid, x, y, key, value;
-    var mx = get.(uuid),
-      inlet = mx.at(x@y).inlets.at(key);
+  setInletValue: { arg reply, uuid, id, key, value;
+    var unit = getUnit.(uuid, id),
+        inlet = unit.inlets.at(key);
     if(inlet.canSet, {
       inlet.set(value);
       reply.value(inlet.get());
@@ -30,9 +37,9 @@ var get = { arg uuid;
       Error("Cannot set value on inlet" + inlet).throw;
     });
   },
-  getInletValue: { arg reply, uuid, x, y, key;
-    var mx = get.(uuid),
-      inlet = mx.at(x@y).inlets.at(key);
+  getInletValue: { arg reply, uuid, id, key;
+    var unit = getUnit.(uuid, id),
+        inlet = unit.inlets.at(key);
     if(inlet.canGet, {
       reply.value(inlet.get());
     }, {
@@ -41,8 +48,24 @@ var get = { arg uuid;
   },
 
   getPointUUID: { arg reply, uuid, x, y;
+    // deprec
     var mx = get.(uuid),
         unit = mx.at(x@y);
     reply.(API('player').call('prGetOrSet', unit.source));
+  },
+  getUnitUUID: { arg reply, uuid, id;
+    // find an object in this mx, register it and return that uuid
+    var unit = getUnit.(uuid, id);
+    reply.(API('player').call('prGetOrSet', unit.source));
+  },
+
+  setChannelLevel: { arg reply, uuid, channel, level;
+    var mx = get.(uuid),
+      db;
+    db = \db.asSpec.map(level.max(0.000000001));
+    mx.channel(channel.asInteger).db = db;
+    reply.(db);
+    // mute
+    // unmute
   }
 );
