@@ -77,7 +77,9 @@ Mx : AbstractPlayerProxy {
         ^register[uid]
     }
     findID { arg object;
-        ^register.findKeyForValue(object) ?? { Error("ID not found in registery for:"+object).throw }
+        ^register.findKeyForValue(object) ?? {
+          Error("ID not found in registery for:"+object).throw
+        }
     }
     unregister { arg uid;
         var item;

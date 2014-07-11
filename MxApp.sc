@@ -31,7 +31,10 @@ MxApp : AbsApp {
         ^this.prFind( u )
     }
     put { arg point, object;
-        ^this.prFind( model.put(point.x, point.y, object) )
+        ^this.prFind(model.put(point.x, point.y, object))
+    }
+    atID { arg id;
+      ^this.prFind(model.atID(id))
     }
     units {
         ^MxQuery(model.allUnits(false).all.collect(this.prFind(_)), this)
@@ -411,6 +414,9 @@ MxUnitApp : AbsApp {
         model.addOutlet(name, spec, adapter)
     }
     point { ^this.mx.pointForUnit(model) }
+    id {
+      ^this.mx.findID(model)
+    }
     printOn { arg stream;
         var p;
         p = this.point ? Point(nil, nil);
