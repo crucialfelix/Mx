@@ -34,7 +34,11 @@ MxApp : AbsApp {
         ^this.prFind(model.put(point.x, point.y, object))
     }
     atID { arg id;
-      ^this.prFind(model.atID(id))
+      var obj = model.atID(id);
+      if(obj.isNil, {
+          Error("Mx unit not found:" + id).throw;
+      });
+      ^this.prFind(obj)
     }
     units {
         ^MxQuery(model.allUnits(false).all.collect(this.prFind(_)), this)
@@ -128,6 +132,7 @@ MxApp : AbsApp {
         cache = IdentityDictionary.new;
     }
     prFind { arg obj;
+        // gets or wraps the object in an app class wrapper
         var app;
         ^cache[obj] ?? {
             app = (obj.class.name.asString ++ "App").asSymbol.asClass.new(obj, this);

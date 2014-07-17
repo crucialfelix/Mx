@@ -7,7 +7,15 @@ var get = { arg uuid;
     },
     getUnit = { arg uuid, id;
       var mx = get.(uuid);
-      mx.atID(id);
+      id ?? {
+        Error("getUnit: unit id is nil").throw
+      };
+      mx.atID(id.asInteger);
+    },
+    getInlet = { arg unit, key;
+      unit.inlets.at(key) ?? {
+        Error("inlet not found:" + key).throw
+      };
     };
 
 
@@ -29,7 +37,7 @@ var get = { arg uuid;
 
   setInletValue: { arg reply, uuid, id, key, value;
     var unit = getUnit.(uuid, id),
-        inlet = unit.inlets.at(key);
+        inlet = getInlet.(unit, key);
     if(inlet.canSet, {
       inlet.set(value);
       reply.value(inlet.get());
