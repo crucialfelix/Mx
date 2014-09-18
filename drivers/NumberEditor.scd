@@ -5,19 +5,19 @@
 
 MxUnit.register('NumberEditor',
 (
-    make: { arg num,spec=\unipolar;
-        var inlets,outlets,sips,ne;
-        if(num.isKindOf(NumberEditor),{
+    make: { arg num, spec=\unipolar;
+        var inlets, outlets, sips, ne;
+        if(num.isKindOf(NumberEditor), {
             ne = num
-        },{
-            ne = NumberEditor(num.value,spec ? \unipolar);
+        }, {
+            ne = NumberEditor(num.value, spec ? \unipolar);
         });
         ~source = ne;
-        inlets  = [ MxInlet("in",0,ne.spec,MxSetter({ arg v; ne.valueAction = v })) ];
+        inlets  = [ MxInlet("in", 0, ne.spec, MxSetter({ arg v; ne.valueAction = v })) ];
         outlets = [ MxOutlet("action", 0, ne.spec ,
                         MxHasAction({arg action; ne.action = action  }) )
                 ];
-        MxUnit(ne,inlets,outlets);
+        MxUnit(ne, inlets, outlets);
     },
     spec: {
         ~source.spec
@@ -30,12 +30,12 @@ MxUnit.register('NumberEditor',
     },
 
     save: {
-        [~source.value,~source.spec]
+        [~source.value, ~source.spec]
     },
     load: { arg data;
-        if(data.isArray,{
+        if(data.isArray, {
             data
-        },{
+        }, {
             [data]
         })
     }

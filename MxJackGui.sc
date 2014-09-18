@@ -11,13 +11,13 @@ MxKrJackGui : ObjectGui {
         ne.action = {
             // as long as you didn't get jacked into from something else
             // then you may move the fader
-            if(model.isConnected.not,{
+            if(model.isConnected.not, {
                 model.value = ne.value
             })
         }
     }
     update {
-        if(ne.value != model.value,{
+        if(ne.value != model.value, {
             ne.value = model.value
         })
     }
@@ -36,7 +36,7 @@ MxStreamJackGui : MxKrJackGui {
     writeName {}
     guiBody { arg layout;
         lastVal = CXLabel(layout, model.lastVal.asString);
-        if(model.source.isKindOf(NumberEditor),{ // default control
+        if(model.source.isKindOf(NumberEditor), { // default control
             model.source.gui(layout);
         })
     }

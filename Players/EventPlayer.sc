@@ -22,22 +22,22 @@ EventPlayer : AbstractPlayer {
     playEvent { arg event;
         var e;
         e = protoEvent.copy.putAll(event);
-        if(postStream.notNil,{
+        if(postStream.notNil, {
             e = postStream.next(e)
         });
         e.play;
-        if(verbose,{ e.debug });
+        if(verbose, { e.debug });
         ^e
     }
     postFilterPut { arg k, v;
         var pf;
         pf = (postFilter ?? { postFilter = Event.new});
-        if(v.notNil,{
+        if(v.notNil, {
             pf.put(k, v);
-            if(this.isPlaying,{
+            if(this.isPlaying, {
                 v.prepareForPlay(this.group, true)
             });
-        },{
+        }, {
             pf.removeAt(k)
         });
         this.resetProtoStream;
@@ -51,7 +51,7 @@ EventPlayer : AbstractPlayer {
     }
     resetProtoStream {
         postStream = nil;
-        if(postFilter.size > 0,{
+        if(postFilter.size > 0, {
             postStream = Pbind(*postFilter.getPairs).asStream
         });
         protoEvent['group'] = this.group;
@@ -89,7 +89,7 @@ EventListPlayer : EventPlayer {
     }
     initElp {
         sched = BeatSched.new;
-        events = SortedList(128,{arg a, b;
+        events = SortedList(128, {arg a, b;
             (a['beat']?inf) <= (b['beat']?inf)
         });
     }
@@ -124,13 +124,13 @@ EventListPlayer : EventPlayer {
         var e, delta;
         ei = newEi;
         e = events[ei];
-        if(e.notNil and: {e[\beat].notNil},{
+        if(e.notNil and: {e[\beat].notNil}, {
             delta = e['beat'] - sched.beat;
-            if(delta.inclusivelyBetween(-0.02, 0.01),{
+            if(delta.inclusivelyBetween(-0.02, 0.01), {
                 this.playEvent(e);
                 this.schedNext(ei + 1)
-            },{
-                sched.schedAbs(e[\beat],{
+            }, {
+                sched.schedAbs(e[\beat], {
                     this.playEvent(e);
                     this.schedNext(ei + 1)
                 })
@@ -140,17 +140,17 @@ EventListPlayer : EventPlayer {
     findNextAfter { arg beat;
         var lasti;
         lasti = events.lastIndexForWhich({ arg e; e[\beat] < beat });
-        if(lasti.isNil,{^0});
+        if(lasti.isNil, {^0});
         ^lasti + 1
     }
     addEvent { arg ev;
         var nei, evi;
         events = events.add(ev);
-        if(this.isPlaying,{
-            if(ev['beat'].notNil,{
+        if(this.isPlaying, {
+            if(ev['beat'].notNil, {
                 // is it next ?
                 evi = events.indexOf(ev);
-                if(evi <= ei,{
+                if(evi <= ei, {
                     this.schedFromNow(nei);
                 })
             })
@@ -158,7 +158,7 @@ EventListPlayer : EventPlayer {
     }
     removeEvent { arg ev;
         events.remove(ev);
-        if(ev['beat'].notNil and: {ev['beat'] >= sched.beat},{
+        if(ev['beat'].notNil and: {ev['beat'] >= sched.beat}, {
             // actually only needed if its next
             // will optimize later
             this.schedFromNow;
@@ -167,21 +167,21 @@ EventListPlayer : EventPlayer {
     playEventAt { arg i, inval;
         var te;
         te = events[i];
-        if(te.notNil,{
+        if(te.notNil, {
             this.playEvent(te, inval)
         })
     }
     playEvent { arg event, inval;
         var e;
         e = protoEvent.copy.putAll(event);
-        if(postStream.notNil,{
+        if(postStream.notNil, {
             e = postStream.next(e)
         });
-        if(inval.notNil,{
+        if(inval.notNil, {
             e.putAll(inval)
         });
         e.play;
-        if(verbose,{ e.asCompileString.postln; "".postln; });
+        if(verbose, { e.asCompileString.postln; "".postln; });
         ^e
     }
 
@@ -190,7 +190,7 @@ EventListPlayer : EventPlayer {
     }
     setEventBeat { arg i, beat;
         events[i].put(\beat, beat);
-        if(this.isPlaying,{
+        if(this.isPlaying, {
             this.schedFromNow;
         })
     }
@@ -204,7 +204,7 @@ EventListPlayer : EventPlayer {
             sched.beat = beat;
             this.schedFromNow;
         };
-        if(bundle.notNil,{bundle.addFunction(f)}, f);
+        if(bundle.notNil, {bundle.addFunction(f)}, f);
     }
     sorted {
         ^events
@@ -221,7 +221,7 @@ InstrEventListPlayer : EventListPlayer {
         an = IdentityDictionary.new;
         events.do { arg e;
             var instr;
-            if(e['instr'].notNil,{
+            if(e['instr'].notNil, {
                 instr = e['instr'].asInstr;
                 instr.argNames.do { arg aname, i;
                     an.put(aname, instr.specs.at(i) )

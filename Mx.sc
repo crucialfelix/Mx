@@ -29,7 +29,7 @@ Mx : AbstractPlayerProxy {
         register = IdentityDictionary.new;
         cables = MxCableCollection.new;
 
-        if(data.isNil,{
+        if(data.isNil, {
             this.register(this, 0);
             master = this.prMakeChannel;
             this.registerChannel(master);
@@ -40,7 +40,7 @@ Mx : AbstractPlayerProxy {
             bpm = Tempo.bpm;
             // add a unit at top right
             this.findMasterInput;
-        },{
+        }, {
             loader = MxLoader(register);
             loader.loadData(data);
             this.register(this, 0);
@@ -67,7 +67,7 @@ Mx : AbstractPlayerProxy {
         ^allocator = allocator + 1;
     }
     register { arg object, uid;
-        if(uid.isNil,{
+        if(uid.isNil, {
             uid = this.nextID;
         });
         register[uid] = object;
@@ -84,13 +84,13 @@ Mx : AbstractPlayerProxy {
     unregister { arg uid;
         var item;
         item = register.removeAt(uid);
-        if(item.isKindOf(MxChannel),{
+        if(item.isKindOf(MxChannel), {
             item.units.do { arg u;
                 this.unregister(this.findID(u))
             };
             this.unregister(this.findID(item.myUnit));
-        },{
-            if(item.isKindOf(MxUnit),{
+        }, {
+            if(item.isKindOf(MxUnit), {
                 item.inlets.do({ arg in; this.unregister(this.findID(in)) });
                 item.outlets.do({ arg in; this.unregister(this.findID(in)) });
             })
@@ -120,7 +120,7 @@ Mx : AbstractPlayerProxy {
         /* locate or make an input unit on the master channel */
         ^master.input ?? {
             master.input = master.units.detect({ arg u; u.source.isKindOf(MxChannelInput) });
-            if(master.input.isNil,{
+            if(master.input.isNil, {
                 master.makeInput;
                 this.registerUnit(master.input);
             });
@@ -131,11 +131,11 @@ Mx : AbstractPlayerProxy {
         ^this.insertChannel(channels.size-1, objects)
     }
     channelAt { arg chan;
-        ^if(chan == inf,{master},{channels[chan]});
+        ^if(chan == inf, {master}, {channels[chan]});
     }
     indexOfChannel { arg channel;
         var i;
-        if(channel === master,{ ^inf });
+        if(channel === master, { ^inf });
         i = channels.indexOf(channel);
         ^i
     }
@@ -147,8 +147,8 @@ Mx : AbstractPlayerProxy {
         var prior, nuchan, start, stop;
         start = channels.size;
         stop = toSize;
-        if(stop >= start,{
-            for(start, stop,{ arg i;
+        if(stop >= start, {
+            for(start, stop, { arg i;
                 nuchan = this.prMakeChannel;
                 channels = channels.insert(i, nuchan);
                 this.registerChannel(nuchan);
@@ -162,7 +162,7 @@ Mx : AbstractPlayerProxy {
         // if adding a new channel it will insert it at the end
         // so will add one tp make sure there are at least that many channels
         var chan, units;
-        if(index > channels.size,{
+        if(index > channels.size, {
             this.extendChannels(index-1);
         });
         units = (objects ? []).collect({ arg obj; obj !? {this.prMakeUnit(obj)}});
@@ -172,7 +172,7 @@ Mx : AbstractPlayerProxy {
 
         chan.pending = true;
         adding = adding.add(chan);
-        if(autoCable,{
+        if(autoCable, {
             this.updateAutoCables
         });
         this.updateVarPooling;
@@ -183,7 +183,7 @@ Mx : AbstractPlayerProxy {
     putChannel { arg index, objects;
         var prev, chan;
         prev = channels[index];
-        if(prev.notNil,{
+        if(prev.notNil, {
             this.prRemoveChannel(index);
         });
         ^this.insertChannel(index, objects)
@@ -223,7 +223,7 @@ Mx : AbstractPlayerProxy {
         var chan, out;
 
         // master output
-        if(outlets.isNil or: {outlets.isEmpty},{
+        if(outlets.isNil or: {outlets.isEmpty}, {
             // do not like. this is not in anything and should be created in the same way
             // as other outlets/inlets via make: mx.myUnit
             // otoh outlets is an array here and make would read that
@@ -238,17 +238,17 @@ Mx : AbstractPlayerProxy {
         ^chan
     }
     at { arg chan, index;
-        if(chan == inf,{
+        if(chan == inf, {
             ^master.at(index)
-        },{
+        }, {
             ^(channels.at(chan) ? []).at(index)
         })
     }
     put { arg chan, index, object;
-        if(chan == inf,{
+        if(chan == inf, {
             ^this.putMaster(index, object)
         });
-        if(channels[chan].isNil,{
+        if(channels[chan].isNil, {
             this.insertChannel(chan, Array.fill(index, nil) ++ [object]);
             ^this.at(chan, index)
         });
@@ -265,7 +265,7 @@ Mx : AbstractPlayerProxy {
     prMakeUnit { arg object;
         var unit;
         unit = MxUnit.make(object);
-        if(unit.notNil,{ // nil object is nil unit which is legal
+        if(unit.notNil, { // nil object is nil unit which is legal
             this.registerUnit(unit);
             unit.didLoad;
         });
@@ -275,7 +275,7 @@ Mx : AbstractPlayerProxy {
         var unit, old;
         unit = this.prMakeUnit(object);
         old = channel.at(index);
-        if(old.notNil,{
+        if(old.notNil, {
             // cut or take any cables
             this.disconnectUnit(old);
             this.unregister(this.findID(old));
@@ -291,34 +291,34 @@ Mx : AbstractPlayerProxy {
     move { arg chan, index, toChan, toIndex;
         var moving, unit, unitg, channel;
         moving = this.at(chan, index);
-        if(moving.isNil,{ ^this });
+        if(moving.isNil, { ^this });
         channel = this.channelAt(chan);
         if(chan != toChan) {
             # unit, unitg = channel.extractAt(index);
 
             // could keep them connected, depends on order of execution
             cables.fromUnit(moving).do { arg cable;
-                if(cable.inlet.unit.source.isKindOf(MxChannel),{
+                if(cable.inlet.unit.source.isKindOf(MxChannel), {
                     this.disconnectCable(cable);
                 })
             };
 
             // make channel if needed
-            if(toChan != inf,{
+            if(toChan != inf, {
                 this.extendChannels(toChan);
                 channel = channels[toChan];
-            },{
+            }, {
                 channel = master;
             });
 
             channel.insertAt(toIndex, unit, unitg);
 
-            if(autoCable,{
+            if(autoCable, {
                 this.updateAutoCables;
             })
         } {
             // not yet checking if some cables need to be cut
-            if(index != toIndex,{
+            if(index != toIndex, {
                 channel.move(index, toIndex);
             })
         };
@@ -331,18 +331,18 @@ Mx : AbstractPlayerProxy {
         this.put(chan, index, nil);
         removing = removing.add(del);
         cables.toUnit(del).do { arg cab;
-            if(cab.inlet.unit === del or: {cab.outlet.unit === del},{
+            if(cab.inlet.unit === del or: {cab.outlet.unit === del}, {
                 this.disconnectCable(cab)
             })
         };
     }
     insert { arg chan, index, object;
         var channel, unit;
-        if(chan == inf,{
+        if(chan == inf, {
             channel = master
-        },{
+        }, {
             channel = channels[chan];
-            if(channel.isNil,{
+            if(channel.isNil, {
                 this.insertChannel(chan, Array.fill(index, nil) ++ [object]);
                 ^this
             });
@@ -360,13 +360,13 @@ Mx : AbstractPlayerProxy {
     pointForUnit { arg unit;
         channels.do { arg ch, ci;
             ch.units.do { arg u, ri;
-                if(unit === u,{
+                if(unit === u, {
                     ^Point(ci, ri)
                 })
             }
         };
         master.units.do { arg u, ri;
-            if(unit === u,{
+            if(unit === u, {
                 ^Point(inf, ri)
             })
         };
@@ -376,7 +376,7 @@ Mx : AbstractPlayerProxy {
         unit.handlers.use {
             var frdSource;
             frdSource = ~frameRateDevice.value();
-            if(frdSource.notNil,{
+            if(frdSource.notNil, {
                 // store it in unit data so the cable strategy can find it
                 ~mxFrameRateDevice = this.addFrameRateDevice(frdSource, unit)
             })
@@ -385,7 +385,7 @@ Mx : AbstractPlayerProxy {
     addFrameRateDevice { arg func, forUnit;
         var frd;
         frameRateDevices = frameRateDevices.add( frd = MxFrameRateDevice(func, forUnit) );
-        if(this.isPlaying and: {ticker.isNil},{
+        if(this.isPlaying and: {ticker.isNil}, {
             this.startTicker
         });
         ^frd
@@ -412,21 +412,21 @@ Mx : AbstractPlayerProxy {
                         frr.wait;
                     }
                 }, sched.tempoClock);
-        if(bundle.notNil,{
+        if(bundle.notNil, {
             bundle.addFunction({
                 ticker.play
             })
-        },{
+        }, {
             ticker.play
         });
     }
     stopTicker { arg bundle;
-        if(bundle.notNil,{
+        if(bundle.notNil, {
             bundle.addFunction({
                 ticker.stop;
                 ticker = nil;
             });
-        },{
+        }, {
             ticker.stop;
             ticker = nil;
         })
@@ -438,10 +438,10 @@ Mx : AbstractPlayerProxy {
             this.allUnits.do { arg unit;
                 var numb;
                 numb = unit.beatDuration;
-                if(numb.notNil,{
-                    if(max.isNil,{
+                if(numb.notNil, {
+                    if(max.isNil, {
                         max = numb
-                    },{
+                    }, {
                         max = max(max, numb)
                     })
                 })
@@ -474,14 +474,14 @@ Mx : AbstractPlayerProxy {
         var cable;
         // should be in API
         // wrong
-        if(outlet.isKindOf(MxOutlet).not,{
+        if(outlet.isKindOf(MxOutlet).not, {
             outlet = this.getOutlet(fromUnit, outlet);
         });
-        if(inlet.isKindOf(MxInlet).not,{
+        if(inlet.isKindOf(MxInlet).not, {
             inlet = this.getInlet(toUnit, inlet);
         });
         // is it possible ?
-        if(MxCable.hasStrategy(outlet, inlet).not,{
+        if(MxCable.hasStrategy(outlet, inlet).not, {
             ("No MxCableStrategy found for" + outlet + outlet.adapter + "=>" + inlet + inlet.adapter).warn;
             ^this
         });
@@ -491,16 +491,16 @@ Mx : AbstractPlayerProxy {
         // only the MxChannel inputs are supposed to mix multiple inputs
         // normal patch input points do not
         cables.toInlet(inlet).do { arg oldcable;
-            if(oldcable.outlet === outlet,{
+            if(oldcable.outlet === outlet, {
                 ^this // already connected
             });
             if(oldcable.inlet.unit.source.isKindOf(MxChannel).not
-                    and: {oldcable.active},{
+                    and: {oldcable.active}, {
                 this.disconnectCable(oldcable);
             })
         };
         cable = MxCable( outlet, inlet, mapping );
-        if(this.isPlaying,{
+        if(this.isPlaying, {
             cable.pending = true;
             adding = adding.add( cable );
         });
@@ -508,20 +508,20 @@ Mx : AbstractPlayerProxy {
     }
     disconnect { arg fromUnit, outlet, toUnit, inlet;
         // should be in API
-        if(outlet.isKindOf(MxOutlet).not,{
+        if(outlet.isKindOf(MxOutlet).not, {
             outlet = this.getOutlet(fromUnit, outlet);
         });
-        if(inlet.isKindOf(MxInlet).not,{
+        if(inlet.isKindOf(MxInlet).not, {
             inlet = this.getInlet(toUnit, inlet);
         });
         cables.do { arg cab;
-            if(cab.inlet === inlet and: {cab.outlet === outlet},{
+            if(cab.inlet === inlet and: {cab.outlet === outlet}, {
                 ^this.disconnectCable(cab)
             })
         };
     }
     disconnectCable { arg cable;
-        if(this.isPlaying,{
+        if(this.isPlaying, {
             removing = removing.add( cable );
             cable.pending = true;
         });
@@ -529,7 +529,7 @@ Mx : AbstractPlayerProxy {
     }
     disconnectUnit { arg unit;
         cables.copy.do { arg cable;
-            if(cable.inlet.unit === unit or: {cable.outlet.unit === unit},{
+            if(cable.inlet.unit === unit or: {cable.outlet.unit === unit}, {
                 this.disconnectCable(cable);
             })
         };
@@ -547,7 +547,7 @@ Mx : AbstractPlayerProxy {
     mute { arg channel, boo;
         var chan;
         chan = this.channels.at(channel);
-        if(chan.notNil,{
+        if(chan.notNil, {
             boo = boo ? chan.fader.mute.not;
             chan.fader.mute = boo;
         });
@@ -555,19 +555,19 @@ Mx : AbstractPlayerProxy {
     solo { arg channel, boo;
         var chan;
         chan = this.channels.at(channel);
-        if(chan.notNil,{
+        if(chan.notNil, {
             boo = boo ? chan.fader.solo.not;
-            if(boo,{
+            if(boo, {
                 chan.fader.setSolo;
                 this.channels.do { arg ch;
-                    if(ch !== chan,{
+                    if(ch !== chan, {
                         ch.fader.muteForSoloist;
                     })
                 };
-            },{
+            }, {
                 chan.fader.unsetSolo;
                 this.channels.do { arg ch;
-                    if(ch !== chan,{
+                    if(ch !== chan, {
                         ch.fader.mute = false;
                     })
                 };
@@ -575,9 +575,9 @@ Mx : AbstractPlayerProxy {
         });
     }
     beat {
-        if(this.isPlaying,{
+        if(this.isPlaying, {
             ^sched.beat
-        },{
+        }, {
             ^position.value
         })
     }
@@ -593,17 +593,17 @@ Mx : AbstractPlayerProxy {
         });
         channels.do { arg chan;
             chan.units.do { arg unit;
-                if(unit.notNil,{
+                if(unit.notNil, {
                     unit.gotoBeat(beat, atBeat, b)
                 })
             }
         };
-        if(this.isPlaying,{
-            sched.schedAbs(atBeat, this.server, b.messages,{
+        if(this.isPlaying, {
+            sched.schedAbs(atBeat, this.server, b.messages, {
                 b.doSendFunctions;// should be before !
                 b.doFunctions;
             });
-        },{
+        }, {
             b.doFunctions.doSendFunctions
         })
     }
@@ -611,17 +611,17 @@ Mx : AbstractPlayerProxy {
     // syncChanges
     update { arg bundle=nil;
         var b;
-        if(this.isPlaying,{
+        if(this.isPlaying, {
             b = bundle ?? { MixedBundle.new };
 
             removing.do { arg r;
                 r.freeToBundle(b);
                 b.addFunction({
-                    if(r.isKindOf(MxChannel),{
+                    if(r.isKindOf(MxChannel), {
                         r.units.do { arg u;
                             this.removeFrameRateDeviceForUnit(u)
                         }
-                    },{
+                    }, {
                         this.removeFrameRateDeviceForUnit(r)
                     })
                 })
@@ -629,17 +629,17 @@ Mx : AbstractPlayerProxy {
             // new channels
             adding.do { arg a;
                 var g, prev, ci;
-                if(a.isKindOf(MxChannel),{
+                if(a.isKindOf(MxChannel), {
                     g = Group.basicNew(group.server);
                     ci = channels.indexOf(a);
                     prev = channels[ ci - 1];
-                    if(prev.notNil,{
+                    if(prev.notNil, {
                         b.add( g.addAfterMsg( prev.group ) )
-                    },{
+                    }, {
                         b.add( g.addToHeadMsg( group ) )
                     });
                     a.prepareToBundle(group, b, true, groupToUse: g);
-                },{
+                }, {
                     a.prepareToBundle(group, b, true);
                 });
                 // it should be atTime
@@ -652,7 +652,7 @@ Mx : AbstractPlayerProxy {
                     this.unregister(r);
                 };
             });
-            if(bundle.isNil,{
+            if(bundle.isNil, {
                 b.send(this.server)
             });
         });
@@ -676,9 +676,9 @@ Mx : AbstractPlayerProxy {
     allUnits { arg includeChanUnit = true;
         ^Routine({
             channels.do({ arg c;
-                if(includeChanUnit,{ c.myUnit.yield; });
+                if(includeChanUnit, { c.myUnit.yield; });
                 c.units.do({ arg u;
-                    if(u.notNil,{
+                    if(u.notNil, {
                         u.yield
                     })
                 })
@@ -735,8 +735,8 @@ Mx : AbstractPlayerProxy {
         (channels ++ [master]).do { arg chan;
             chan.units.do { arg unit;
                 // should be auto cabled, and isn't already
-                if(unit.notNil and: {unit.outlets.first.notNil} and: {unit.outlets.first.spec.isKindOf(AudioSpec)},{
-                    if(cables.fromOutlet(unit.outlets.first).isEmpty,{
+                if(unit.notNil and: {unit.outlets.first.notNil} and: {unit.outlets.first.spec.isKindOf(AudioSpec)}, {
+                    if(cables.fromOutlet(unit.outlets.first).isEmpty, {
                         ac = MxCable( unit.outlets.first, chan.myUnit.inlets.first );
                         cables.add(ac);
                         addingCables = addingCables.add(ac);
@@ -745,19 +745,19 @@ Mx : AbstractPlayerProxy {
                 })
             };
             // if the channel is not patched to anything then patch it to the master
-            if(chan !== master,{
-                if(cables.fromUnit(chan.myUnit).isEmpty,{
+            if(chan !== master, {
+                if(cables.fromUnit(chan.myUnit).isEmpty, {
                     ac = MxCable( chan.myUnit.outlets.first, this.findMasterInput.inlets.first );
                     cables.add(ac);
                     addingCables = addingCables.add(ac);
                     changed = true;
                 })
-            },{
-                if(cables.fromUnit(chan.input).isEmpty,{
+            }, {
+                if(cables.fromUnit(chan.input).isEmpty, {
                     to = chan.units.detect({arg u; u.notNil and: {u.inlets.first.isKindOf(AudioSpec)}});
-                    if(to.notNil,{
+                    if(to.notNil, {
                         to = to.inlets.first
-                    },{
+                    }, {
                         to = chan.myUnit.inlets.first
                     });
                     input = this.findMasterInput;
@@ -769,14 +769,14 @@ Mx : AbstractPlayerProxy {
             })
         };
         // patch units in master
-        if(addingCables.notEmpty,{
+        if(addingCables.notEmpty, {
             adding = adding.addAll(addingCables);
         });
         ^addingCables
     }
     stopToBundle { arg bundle;
         super.stopToBundle(bundle);
-        if(ticker.notNil,{
+        if(ticker.notNil, {
             this.stopTicker(bundle)
         });
         cables.do(_.stopToBundle(bundle));

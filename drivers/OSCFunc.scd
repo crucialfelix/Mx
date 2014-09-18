@@ -10,7 +10,7 @@
 MxUnit.register('OSCFunc',
 (
     make: { arg oscFunc;
-        var inlets,outlets,out,i=0,action;
+        var inlets, outlets, out, i=0, action;
         ~source = oscFunc;
         oscFunc.fix;
         action = MxHasAction({ arg callback;
@@ -18,9 +18,9 @@ MxUnit.register('OSCFunc',
                     callback.value(msg.copyToEnd(1))
                 }
                 });
-        out = MxOutlet("out",0,ArraySpec.new,action);
+        out = MxOutlet("out", 0, ArraySpec.new, action);
 
-        MxUnit(oscFunc,[],[out])
+        MxUnit(oscFunc, [], [out])
     },
     freeToBundle: { arg bundle;
         bundle.addFunction({ ~source.free }.inEnvir)

@@ -14,7 +14,7 @@ outlets
 MxUnit.register('MxChannelFader',
 (
     make: { arg chan;
-        var inlets,outlets;
+        var inlets, outlets;
 
         inlets  = [
             ];
@@ -22,9 +22,9 @@ MxUnit.register('MxChannelFader',
         outlets = [
             ];
 
-        MxUnit(chan,inlets,outlets);
+        MxUnit(chan, inlets, outlets);
     },
-    draw: { arg pen,bounds,style;
-        ~source.draw(pen,bounds,style)
+    draw: { arg pen, bounds, style;
+        ~source.draw(pen, bounds, style)
     }
 ));

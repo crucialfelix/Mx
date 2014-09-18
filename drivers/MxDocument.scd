@@ -1,9 +1,9 @@
 
-MxUnit.register('MxDocument',(
+MxUnit.register('MxDocument', (
 
     make: { arg doc;
         ~source = doc;
-        MxUnit(doc,[],[]);
+        MxUnit(doc, [], []);
     },
     didLoad: {
         ~evalCode.value();
@@ -33,7 +33,7 @@ MxUnit.register('MxDocument',(
     },
 /*
     prepareToBundle: { arg agroup, bundle, private, bus;
-        ~source.prepareToBundle(agroup,bundle,private,bus);
+        ~source.prepareToBundle(agroup, bundle, private, bus);
         },
     spawnToBundle: { arg bundle;
         ~source.spawnToBundle(bundle)
@@ -44,7 +44,7 @@ MxUnit.register('MxDocument',(
     freeToBundle: { arg bundle;
         ~source.freeToBundle(bundle)
         },
-    moveToHead: { arg aGroup,bundle,currentGroup;
+    moveToHead: { arg aGroup, bundle, currentGroup;
         bundle.add( ~source.spawnGroup.moveToHeadMsg(aGroup) );
     },
 
@@ -55,20 +55,20 @@ MxUnit.register('MxDocument',(
         ~source.spec
     },
     play: { arg group, atTime, bus;
-        ~source.play(group,atTime,bus)
+        ~source.play(group, atTime, bus)
         },
-    stop: { arg atTime,andFreeResources = true;
-        ~source.stop(atTime,andFreeResources)
+    stop: { arg atTime, andFreeResources = true;
+        ~source.stop(atTime, andFreeResources)
         },
     respawn: {
-        var group,bus;
+        var group, bus;
         group = ~source.group;
         bus = ~source.bus;
         ~source.stop;
-        ~source.play(group,1,bus)
+        ~source.play(group, 1, bus)
     },
-    gotoBeat: { arg beat,atBeat,bundle;
-        ~source.gotoBeat(beat,atBeat,bundle)
+    gotoBeat: { arg beat, atBeat, bundle;
+        ~source.gotoBeat(beat, atBeat, bundle)
     },
 
     isPlaying: {

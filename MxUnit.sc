@@ -10,14 +10,14 @@ MxUnit  {
 
     *make { arg source, class;
         var handlers;
-        if(source.isKindOf(MxUnit) or: {source.isNil},{
+        if(source.isKindOf(MxUnit) or: {source.isNil}, {
             ^source
         });
         handlers = this.handlersFor(class ? source.class);
         ^handlers.use {
             var unit;
             unit = ~make.value(source);
-            if(~source.isNil,{
+            if(~source.isNil, {
                 // set var so you can access it
                 ~source = source;
             });
@@ -49,7 +49,7 @@ MxUnit  {
     *handlersFor { arg class;
         var classHandlers;
         classHandlers = this.handlersForClass(class);
-        if(classHandlers.isNil,{
+        if(classHandlers.isNil, {
             Error("No MxUnit driver found for " + class).throw;
         });
         // this is actually a variable space dict, not just handlers
@@ -60,16 +60,16 @@ MxUnit  {
         match = registery[class.name] ?? {
             path = PathName(MxUnit.class.filenameSymbol.asString).parentPath
                             +/+ "drivers" +/+ class.name.asString ++ ".scd";
-            if(File.exists(path),{
+            if(File.exists(path), {
                 path.debug("Loading driver").load;
                 match = registery[class.name]
-            },{
+            }, {
                 path = Platform.userExtensionDir +/+ "quarks" +/+ "*"    +/+ "mxdrivers" +/+ class.name.asString ++ ".scd";
                 path.pathMatch.any { arg p;
                     p.debug("Loading mx driver").load;
                     (match = registery[class.name]).notNil
                 };
-                if(match.isNil and: {class !== Object},{
+                if(match.isNil and: {class !== Object}, {
                     ^this.handlersForClass(class.superclass)
                 });
                 match
@@ -79,14 +79,14 @@ MxUnit  {
     }
 
     getInlet { arg index;
-        if(index.isNil,{
+        if(index.isNil, {
             ^inlets.first
         });
-        if(index.isInteger,{
+        if(index.isInteger, {
             ^inlets[index]
-        },{
+        }, {
             inlets.do { arg in;
-                if(in.name == index,{
+                if(in.name == index, {
                     ^in
                 })
             }
@@ -94,14 +94,14 @@ MxUnit  {
         Error("Inlet not found:" + index).throw
     }
     getOutlet { arg index;
-        if(index.isNil,{
+        if(index.isNil, {
             ^outlets.first
         });
-        if(index.isInteger,{
+        if(index.isInteger, {
             ^outlets[index]
-        },{
+        }, {
             outlets.do { arg in;
-                if(in.name == index,{
+                if(in.name == index, {
                     ^in
                 })
             }
@@ -128,11 +128,11 @@ MxUnit  {
         var e, class, superclassHandlers;
         classname = classname.asSymbol;
         e = registery.at(classname);
-        if(e.notNil,{ // updating
+        if(e.notNil, { // updating
             e.keys.do { arg k;
                 e.removeAt(k)
             };
-        },{ // new registration
+        }, { // new registration
             class = classname.asClass;
             if(class.notNil and: {class !== Object}) {
                 class.superclasses.any { arg sup;
@@ -234,7 +234,7 @@ MxUnit  {
             var code;
             if(exception.notNil) {
                 code = currentEnvironment.at(handlerName);
-                if(code.isKindOf(Function),{
+                if(code.isKindOf(Function), {
                     code = code.def.sourceCode;
                 });
                 ("MxUnit:" + this.source + this.source.class + "\nERROR in:\n~" + handlerName + "\n" + code).postln;

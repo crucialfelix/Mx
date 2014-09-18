@@ -42,26 +42,26 @@ MxTimeGui : ObjectGui {
 
         maxTime = (model.endBeat ?? {model.beatDuration} ? 480) + 8;
         SynthConsole(model, parent).play.stop.tempo;
-        CXLabel(parent,"Last beat:");
-        NumberEditor(maxTime,[0, 10000].asSpec).action_({ arg num;
+        CXLabel(parent, "Last beat:");
+        NumberEditor(maxTime, [0, 10000].asSpec).action_({ arg num;
             this.maxTime = num.value;
             timeRuler.refresh;
             this.zoom(0, maxTime, true);
         }).smallGui(parent);
-        ActionButton(parent,"Rec to disk...",{
+        ActionButton(parent, "Rec to disk...", {
             model.record(endBeat:maxTime);
         }).background_(Color(0.76119402985075, 0.0, 0.0, 0.92537313432836));
 
         parent.startRow;
-        zoomCalc = ZoomCalc([0, maxTime],[0, width]);
-        playZoomCalc = ZoomCalc([0, maxTime],[0, 1.0]);
+        zoomCalc = ZoomCalc([0, maxTime], [0, width]);
+        playZoomCalc = ZoomCalc([0, maxTime], [0, 1.0]);
 
         currenty = parent.view.decorator.top;
 
         // zoom controls
         makeSidebar.value({ arg s;
-            ActionButton(s,"<-zoom->",{this.zoom(0, maxTime, true)})
-        },{ arg m;
+            ActionButton(s, "<-zoom->", {this.zoom(0, maxTime, true)})
+        }, { arg m;
             zoom = RangeSlider(m, m.innerBounds.width@buttonHeight);
         });
         zoom.lo = 0.0;
@@ -74,7 +74,7 @@ MxTimeGui : ObjectGui {
 
         makeSidebar.value({ arg s;
             // goto start
-                ActionButton(s,"|<",{model.gotoBeat(0, 1)})
+                ActionButton(s, "|<", {model.gotoBeat(0, 1)})
             },
             { arg m;
                 timeRuler = TimeRuler(m, Rect(0, 0, m.innerBounds.width, buttonHeight * 2), maxTime);
@@ -88,9 +88,9 @@ MxTimeGui : ObjectGui {
         };
         this.prSetFromTo(0.0, maxTime);
 
-        updater = Updater(model.position,{ arg pos;
+        updater = Updater(model.position, { arg pos;
             {
-                if(timeRuler.isClosed.not,{
+                if(timeRuler.isClosed.not, {
                     timeRuler.position = pos.current;
                 })
             }.defer
@@ -99,17 +99,17 @@ MxTimeGui : ObjectGui {
         units = [];
         model.channels.do { arg chan, ci;
             chan.units.do { arg unit;
-                if(unit.notNil and: {unit.handlers.at('timeGui').notNil},{
+                if(unit.notNil and: {unit.handlers.at('timeGui').notNil}, {
                     makeSidebar.value({ arg s;
                         // hide/show
                         // record enable
                         // gui
-                        // ActionButton(s,"gui",{unit.gui});
-                        if(unit.canRecord,{
-                            ToggleButton(s,"Record",{unit.record(true)},{unit.record(false)},
+                        // ActionButton(s, "gui", {unit.gui});
+                        if(unit.canRecord, {
+                            ToggleButton(s, "Record", {unit.record(true)}, {unit.record(false)},
                                 false, 20, nil, Color.red, Color.yellow);
                         });
-                    },{ arg v;
+                    }, { arg v;
                         unit.timeGui(v, v.bounds, maxTime);
                         units = units.add(v);
                     })
@@ -127,11 +127,11 @@ MxTimeGui : ObjectGui {
     zoom { arg argFrom, argTo, updateZoomControl=true;
         this.prSetFromTo(argFrom, argTo);
         model.allUnits.do { arg unit;
-            if(unit.handlers.at('zoomTime').notNil,{
+            if(unit.handlers.at('zoomTime').notNil, {
                 unit.zoomTime(from, to);
             })
         };
-        if(updateZoomControl,{
+        if(updateZoomControl, {
             zoom.setSpan( from / maxTime, to / maxTime )
         })
     }

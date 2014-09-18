@@ -25,7 +25,7 @@ TimeRuler {
 
     init { arg layout, bounds, mt;
         maxTime = mt;
-        zoomCalc = ZoomCalc([0.0, maxTime],[0.0, bounds.width]);
+        zoomCalc = ZoomCalc([0.0, maxTime], [0.0, bounds.width]);
         this.gui(layout, bounds)
     }
 
@@ -38,7 +38,7 @@ TimeRuler {
         blue = Color.blue;
         view.drawFunc = {
             gridLines.draw;
-            if((position ? -1).inclusivelyBetween(*zoomCalc.zoomedRange),{
+            if((position ? -1).inclusivelyBetween(*zoomCalc.zoomedRange), {
                 pen.use {
                     var x;
                     pen.width = 1;
@@ -49,25 +49,25 @@ TimeRuler {
                     pen.stroke;
                 }
             });
-            if(swipeStart.notNil,{
+            if(swipeStart.notNil, {
                 pen.use {
                     pen.color = Color.blue(alpha:0.3);
-                    pen.fillRect( Rect(min(swipeStart, lastx), 0,(lastx - swipeStart).abs, bounds.height) )
+                    pen.fillRect( Rect(min(swipeStart, lastx), 0, (lastx - swipeStart).abs, bounds.height) )
                 }
             });
         };
         view.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             lastx = x;
-            if(modifiers.isShift,{
-                if(clickCount == 2,{
+            if(modifiers.isShift, {
+                if(clickCount == 2, {
                     shiftSwipeAction.value(0, maxTime)
-                },{
+                }, {
                     swipeStart = x;
                 })
             })
         };
         view.mouseUpAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
-            if(modifiers.isShift and: swipeStart.notNil,{
+            if(modifiers.isShift and: swipeStart.notNil, {
                 shiftSwipeAction.value(zoomCalc.displayToModel(swipeStart), zoomCalc.displayToModel(x))
             });
             swipeStart = nil;
@@ -101,12 +101,12 @@ TimeRuler {
     mouseDownAction_ { arg f;
         view.mouseDownAction = { arg view, x, y, modifiers, buttonNumber, clickCount;
             lastx = x;
-            if(modifiers.isShift.not,{
+            if(modifiers.isShift.not, {
                 f.value( zoomCalc.displayToModel(x), modifiers, buttonNumber, clickCount )
-            },{
-                if(clickCount == 2,{
+            }, {
+                if(clickCount == 2, {
                     shiftSwipeAction.value(0, maxTime)
-                },{
+                }, {
                     swipeStart = x;
                 })
             })

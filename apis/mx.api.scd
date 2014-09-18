@@ -36,14 +36,35 @@ var get = { arg uuid;
   },
 
   setInletValue: { arg reply, uuid, id, key, value;
+    // mapped value
     var unit = getUnit.(uuid, id),
         inlet = getInlet.(unit, key);
     if(inlet.canSet, {
       inlet.set(value);
       reply.value(inlet.get());
-    },{
+    }, {
       Error("Cannot set value on inlet" + inlet).throw;
     });
+  },
+  setInletValues: { arg reply, uuid, id, keyValuesJSON;
+    // JSON, unmapped
+    var unit = getUnit.(uuid, id),
+        keyValues;
+    // keyValuesJSON is a Symbol ?
+    // possibly sc's OSC implementation doesn't do strings
+
+    // parseYAML is broken, float values are strings
+    keyValues = keyValuesJSON.asString.parseYAML;
+
+    keyValues.keysValuesDo({ arg key, value;
+      var inlet = unit.inlets.at(key);
+      if(inlet.canSet, {
+        inlet.set(inlet.spec.map(value.asFloat));
+      }, {
+        Error("Cannot set value on inlet" + inlet).throw;
+      });
+    });
+    reply.value();
   },
   getInletValue: { arg reply, uuid, id, key;
     var unit = getUnit.(uuid, id),

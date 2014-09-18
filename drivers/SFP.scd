@@ -1,10 +1,10 @@
 
 
-MxUnit.register('SFP',(
+MxUnit.register('SFP', (
 
     make: { arg sfp;
 
-        var inlets,outlets;
+        var inlets, outlets;
 
         inlets = [];
 
@@ -12,11 +12,11 @@ MxUnit.register('SFP',(
 
         ~source = sfp;
 
-        MxUnit(sfp,inlets,outlets);
+        MxUnit(sfp, inlets, outlets);
     },
     // should be able to inherit
     prepareToBundle: { arg agroup, bundle, private, bus;
-        ~source.prepareToBundle(agroup,bundle,private,bus);
+        ~source.prepareToBundle(agroup, bundle, private, bus);
         },
     spawnToBundle: { arg bundle;
         ~source.spawnToBundle(bundle)
@@ -27,7 +27,7 @@ MxUnit.register('SFP',(
     freeToBundle: { arg bundle;
         ~source.freeToBundle(bundle)
         },
-    moveToHead: { arg aGroup,bundle,currentGroup;
+    moveToHead: { arg aGroup, bundle, currentGroup;
         bundle.add( ~source.synth.moveToHeadMsg(aGroup) );
     },
 
@@ -36,10 +36,10 @@ MxUnit.register('SFP',(
         },
 
     play: { arg group, atTime, bus;
-        ~source.play(group,atTime,bus)
+        ~source.play(group, atTime, bus)
         },
-    stop: { arg atTime,andFreeResources = true;
-        ~source.stop(atTime,andFreeResources)
+    stop: { arg atTime, andFreeResources = true;
+        ~source.stop(atTime, andFreeResources)
         },
     isPlaying: {
         ~source.isPlaying
@@ -55,26 +55,26 @@ MxUnit.register('SFP',(
 
     gui: { arg layout;
         var l;
-        l = layout ?? {PageLayout(~name.value,Rect(0,0,500,600))};
+        l = layout ?? {PageLayout(~name.value, Rect(0, 0, 500, 600))};
         ~source.gui(l);
-        if(layout.isNil,{
+        if(layout.isNil, {
             l.resizeToFit
         })
     },
-    timeGui: { arg layout,bounds,maxTime;
+    timeGui: { arg layout, bounds, maxTime;
         ~fbeats = Tempo.secs2beats( ~source.timeDuration );
         ~fratio = ~fbeats / maxTime;// if > 1 maxTime should have been higher
         ~maxTime = maxTime;
 
-        ~view = SoundFileView(layout, Rect(0,0, bounds.width, 60));
+        ~view = SoundFileView(layout, Rect(0, 0, bounds.width, 60));
         ~view.soundfile = ~source.file;
         ~view.gridOn = false;
         ~view.timeCursorOn = false;
-        ~view.readWithTask(0,min(~source.numFrames,Tempo.beats2secs(maxTime) * ~source.sampleRate),64,{
+        ~view.readWithTask(0, min(~source.numFrames, Tempo.beats2secs(maxTime) * ~source.sampleRate), 64, {
             // zoom it
-        }.inEnvir,true);
+        }.inEnvir, true);
     },
-    zoomTime: { arg from,to;
+    zoomTime: { arg from, to;
         var ratio;
         ratio = (to-from) / ~maxTime;
         ~view.zoomToFrac( ratio );

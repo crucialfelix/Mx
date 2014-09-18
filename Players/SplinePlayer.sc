@@ -71,7 +71,7 @@ SplineFr {
     value { arg time;
         var t = (time * frameRate * interpolationDensity);
         var vals;
-        if(valueToSetOnTick.notNil,{
+        if(valueToSetOnTick.notNil, {
             this.setValue(valueToSetOnTick, time);
             vals = valueToSetOnTick;
             valueToSetOnTick = nil;
@@ -93,9 +93,9 @@ SplineFr {
         // assuming it was sorted when created
         var i, point;
         # i , point = this.findInsertIndex(time);
-        if(point.notNil,{
+        if(point.notNil, {
             point[dimension+1] = value
-        },{
+        }, {
             spline.createPoint([time, value], i+1)
         })
     }

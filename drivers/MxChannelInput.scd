@@ -11,24 +11,24 @@ outlets
 MxUnit.register('MxChannelInput',
 (
     make: { arg input;
-        var inlets,outlets;
+        var inlets, outlets;
 
         inlets  = [
-                MxInlet("in", 0, AudioSpec(input.numChannels), MxListensToBus({input.bus},{input.server},{input.group}) )
+                MxInlet("in", 0, AudioSpec(input.numChannels), MxListensToBus({input.bus}, {input.server}, {input.group}) )
             ];
 
         outlets = [
-                MxOutlet("out", 0, AudioSpec(input.numChannels), MxPlaysOnBus({input.bus},{input.server},{input.group}) )
+                MxOutlet("out", 0, AudioSpec(input.numChannels), MxPlaysOnBus({input.bus}, {input.server}, {input.group}) )
             ];
 
-        MxUnit(input,inlets,outlets);
+        MxUnit(input, inlets, outlets);
     },
     save: { [] },
     load: { MxChannelInput.new }
 
 
      /*,
-    draw: { arg pen,bounds,style;
-        ~source.draw(pen,bounds,style)
+    draw: { arg pen, bounds, style;
+        ~source.draw(pen, bounds, style)
     } */
 ));

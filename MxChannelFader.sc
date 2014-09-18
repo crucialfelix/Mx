@@ -21,7 +21,7 @@ MxChannelInput : AbstractPlayerProxy {
         var instr;
         instr = MxChannelInput.instr;
         busJack = MxIrJack(126).spec_(instr.specs.at(1));
-        source = Patch(instr,[ this.numChannels, busJack ])
+        source = Patch(instr, [ this.numChannels, busJack ])
     }
     prepareToBundle { arg agroup, bundle, private = false, argbus;
         super.prepareToBundle(agroup, bundle, private , argbus);
@@ -30,10 +30,10 @@ MxChannelInput : AbstractPlayerProxy {
     }
 
     *instr {
-        if(Instr.isDefined("MxChannelInput").not,{
+        if(Instr.isDefined("MxChannelInput").not, {
             Instr("MxChannelInput", { arg numChannels=2, bus;
                 In.ar(bus, numChannels)
-            },[
+            }, [
                 StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
                 ScalarSpec(0, 1028, 'linear', 1, 0, "Audio Bus")
             ], AudioSpec.new);
@@ -71,7 +71,7 @@ MxChannelFader : AbstractPlayerProxy {
         busJack = MxKrJack(126).spec_(ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"));
         dbJack = MxKrJack(db).spec_(ControlSpec(-1000, 24, 'db', 0.0, 0.0, \db));
 
-         source = Patch(MxChannelFader.channelInstr,[
+         source = Patch(MxChannelFader.channelInstr, [
                     numChannels,
                     busJack,
                     dbJack,
@@ -94,10 +94,10 @@ MxChannelFader : AbstractPlayerProxy {
     mute_ { arg boo;
         mute = boo;
         solo = false;
-        if(mute,{
+        if(mute, {
             dbJack.value = -300.0;
             dbJack.changed;
-        },{
+        }, {
             dbJack.value = db;
             dbJack.changed;
         })
@@ -124,7 +124,7 @@ MxChannelFader : AbstractPlayerProxy {
     draw { arg pen, bounds, style;
         pen.color = style['fontColor'];
         pen.font = style['font'];
-        if(mute,{
+        if(mute, {
             ^pen.stringCenteredIn("muted", bounds);
         });
         pen.stringCenteredIn(db.round(0.1).asString ++ "dB", bounds);
@@ -133,12 +133,12 @@ MxChannelFader : AbstractPlayerProxy {
     *channelInstr {
         // or create it on the fly so the on trigs can be sent
         // could also pass a responder function in
-        if(Instr.isDefined("MxChannelFader").not,{
-            Instr("MxChannelFader",{ arg numChannels=2, inBus=126,
+        if(Instr.isDefined("MxChannelFader").not, {
+            Instr("MxChannelFader", { arg numChannels=2, inBus=126,
                             db=0, limit=0.999, breakOnBadValues=1, breakOnDbOver=12, onBad;
                 var ok, threshold, c, k, in;
                 in = In.ar(inBus, numChannels);
-                if(breakOnBadValues > 0,{
+                if(breakOnBadValues > 0, {
                     ok = BinaryOpUGen('==', CheckBadValues.kr(Mono(in), 0, 2), 0);
                     (1.0 - ok).onTrig({
                         "bad value, muting".inform;
@@ -146,9 +146,9 @@ MxChannelFader : AbstractPlayerProxy {
                     });
                     in = in * ok;
                 });
-                if(breakOnDbOver > 0,{
+                if(breakOnDbOver > 0, {
                     threshold = breakOnDbOver.dbamp;
-                    c = max(0.0,(Amplitude.ar(Mono(in), 0.001, 0.001) - 2.0));
+                    c = max(0.0, (Amplitude.ar(Mono(in), 0.001, 0.001) - 2.0));
                     k = c > threshold;
                     A2K.kr(k).onTrig({
                         "amp > threshold, muting".inform;
@@ -157,16 +157,16 @@ MxChannelFader : AbstractPlayerProxy {
                     k = 1.0 - k;
                     in = in * k; //Lag.kr(k, 0.01);
                 });
-                if(limit > 0,{
+                if(limit > 0, {
                     Limiter.ar(
                         ( in ) * db.dbamp,
                         limit
-                    ) // .clip2(1.0,-1.0)
-                },{
+                    ) // .clip2(1.0, -1.0)
+                }, {
                     in = in * db.dbamp
                 });
                 NumChannels.ar(in, numChannels)
-            },[
+            }, [
                 StaticIntegerSpec(1, 127, 'linear', 1, 0, "Num Channels"),
                 ControlSpec(0, 127, 'linear', 1, 0, "Audio Bus"),
                 ControlSpec(-1000, 24, 'db', 0.0, 0.0, \db),

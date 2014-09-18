@@ -4,9 +4,9 @@
 
     *initClass {
         var busf;
-        if(\Insp.asClass.notNil,{
+        if(\Insp.asClass.notNil, {
             Class.initClassTree(ObjectInsp);
-            ObjectInsp.registerHook(MxCable,{ arg cable, layout;
+            ObjectInsp.registerHook(MxCable, { arg cable, layout;
 
                 InspButton.captioned("Out", cable.outlet.unit.source, layout.startRow);
                 InspButton(cable.outlet.adapter, layout);
@@ -19,11 +19,11 @@
                     var name = MxCable.strategies.findKeyForValue(cable.strategy);
                     InspButton.captioned(name.asString ? "MxCableStrategy", cable.strategy, layout);
                 } {
-                    SimpleLabel(layout,"NO STRATEGY FOR CABLE");
+                    SimpleLabel(layout, "NO STRATEGY FOR CABLE");
                 }
             });
 
-            ObjectInsp.registerHook(MxCableStrategy,{ arg strategy, layout;
+            ObjectInsp.registerHook(MxCableStrategy, { arg strategy, layout;
                 var name = MxCable.strategies.findKeyForValue(strategy);
                 SimpleLabel(layout, name.asString ? "Strategy was not registered");
                 //connectf sourceGui
@@ -36,27 +36,27 @@
                     try {
                         bus = pob.value;
                     };
-                    if(bus.notNil,{
-                        if(bus.rate == 'audio',{
+                    if(bus.notNil, {
+                        if(bus.rate == 'audio', {
                             listen = Patch({ In.ar( bus.index, bus.numChannels ) });
                             layout.startRow;
                             SimpleLabel( layout, bus.asString );
-                            ToggleButton( layout,"listen",{
+                            ToggleButton( layout, "listen", {
                                 listen.play
-                            },{
+                            }, {
                                 listen.stop
                             });
                         });
                         layout.startRow.flow({ |f|
                             var ann;
-                            SimpleLabel(f,"Annotations:");
+                            SimpleLabel(f, "Annotations:");
                             ann = BusPool.getAnnotations(bus);
 
-                            if(ann.notNil,{
+                            if(ann.notNil, {
                                 ann.keysValuesDo({ |client, name|
                                     f.startRow;
                                     Tile(client, f);
-                                    SimpleLabel(f,":"++name);
+                                    SimpleLabel(f, ":"++name);
                                 });
                             });
                         })
@@ -68,7 +68,7 @@
 
 
             /*
-            ObjectInsp.registerHook(MxCableStrategy,{ arg strategy, layout;
+            ObjectInsp.registerHook(MxCableStrategy, { arg strategy, layout;
 
                 ObjectInsp.sourceCodeGui
                 InspButton.captioned("connectf", cable.outlet.unit.source, layout.startRow);
@@ -81,7 +81,7 @@
                 try {
                     InspButton.captioned("Strategy", cable.strategy, layout);
                 } {
-                    SimpleLabel(layout,"NO STRATEGY FOR CABLE");
+                    SimpleLabel(layout, "NO STRATEGY FOR CABLE");
                 }
             })
             */

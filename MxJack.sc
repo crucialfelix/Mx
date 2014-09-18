@@ -3,10 +3,10 @@
 MxJack {
 
     *forSpec { arg spec, defArg;
-        if(defArg.isKindOf(MxJack),{
+        if(defArg.isKindOf(MxJack), {
             ^defArg
         });
-        if(spec.isKindOf(AudioSpec),{
+        if(spec.isKindOf(AudioSpec), {
             ^MxArJack.new.value_(defArg ? 127)
         });
         // EnvSpec
@@ -15,23 +15,23 @@ MxJack {
         // ScaleSpec
         // ArraySpec
         // StreamSpec
-        if(spec.isKindOf(StreamSpec),{
+        if(spec.isKindOf(StreamSpec), {
             ^MxStreamJack(defArg ? spec.default, spec)
         });
 
-        if(spec.isKindOf(TrigSpec),{
+        if(spec.isKindOf(TrigSpec), {
             ^MxTrJack(defArg ? spec.default, spec)
         });
-        if(spec.isKindOf(StaticSpec),{
+        if(spec.isKindOf(StaticSpec), {
             ^NumberEditor(defArg ? spec.default, spec)
         });
-        if(spec.isKindOf(NamedIntegersSpec),{
+        if(spec.isKindOf(NamedIntegersSpec), {
             ^spec.defaultControl(defArg)
         });
-        if(spec.isKindOf(NoLagControlSpec),{
+        if(spec.isKindOf(NoLagControlSpec), {
             ^MxKrJack(defArg ? spec.default, spec, nil)
         });
-        if(spec.isKindOf(ControlSpec),{
+        if(spec.isKindOf(ControlSpec), {
             ^MxKrJack(defArg ? spec.default, spec)
         });
         ^defArg
@@ -53,12 +53,12 @@ MxStreamJack : MxJack {
     }
     source_ { arg v;
         source = v;
-        if(v.notNil,{
+        if(v.notNil, {
             stream = v.asStream;
             firstVal = stream.next;
             lastVal = nil;
             isConnected = true;
-        },{
+        }, {
             // repeat last val till plugged into something new
             stream = lastVal.asStream;
             firstVal = stream.next;
@@ -75,14 +75,14 @@ MxStreamJack : MxJack {
     asStream { ^this }
     next { arg inval;
         var v;
-        if(firstVal.notNil,{ // stream is set
+        if(firstVal.notNil, { // stream is set
             v = firstVal;
             firstVal = nil;
             lastVal = v;
             this.changed;
             ^v
-        },{
-            if(stream.isNil,{
+        }, {
+            if(stream.isNil, {
                 ^this.value
             });
             lastVal = stream.next(inval);
@@ -142,7 +142,7 @@ MxControlJack : MxJack { // abstract
     }
     stopReadFromBusToBundle { arg bundle;
         patchOut.connectedTo.do { arg patchIn;
-            bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl),-1) );
+            bundle.add( patchIn.nodeControl.node.mapMsg(this.getNodeControlIndex(patchIn.nodeControl), -1) );
         };
         bundle.addFunction({ isConnected = false });
     }
@@ -186,9 +186,9 @@ MxKrJack : MxControlJack {
         // actually if its patched up to a kr on the server
         // then you don't want Lag
         // this assumes you are sending values from client
-        if(lag.notNil and: {spec.isKindOf(NoLagControlSpec).not},{
+        if(lag.notNil and: {spec.isKindOf(NoLagControlSpec).not}, {
             ^Lag.kr(control, lag)
-        },{
+        }, {
             ^control
         })
     }
@@ -212,9 +212,9 @@ MxArJack : MxControlJack {
     }
 
     bus_ { arg v;
-        if(v.isNumber,{
+        if(v.isNumber, {
             value = v;
-        },{
+        }, {
             value = v.index
         });
         this.changed;

@@ -45,9 +45,9 @@ MxCable {
     map { arg v;
         // map an input value coming from the outlet to the range needed for the inlet
         // or map a ugen
-        if(mapping.notNil,{
+        if(mapping.notNil, {
             ^mapping.value(v)
-        },{
+        }, {
             ^outlet.spec.mapToSpec(v, inlet.spec)
         })
     }
@@ -56,12 +56,12 @@ MxCable {
         strategies[ [outAdapterClassName, inAdapterClassName] ] = strategy;
     }
     *instr {
-        if(Instr.isDefined("MxCable.cableAr").not,{
-            ^Instr("MxCable.cableAr",{ arg inBus=126, outBus=126, inNumChannels=2, outNumChannels=2;
+        if(Instr.isDefined("MxCable.cableAr").not, {
+            ^Instr("MxCable.cableAr", { arg inBus=126, outBus=126, inNumChannels=2, outNumChannels=2;
                 Out.ar(outBus,
                     NumChannels.ar( In.ar(inBus, inNumChannels), outNumChannels )
                 )
-            },[
+            }, [
                 ControlSpec(0, 127),
                 ControlSpec(0, 127),
                 StaticIntegerSpec(1, 128),
@@ -79,9 +79,9 @@ MxCable {
                 bus = cable.outlet.adapter.value;
                 // no patchOut on jack
                 jack = cable.inlet.adapter.value;
-                if(bus.numChannels == jack.numChannels,{
+                if(bus.numChannels == jack.numChannels, {
                     jack.readFromBusToBundle(bus, bundle);
-                },{
+                }, {
                     // mono -> stereo audio requires a wire synth
                     ~wireBus = Bus.audio(bus.server, jack.numChannels);
 
@@ -92,14 +92,14 @@ MxCable {
                                                 jack.numChannels
                                              ], bundle);
 
-                    AbstractPlayer.annotate(~wireSynth, cable,"wireSynth");
+                    AbstractPlayer.annotate(~wireSynth, cable, "wireSynth");
                     jack.readFromBusToBundle(~wireBus, bundle);
                 });
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
-                if(~wireSynth.notNil,{
+                if(~wireSynth.notNil, {
                     bundle.add( ~wireSynth.freeMsg );
                     bundle.addFunction({
                         cable.state.removeAt('wireSynth');
@@ -108,13 +108,13 @@ MxCable {
                 });
                 jack.stopReadFromBusToBundle(bundle);
 
-            },{ arg cable;
+            }, { arg cable;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
-                if(jack.isKindOf(MxArJack),{
+                if(jack.isKindOf(MxArJack), {
                     jack.value = bus.index;
-                },{
+                }, {
                     // jack.value =
 
                 });
@@ -130,11 +130,11 @@ MxCable {
 
                 ~cableKr = Patch({ arg in;
                             cable.map(in)
-                        },[
+                        }, [
                             bus
                         ]);
                 ~cableGroup = Group.basicNew(cable.inlet.adapter.server);
-                AbstractPlayer.annotate(~cableGroup,"cableGroup" + cable.asString);
+                AbstractPlayer.annotate(~cableGroup, "cableGroup" + cable.asString);
                 bundle.add( ~cableGroup.addToHeadMsg(cable.inlet.adapter.group) );
 
                 ~cableKr.prepareToBundle(~cableGroup, bundle);
@@ -142,7 +142,7 @@ MxCable {
 
                 jack.readFromBusToBundle(~cableKr.bus, bundle);
 
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
@@ -153,7 +153,7 @@ MxCable {
                     ~cableGroup = nil;
                 });
                 jack.stopReadFromBusToBundle(bundle);
-            },{ arg cable;
+            }, { arg cable;
                 var bus, jack;
                 bus = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
@@ -181,12 +181,12 @@ MxCable {
                     group = cable.inlet.adapter.group ?? {cable.inlet.debug("no group")};
                     ~synth = Synth.basicNew(def.name, group.server);
                     AbstractPlayer.annotate(~synth, cable.asString+"synth");
-                    bundle.add( ~synth.addToHeadMsg(group,[\inBus, inbus.index, \outBus, outbus.index]) );
+                    bundle.add( ~synth.addToHeadMsg(group, [\inBus, inbus.index, \outBus, outbus.index]) );
                 }
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 var synth;
                 synth = cable.state.at('synth');
-                if(synth.notNil,{
+                if(synth.notNil, {
                     bundle.add( synth.freeMsg );
                     bundle.addFunction({
                         cable.state.removeAt('synth')
@@ -215,7 +215,7 @@ MxCable {
                     NotificationCenter.notify(cable.outlet, \didAction, [ val ])
                 };
                 cable.outlet.adapter.value(action);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     ~nr.remove;
                 }.inEnvir);
@@ -237,7 +237,7 @@ MxCable {
                     NotificationCenter.notify(cable.outlet, \didAction, [ val ])
                 };
                 cable.outlet.adapter.value(action);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     ~nr.remove;
                 }.inEnvir);
@@ -250,11 +250,11 @@ MxCable {
                 model = cable.outlet.adapter.value();
                 ina = cable.inlet.adapter.value();
                 bundle.addFunction({
-                    ~updater = Updater(model,{ arg sender, value;
+                    ~updater = Updater(model, { arg sender, value;
                         ina.value = cable.map(value);
                     });
                 }.inEnvir);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir)
@@ -267,15 +267,15 @@ MxCable {
                 model = cable.outlet.adapter.value();
                 ina = cable.inlet.adapter;
                 bundle.addFunction({
-                    ~updater = Updater(model,{ arg sender, value;
+                    ~updater = Updater(model, { arg sender, value;
                         ina.value(cable.map(value))
                     });
                 }.inEnvir);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir);
-            }/*,{ arg cable;
+            }/*, { arg cable;
                 cable.inlet.adapter.value( cable.map( cable.outlet.adapter.value().value ) )
             }*/)
         );
@@ -286,16 +286,16 @@ MxCable {
                 model = cable.outlet.adapter.value();
                 ina = cable.inlet.adapter;
                 bundle.addFunction({
-                    ~updater = Updater(model,{ arg sender, value;
+                    ~updater = Updater(model, { arg sender, value;
                         ina.value(cable.map(model))
                     });
                 }.inEnvir);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     cable.inlet.adapter.value( nil );
                     ~updater.remove
                 }.inEnvir);
-            },{ arg cable;
+            }, { arg cable;
                 cable.inlet.adapter.value( cable.map( cable.outlet.adapter.value() ) )
             })
         );
@@ -308,11 +308,11 @@ MxCable {
                     ina = cable.inlet.adapter;
                     ina.value(bus)
                 }.inEnvir);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     cable.inlet.adapter.value( nil );
                 }.inEnvir);
-            },{ arg cable;
+            }, { arg cable;
                 cable.inlet.adapter.value( cable.outlet.adapter.value() )
             })
         );
@@ -324,16 +324,16 @@ MxCable {
                 getValue = cable.outlet.adapter ? { arg val; val };
                 jack = cable.inlet.adapter.value();
                 bundle.addFunction({
-                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice),{ arg sender, value;
+                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice), { arg sender, value;
                         value = getValue.value(value);
                         jack.value = cable.map(value);
                     });
                 }.inEnvir);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir);
-            },{ arg cable;
+            }, { arg cable;
                 var model, jack, value, getValue;
                 getValue = cable.outlet.adapter ? { arg val; val };
                 value = getValue.value( cable.outlet.unit.handlers.at(\mxFrameRateDevice).lastValue );
@@ -350,16 +350,16 @@ MxCable {
                 getValue = cable.outlet.adapter ? { arg val; val };
                 ina = cable.inlet.adapter;
                 bundle.addFunction({
-                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice),{ arg sender, value;
+                    ~updater = Updater(cable.outlet.unit.handlers.at(\mxFrameRateDevice), { arg sender, value;
                         value = getValue.value(value);
                         ina.value(cable.map(value))
                     });
                 }.inEnvir);
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     ~updater.remove
                 }.inEnvir);
-            },{ arg cable;
+            }, { arg cable;
                 var model, ina, value, getValue;
                 getValue = cable.outlet.adapter ? { arg val; val };
                 value = getValue.value( cable.outlet.unit.handlers.at(\mxFrameRateDevice).lastValue );
@@ -370,19 +370,19 @@ MxCable {
         );
 
         // to HasMxStreamJack
-        this.register(\MxIsStream, \MxHasStreamJack,{
+        this.register(\MxIsStream, \MxHasStreamJack, {
             var connect;
             connect = { arg cable;
                 var streamable, jack, mapper, stream;
                 streamable = cable.outlet.adapter.value;
                 jack = cable.inlet.adapter.value;
-                if(cable.outlet.spec != jack.spec and: {cable.outlet.spec.notNil},{
+                if(cable.outlet.spec != jack.spec and: {cable.outlet.spec.notNil}, {
                     stream = streamable.asStream;
                     streamable = Pfunc({ arg inval;
                                     var v;
                                     v = stream.next(inval);
                                     cable.map(v)
-                                },{
+                                }, {
                                     stream.reset
                                 });
                 });
@@ -390,15 +390,15 @@ MxCable {
                 ~connected = true;
             };
             MxCableStrategy({ arg cable, bundle;
-                if(~connected.isNil,{
+                if(~connected.isNil, {
                     connect.value(cable)
                 })
-            },{ arg cable, bundle;
+            }, { arg cable, bundle;
                 bundle.addFunction({
                     cable.inlet.adapter.value.source = nil;
                     ~connected = false;
                 })
-            },{ arg cable;
+            }, { arg cable;
                 connect.value(cable);
             })
         }.value
@@ -420,7 +420,7 @@ MxCableStrategy {
             cable.state.use {
                 connectf.value(cable, bundle)
             }
-        },{ arg exc;
+        }, { arg exc;
             "".postln;
             "MxCableStrategy failed".error;
             cable.asString.postln;

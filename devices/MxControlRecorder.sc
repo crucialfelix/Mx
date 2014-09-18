@@ -80,7 +80,7 @@ MxControlRecorder {
         cc.add(key, ccnum);
         /* already active as soon as its created,
             does not wait for play */
-        cc.responder(key,{ arg val;
+        cc.responder(key, { arg val;
             this.ccEvent(key, val)
         });
     }
@@ -102,9 +102,9 @@ MxControlRecorderGui : ObjectGui {
             var ap, bp;
             ap = a.unit.point;
             bp = b.unit.point;
-            if(ap == bp,{
+            if(ap == bp, {
                 a.model.index <= b.model.index
-            },{
+            }, {
                 ap <= bp
             })
         });

@@ -39,10 +39,10 @@ SynthiX {
         ^super.newCopyArgs(outlets, inlets)
     }
     gui { arg parent, bounds;
-        if(parent.notNil,{
+        if(parent.notNil, {
             parent = parent.asFlowView(bounds);
             uv = UserView(parent, bounds ?? {parent.indentedRemaining});
-        },{
+        }, {
             bounds = bounds ?? {Rect(0, 0, 500, 500)};
             parent = Window("SynthiX", bounds).front;
             uv = UserView(parent, parent.bounds.moveTo(0, 0));
@@ -50,7 +50,7 @@ SynthiX {
         });
         uv.drawFunc = {this.draw};
         uv.clearOnRefresh = false;
-        uv.mouseDownAction = Message(this, \mouseDownAction,[]);
+        uv.mouseDownAction = Message(this, \mouseDownAction, []);
         pen = GUI.pen;
         on = Color.yellow;
         off = Color.black;
@@ -62,7 +62,7 @@ SynthiX {
         faint = Color.white;//Color(0.6, 0.6, 0.8, 0.7);
         background = Color.grey(181/255.0);
         this.update;
-        if(ins.size > 0,{
+        if(ins.size > 0, {
             ins[0].mx.addDependant(this);
         })
     }
@@ -77,7 +77,7 @@ SynthiX {
 
 
         gr = Rect(labelSize, 17, b.width - labelSize, b.height - 17);
-        if(gr != gridRect,{
+        if(gr != gridRect, {
             gridRect = gr;
             drawInlets = drawGrid = drawOutlets = true;
             height = max(gridRect.height / outs.size.asFloat, 0);
@@ -86,19 +86,19 @@ SynthiX {
 
         pen.font = font;
 
-        if(drawInlets,{
+        if(drawInlets, {
             "drawInlets".debug;
             this.drawInlets
         });
-        if(drawGrid,{
+        if(drawGrid, {
             "drawGrid".debug;
             this.drawGrid
         });
-        if(drawOutlets,{
+        if(drawOutlets, {
             "drawOutlets".debug;
             this.drawOutlets
         });
-        if(animator.notNil,{
+        if(animator.notNil, {
             pen.color = blue;
             pen.fillRect(Rect(0, 0, labelSize, height))
         })
@@ -114,7 +114,7 @@ SynthiX {
                 pen.stringInRect(in.name, r.moveBy(1, 1), font, black);
 
                 // mark value of inlet value
-                if(in.canGet,{
+                if(in.canGet, {
                     v = in.spec.unmap(in.get);
                     pen.color = blue;
                     r = r.moveBy( v * width, 0 );
@@ -125,7 +125,7 @@ SynthiX {
             curs = labelSize;
             ins.separate({ arg a, b; a.unit !== b.unit }).do { arg clump, i;
                 var r;
-                if(clump.size > 0,{
+                if(clump.size > 0, {
                     r = Rect( curs, 0, clump.size * width, 17 );
                     pen.stringCenteredIn(clump.first.unit.name, r, bigFont, faint);
                     pen.strokeColor = faint;
@@ -150,9 +150,9 @@ SynthiX {
                         var can, r;
                         r = Rect(0, 0, width, height).insetAll(0, 0, 1, 1);
                         can = out.unit !== in.unit;
-                        if(can,{
+                        if(can, {
                             pen.color = if(to.includes(in), on, off);
-                        },{
+                        }, {
                             pen.color = cant;
                         });
                         pen.fillRect(r);
@@ -177,7 +177,7 @@ SynthiX {
                     pen.color = out.spec.color;
                     pen.fillRect(r);
                     pen.stringInRect(out.name, r, font, black);
-                    if(out.canGet,{
+                    if(out.canGet, {
                         v = out.spec.unmap(out.get);
                         pen.color = blue;
                         r = r.moveBy( v * labelSize, 0 );
@@ -190,7 +190,7 @@ SynthiX {
         };
         outs.separate({ arg a, b; a.unit !== b.unit }).do { arg clump, i;
             var r;
-            if(clump.size > 0,{
+            if(clump.size > 0, {
                 r = Rect( 0, curs, labelSize, clump.size * height );
                 pen.stringCenteredIn(clump.first.unit.name, r, bigFont, faint);
                 pen.strokeColor = faint;
@@ -204,29 +204,29 @@ SynthiX {
         var p, col, row;
         var out, in, v;
         p = x@y;
-        if(gridRect.contains(p),{
+        if(gridRect.contains(p), {
             p = p - gridRect.origin;
             col = (p.x / width).asInteger;
             row = (p.y / height).asInteger;
             out = outs.at(row);
             in = ins.at(col);
-            if(in.notNil and: {out.unit !== in.unit},{
-                if(out.to.includes(in),{
+            if(in.notNil and: {out.unit !== in.unit}, {
+                if(out.to.includes(in), {
                     in.disconnect;
-                },{
+                }, {
                     out >> in;
                 });
                 this.refreshGrid;
             })
-        },{
+        }, {
             // mouse move actually
 
             // top or side ?
-            if(p.x < gridRect.left,{
-                if(p.y < gridRect.top,{
+            if(p.x < gridRect.left, {
+                if(p.y < gridRect.top, {
                     // top corner
-                    if(modifiers.isCtrl,{
-                        if(animator.isNil,{
+                    if(modifiers.isCtrl, {
+                        if(animator.isNil, {
                             animator = Routine({
                                             loop {
                                                 this.refresh;
@@ -234,29 +234,29 @@ SynthiX {
                                             }
                                         });
                             animator.play(AppClock);
-                        },{
+                        }, {
                             animator.stop;
                             animator = nil
                         })
                     });
                     this.refreshIOlets;
-                },{
+                }, {
                     row = ((p.y - gridRect.top) / height).asInteger;
-                    if(clickCount == 2,{
+                    if(clickCount == 2, {
                         outs.at(row).unit.gui
-                    },{
+                    }, {
                         this.refreshIOlets;
                     })
                 })
-            },{
-                if(p.y < gridRect.top,{
+            }, {
+                if(p.y < gridRect.top, {
                     col = ((p.x - gridRect.left) / width).asInteger;
                     in = ins.at(col);
-                    if(clickCount == 2,{
+                    if(clickCount == 2, {
                         in.unit.gui
-                    },{
-                        if(modifiers.isCtrl,{
-                            if(in.canSet,{
+                    }, {
+                        if(modifiers.isCtrl, {
+                            if(in.canSet, {
                                 v = (p.x - gridRect.left).excess(col * width) / width;
                                 in.set(v);
                                 {this.refreshIOlets}.defer(0.05);

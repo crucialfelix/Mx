@@ -14,13 +14,13 @@ MxMixerGui : ObjectGui {
         faders = Array.newClear(model.channels.size + 1);
         bounds = bounds ?? {parent.bounds};
         showScope = showScope and: {model.isPlaying and: {model.server.inProcess}};
-        if(showScope,{
+        if(showScope, {
             faderHeight = bounds.height - scopeSize - 4;
-        },{
+        }, {
             faderHeight = bounds.height
         });
 
-        if(showScope,{
+        if(showScope, {
             parent.startRow;
             parent.flow({ arg parent;
                 scope = Stethoscope(model.server, 2, model.master.fader.bus.index, bufsize: 4096 * 4 , zoom:1.0, rate:\audio, view:parent);
@@ -37,7 +37,7 @@ MxMixerGui : ObjectGui {
         parent.startRow;
         numChans = model.channels.size;
         chans = (model.channels ++ [model.master]);
-        if(\BusMeters.asClass.notNil,{
+        if(\BusMeters.asClass.notNil, {
             // else it doesnt have busses yet
             // could allocate on demand
             // or start them later, whenever model starts
@@ -56,20 +56,20 @@ MxMixerGui : ObjectGui {
             f.gui(parent, 40@faderHeight);
 
             // meter
-            if(meters.notNil,{
+            if(meters.notNil, {
                 parent.comp({ arg parent;
                     meters.makePeak(i, parent, Rect(0, 0, 28, GUI.skin.buttonHeight));
                     meters.makeBusMeter(i, parent, Rect(0, GUI.skin.buttonHeight+1, 30, faderHeight - GUI.skin.buttonHeight - 1));
                 }, Rect(0, 0, 30, faderHeight))
             });
             parent.flow({ arg parent;
-                if(scope.notNil,{
-                    ab = ActionButton(parent,"¤",{
+                if(scope.notNil, {
+                    ab = ActionButton(parent, "¤", {
                         scope.index = chan.fader.bus.index;
-                        if(freqScope.notNil,{
+                        if(freqScope.notNil, {
                             freqScope.inBus = chan.fader.bus.index;
                         });
-                        if(lastScope.notNil,{
+                        if(lastScope.notNil, {
                             lastScope.labelColor = Color.yellow;
                             lastScope.background = Color.black;
                             lastScope.refresh;
@@ -79,26 +79,26 @@ MxMixerGui : ObjectGui {
                         ab.refresh;
                         lastScope = ab;
                     });
-                    if(chan === model.master,{
+                    if(chan === model.master, {
                         ab.background = Color.red;
                         ab.labelColor = Color.black;
                         lastScope = ab;
-                    },{
+                    }, {
                         ab.background = Color.black;
                         ab.labelColor = Color.yellow;
                     })
                 });
-                if(chan !== model.master,{
+                if(chan !== model.master, {
                     parent.startRow;
-                    solos.put(i, ToggleButton(parent,"S",{ arg button, bool;
+                    solos.put(i, ToggleButton(parent, "S", { arg button, bool;
                                     model.solo(i, bool);
                                     model.changed('mixer', this);
                                     this.updateButtons
                                 }) );
                 });
                 parent.startRow;
-                mutes.put(i, ToggleButton(parent,"M",{ arg button, bool;
-                    if(chan === model.master,{ chan.fader.mute = bool }, {model.mute(i, bool); });
+                mutes.put(i, ToggleButton(parent, "M", { arg button, bool;
+                    if(chan === model.master, { chan.fader.mute = bool }, {model.mute(i, bool); });
                     model.changed('mixer', this);
                     this.updateButtons
                 }) );
@@ -107,29 +107,29 @@ MxMixerGui : ObjectGui {
         };
         this.updateButtons;
 
-        nr = NotificationCenter.register(model, \statusDidChange, this,{ arg status;
+        nr = NotificationCenter.register(model, \statusDidChange, this, { arg status;
             var chans;
-            if(model.isNil,{
+            if(model.isNil, {
                 "model was nil".warn;
                 this.remove // so annoying
-            },{
-                if(status == \isPlaying,{
-                    if(model.channels.size == numChans,{
+            }, {
+                if(status == \isPlaying, {
+                    if(model.channels.size == numChans, {
                         chans = (model.channels ++ [model.master]);
                         meters.busses = chans.collect({ arg chan; chan.fader.bus
                         });
                         // meters.start.debug("start meter")
                     }) // number of channels has changed,
                     // you have to regui or this has to dynamically add
-                },{
-                    if(status == \isStopped,{
+                }, {
+                    if(status == \isStopped, {
                         meters.stop
                     })
                 })
             })
         });
         parent.removeOnClose(nr);
-        if(model.isPlaying,{ meters.start })
+        if(model.isPlaying, { meters.start })
     }
     updateButtons {
         model.channels.do { arg chan, i;
@@ -146,8 +146,8 @@ MxMixerGui : ObjectGui {
         faders.last.value = model.master.fader.db
     }
     update { arg mx, what;
-        if(what == 'mixer',{
-            if(model.channels.size == numChans,{
+        if(what == 'mixer', {
+            if(model.channels.size == numChans, {
                 this.defer({
                     this.updateButtons;
                     this.updateFaders
@@ -158,7 +158,7 @@ MxMixerGui : ObjectGui {
     remove {
         meters.remove;
         NotificationCenter.removeForListener(this);
-        if(freqScope.notNil,{
+        if(freqScope.notNil, {
             freqScope.kill
         });
         super.remove;

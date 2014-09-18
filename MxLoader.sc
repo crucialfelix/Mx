@@ -46,7 +46,7 @@ MxLoader {
         register.keysValuesDo({ arg id, object;
             var data;
             data = f[object.class].value(object);
-            if(data.notNil,{
+            if(data.notNil, {
                 registerData.add( id -> data )
             })
         });
@@ -62,7 +62,7 @@ MxLoader {
         ^super.new.init(register)
     }
     log { arg ... msgs;
-        if(verbose,{
+        if(verbose, {
             msgs.debug
         })
     }
@@ -70,11 +70,11 @@ MxLoader {
         this.initForLoad(data[0]);
         this.log("SCAN IOLET NAMES *******************");
         registerData.keysValuesDo { arg id, data;
-            if(data[0] == MxInlet,{
+            if(data[0] == MxInlet, {
                 this.log("inlet:", id, data[1]);
                 allInlets[id] = data[1]
             });
-            if(data[0] == MxOutlet,{
+            if(data[0] == MxOutlet, {
                 this.log("outlet:", id, data[1]);
                 allOutlets[id] = data[1]
             });
@@ -82,8 +82,8 @@ MxLoader {
         this.log("READ DATA *******************");
         registerData.keysValuesDo { arg id, data;
             var object;
-            this.log("reading id", id,"data", data);
-            if(this.registery[id].isNil,{
+            this.log("reading id", id, "data", data);
+            if(this.registery[id].isNil, {
                 this.log("not in registery yet, getting id", id);
                 object = this.get(id);
                 this.log("found object", id, object);
@@ -94,7 +94,7 @@ MxLoader {
         cables = data[1].collect { arg data;
             var oid, iid, mapping, active;
             # oid, iid, mapping, active = data;
-            this.log("cable data","out", oid,"in", iid,"mapping", mapping,"active", active);
+            this.log("cable data", "out", oid, "in", iid, "mapping", mapping, "active", active);
             MxCable( this.get(oid), this.get(iid), mapping, active)
         }
     }
@@ -161,32 +161,32 @@ MxLoader {
         ioletIDs.do { arg id, i;
             var io, name;
             name = allIOlets[id];
-            if(name.notNil,{
+            if(name.notNil, {
                 savedIOlets[name] = id;
                 this.log("found iolet", name, id);
-            },{
+            }, {
                 // if no name, then wasn't saved MxInlet name.
                 // probably the old data format
                 // assume they are saved in correct order
                 io = unitIOlets[i];
-                if(io.notNil,{
+                if(io.notNil, {
                     savedIOlets[io.name] = id;
                     this.log("old data format, assuming in same order", io, id);
-                },{
-                    this.log("NO IOLET FOUND FOR index", i,"in", unitIOlets);
+                }, {
+                    this.log("NO IOLET FOUND FOR index", i, "in", unitIOlets);
                 })
             })
         };
         unitIOlets.do { arg io, i;
             var id;
-            //this.log("finding ioletID for", io, ioletIDs,"@", i,"=", ioletIDs[i] ? "NIL!!!!!!!!!!!");
+            //this.log("finding ioletID for", io, ioletIDs, "@", i, "=", ioletIDs[i] ? "NIL!!!!!!!!!!!");
             id = savedIOlets[io.name];
-            if(id.isNil,{
+            if(id.isNil, {
                 // new iolet
                 id = this.allocateNewID;
-                this.log("IOLET", io,"not found in saved data. allocating new ID for it", id);
-            },{
-                this.log("found", id, io.name,"for", io);
+                this.log("IOLET", io, "not found in saved data. allocating new ID for it", id);
+            }, {
+                this.log("found", id, io.name, "for", io);
             });
             this.register(io, id)
         };
@@ -197,10 +197,10 @@ MxLoader {
             this.log("get from registerData", id);
             klass = registerData[id][0];
             data = registerData[id].copyToEnd(1);
-            this.log("running load function:", klass, id, data,"...");
+            this.log("running load function:", klass, id, data, "...");
             obj = f[klass].value(id, data);
             this.log("got", klass, obj, data);
-            if(obj.notNil,{
+            if(obj.notNil, {
                 registery[id] = obj;
             });
             obj

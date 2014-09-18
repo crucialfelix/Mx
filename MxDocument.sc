@@ -17,13 +17,13 @@ MxDocument {
         ^super.newCopyArgs(path, content)
     }
     eval {
-        if(document.notNil,{
+        if(document.notNil, {
             ^document.text.compile.value()
         });
-        if(path.notNil,{
+        if(path.notNil, {
             ^Document.standardizePath(path).load
         });
-        if(content.notNil and: {content != ""},{
+        if(content.notNil and: {content != ""}, {
             ^content.compile.value()
         })
     }
@@ -37,9 +37,9 @@ MxDocument {
     }
     name {
         var p;
-        if(document.isNil,{
+        if(document.isNil, {
             p = this.path;
-            if(p.notNil,{
+            if(p.notNil, {
                 ^PathName(p).fileName
             });
             ^((content?"").copyRange(0, 10) ++ "...")
@@ -52,26 +52,26 @@ MxDocument {
     }
     storeArgs {
         var c, p = this.path;
-        if(p.isNil,{
+        if(p.isNil, {
             c = this.content
-        },{
+        }, {
             p = Document.abrevPath(p)
         });
         ^[p, c]
     }
 
     gui { arg parent, bounds;
-        if(document.notNil,{
+        if(document.notNil, {
             ^document.front
         });
-        if(path.notNil,{
+        if(path.notNil, {
             document = Document.open(Document.standardizePath(path), envir:currentEnvironment)
-        },{
+        }, {
             document = Document(string:content ? "", envir:currentEnvironment)
         });
         document.onClose = {
             path = document.path;
-            if(path.isNil,{
+            if(path.isNil, {
                 content = document.text
             });
             document = nil;

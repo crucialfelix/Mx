@@ -96,10 +96,10 @@ MxDrawerGui : ObjectGui {
         fg = Color(0.94029850746269, 0.96588486140725, 1.0);
         width = min(layout.bounds.width, 200);
         // view = userView ?? { UserView(layout, bounds ?? { Rect(0, 0, 100, 800) }) };
-        ActionButton(layout,"..",{
+        ActionButton(layout, "..", {
             this.drillUp
         });
-        searchBox = TextField(layout,(width-28)@17);
+        searchBox = TextField(layout, (width-28)@17);
         searchBox.string = "";
         searchBox.action = {
             this.search(searchBox.value)
@@ -115,10 +115,10 @@ MxDrawerGui : ObjectGui {
         action = {
             var item;
                 item = items[lv.value];
-                if(item.isKindOf(MxDrawerItemGroup).not,{
+                if(item.isKindOf(MxDrawerItemGroup).not, {
                     item.title.inform("Loading");
                     item.make(lv.value, model.onSelect)
-                },{
+                }, {
                     this.drillDown(item);
                 })
         };
@@ -133,9 +133,9 @@ MxDrawerGui : ObjectGui {
         lv.beginDragAction = {
             var key, item;
             item = items[lv.value];
-            if(item.isKindOf(MxDrawerItemGroup).not,{
+            if(item.isKindOf(MxDrawerItemGroup).not, {
                 item = item.make(lv.value);
-            },{
+            }, {
                 item = nil
             });
             // should use a memento so that it can load asynch but you can already start dragging
@@ -151,9 +151,9 @@ MxDrawerGui : ObjectGui {
         var item;
         itemGroup = currentItemGroup = itemGroup ?? {
                 item = items[lv.value];
-                 if(item.isKindOf(MxDrawerItemGroup),{
+                 if(item.isKindOf(MxDrawerItemGroup), {
                   item;
-                 },{
+                 }, {
                      ^nil
                  })
         };
@@ -169,9 +169,9 @@ MxDrawerGui : ObjectGui {
         items = keys.collect { arg k;
             var it;
             it = MxDrawer.registery[k];
-            if(it.isKindOf(MxDrawerItemGroup),{
+            if(it.isKindOf(MxDrawerItemGroup), {
                 labels = labels.add( "*" ++ k ++ "*" )
-            },{
+            }, {
                 labels = labels.add( k.asString )
             });
             it
@@ -181,9 +181,9 @@ MxDrawerGui : ObjectGui {
         this.prSetColors;
     }
     prSetColors {
-        if(GUI.scheme.id == 'qt',{
+        if(GUI.scheme.id == 'qt', {
             lv.colors = bg ! items.size;
-        },{
+        }, {
             lv.background = bg;
         });
     }
@@ -197,9 +197,9 @@ MxDrawerGui : ObjectGui {
         searchBox.focus
     }
     search { arg q;
-        if(currentItemGroup.isNil,{
+        if(currentItemGroup.isNil, {
             this.drillUp
-        },{
+        }, {
             this.drillDown(currentItemGroup)
         });
         items = items.select { arg item; item.title.containsi(q) };

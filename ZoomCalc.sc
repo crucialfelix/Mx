@@ -22,7 +22,7 @@ ZoomCalc {
         var clipped, v, u;
         v = value.clip(*zoomedRange);
         clipped = v != value;
-        if(clipped,{ ^nil });
+        if(clipped, { ^nil });
         u = zoomedSpec.unmap(v);
         ^displaySpec.map(u)
     }

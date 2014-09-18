@@ -95,7 +95,7 @@ MxQuery : AbsApp {
         ^this.at(0)
     }
     asArray {
-        ^Array.fill(this.size,{ arg i; this.at(i) })
+        ^Array.fill(this.size, { arg i; this.at(i) })
     }
     // includes
     // every

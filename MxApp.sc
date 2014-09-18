@@ -15,7 +15,7 @@ AbsApp {
     source { ^model }
     dereference { ^this.source }
     checkThat { arg that;
-        if(that.isKindOf(AbsApp).not,{ (this.asString + "cannot >> to" + that).error });
+        if(that.isKindOf(AbsApp).not, { (this.asString + "cannot >> to" + that).error });
     }
 }
 
@@ -70,22 +70,22 @@ MxApp : AbsApp {
         var chan;
         chan = this.prFind( model.add(*sources) );
         this.commit;
-        if(sources.size == 1,{
+        if(sources.size == 1, {
             ^chan.units.first
-        },{
+        }, {
             ^chan
         })
     }
 
     play { arg then, atTime;
-        if(model.isPlaying.not,{
-            if(then.notNil,{ model.onPlay(then) });
+        if(model.isPlaying.not, {
+            if(then.notNil, { model.onPlay(then) });
             model.play(atTime: atTime);
         }, then)
     }
     stop { arg then, atTime;
-        if(model.isPlaying,{
-            if(then.notNil,{ model.onFree(then) });
+        if(model.isPlaying, {
+            if(then.notNil, { model.onFree(then) });
             model.free(atTime: atTime);
         }, then)
     }
@@ -102,9 +102,9 @@ MxApp : AbsApp {
         // detect and front
         //var open;
         //open = model.dependants.detect(_.isKindOf(MxGui));
-        //if(open.notNil and: { open.isClosed.not },{
+        //if(open.notNil and: { open.isClosed.not }, {
         //    open.front
-        //},{
+        //}, {
             model.gui(parent, bounds);
         //})
     }
@@ -120,7 +120,7 @@ MxApp : AbsApp {
         ^result
     }
     commit {
-        if(transactionCount == 0,{
+        if(transactionCount == 0, {
             this.mx.update;
             this.mx.changed('grid')
         })
@@ -141,9 +141,9 @@ MxApp : AbsApp {
         }
     }
     printOn { arg stream;
-        if(model.name.notNil,{
+        if(model.name.notNil, {
             stream << model
-        },{
+        }, {
             stream << "an MxApp"
         })
     }
@@ -195,17 +195,17 @@ MxChannelApp : AbsApp {
         ci = this.channelNumber;
         apps = sources.collect { arg source, i;
             var unit;
-            if(source.notNil,{
+            if(source.notNil, {
                 unit = this.mx.put( ci, start + i, source );
                 mxapp.prFind(unit)
-            },{
+            }, {
                 nil
             })
         };
         mxapp.commit;
-        if(apps.size == 1,{
+        if(apps.size == 1, {
             ^apps.first
-        },{
+        }, {
             ^apps
         })
     }
@@ -325,17 +325,17 @@ MxUnitApp : AbsApp {
         p = this.point;
         ^mxapp.transaction({
             var results;
-            results = Array.fill(num,{ arg i;
+            results = Array.fill(num, { arg i;
                 bp = Point(p.x, p.y+(i+1));
                 below = this.mx.at(bp.x, bp.y);
-                    if(below.notNil,{
+                    if(below.notNil, {
                         this.channel.insertAt(bp, nil);
                     });
                     this.copy(bp);
                 });
-            if(num == 1,{
+            if(num == 1, {
                 results.first
-            },{
+            }, {
                 results
             })
         })
@@ -362,14 +362,14 @@ MxUnitApp : AbsApp {
             new = mxapp.put(p, source);
             insFrom.do { arg outs, i;
                 outs.do { arg out;
-                    if(new.i.size > i,{
+                    if(new.i.size > i, {
                         out >> new.i[i]
                     })
                 }
             };
             outsTo.do { arg ins, i;
                 ins.do { arg in;
-                    if(new.o.size > i,{
+                    if(new.o.size > i, {
                         new.o[i] >> in
                     })
                 }
@@ -486,33 +486,33 @@ MxIOletsApp : AbsApp {
     }
     disconnect {
         model.do { arg io;
-            if(io.class === MxOutlet,{
+            if(io.class === MxOutlet, {
                 this.mx.disconnectOutlet(io);
-            },{
+            }, {
                 this.mx.disconnectInlet(io);
             })
         };
         mxapp.commit;
     }
     prFindIOlet { arg i, warn=false;
-        if(i.isNumber,{
-            if(i >= model.size,{
-                if(warn,{
+        if(i.isNumber, {
+            if(i >= model.size, {
+                if(warn, {
                     ("IOlet index out of range:"+ i.asCompileString + this).warn;
                 });
                 ^nil
-            },{
+            }, {
                 ^mxapp.prFind(model.at(i))
             })
-        },{
+        }, {
             i = i.asSymbol;
             model.do { arg inl;
-                if(inl.name == i,{
+                if(inl.name == i, {
                     ^mxapp.prFind(inl)
                 })
             }
         });
-        if(warn,{
+        if(warn, {
             ("IOlet index not found:"+ i.asCompileString + "in:" + this).warn;
         });
         ^nil
@@ -575,16 +575,16 @@ MxOutletApp : AbsApp {
         /*
         could connect to fader of channel,
         or take connect to channel as meaning connect to top of channel strip
-        if(inlet.isKindOf(MxChannelApp),{
+        if(inlet.isKindOf(MxChannelApp), {
             inlet = inlet.fader
         }); */
         //this.checkThat(inlet);
-        if(inlet.isKindOf(MxInletApp).not,{
+        if(inlet.isKindOf(MxInletApp).not, {
             //[model, inlet, inlet.model].insp("connect these");
             // will support this later: connect to unit by finding first usable inlet
             Error("" + this + "cannot >> to" + inlet).throw;
         });
-        if(inlet.isKindOf(MxQuery),{
+        if(inlet.isKindOf(MxQuery), {
             mxapp.transaction {
                 inlet.do { arg in;
                     this >> in
@@ -630,9 +630,9 @@ MxOutletApp : AbsApp {
     get { ^model.get }
 
     printOn { arg stream;
-        if(model.unit.isNil,{
+        if(model.unit.isNil, {
             stream << "Nil unit::";
-        },{
+        }, {
             stream << mxapp.prFind(model.unit) << "::";
         });
         model.printOn(stream)
