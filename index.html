@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Mx by crucialfelix</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Mx</h1>
+        <p>A scriptable mixer, data patching matrix and timeline for SuperCollider</p>
+
+        <p class="view"><a href="https://github.com/crucialfelix/Mx">View the Project on GitHub <small>crucialfelix/Mx</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/crucialfelix/Mx/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/crucialfelix/Mx/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/crucialfelix/Mx">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="mx" class="anchor" href="#mx"><span class="octicon octicon-link"></span></a>Mx</h1>
+
+<p>Mx is a patching system for SuperCollider.  It uses an adapter/driver system where object descriptions can be written that specify the inlets and outlets of an object, how it can be connected to, stopped, started and any extra features like guis, timeline aware guis, relocating.</p>
+
+<p>This allows objects of many different types to connect and interact with each other without needing to participate in a common API.</p>
+
+<h1>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h1>
+
+<p>Matrix patchbay gui with draggable cables, drawer, large library of Instr functions.
+Timeline view - supports Splines and Soundfiles so far
+Mixer - basic solid mixer with scope, meters
+Scripting API
+Connect objects with code while you hear and see the results on the gui
+MxQuery for filtering objects and iolets and patching, copying, moving in bulk</p>
+
+<h1>
+<a name="supported-objects-so-far" class="anchor" href="#supported-objects-so-far"><span class="octicon octicon-link"></span></a>Supported objects so far</h1>
+
+<p>Bus - jack anything into the mixer
+Document - run any code
+Instr - patch anything through a large library of instr
+SplineFr (frame rate splines)
+MultiSplineFr (multi dim splines)
+SFP - sound file player [ note that your preferred sound file player can be adapted to work here too]
+CCResponder
+CCBank - bank of cc
+NoteOnBank - bank of midi notes
+Sliders</p>
+
+<p>... more to come</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/crucialfelix">crucialfelix</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-154147-9");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
