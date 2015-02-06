@@ -2,7 +2,7 @@
 var cs;
 cs = ControlSpec(0, 127, \lin, 1);
 
-MxUnit.register('CCBank', // cruciallib
+MxUnit.register('CCBank', // crucial-library
 (
     make: { arg bank;
         var outlets;

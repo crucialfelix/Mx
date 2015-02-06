@@ -1,5 +1,5 @@
 
-// cruciallib - sends midi clock and song position pointer
+// crucial-library - sends midi clock and song position pointer
 // x.add( MIDIClockOut("IAC Driver", "IAC Bus 1") )
 
 MxUnit.register('MIDIClockOut',
